@@ -1,0 +1,26 @@
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python (sample scripts may appear)
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Output directories
+output/
+reports/
+*.log
+
+# Temporary files
+*.tmp
+*.bak
