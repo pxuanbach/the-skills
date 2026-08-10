@@ -54,13 +54,13 @@ The page snapshot returned by `browser_navigate` is usually enough — you don't
 
 ## 5. Tool Availability Reality Check
 
-The Hermes tool list varies by profile/version. The following are **commonly available but should always be verified at the top of a research session** by checking the function descriptions in the system prompt:
+The agent tool list varies by framework/version/profile. The following tools are **commonly available across agentic environments** but should always be verified at the top of a research session by checking the function descriptions in the system prompt:
 
 - `browser_navigate`, `browser_snapshot`, `browser_click`, `browser_type`, `browser_console`, `browser_get_images`, `browser_vision` — web interaction
 - `delegate_task` — parallel subagents
 - `terminal` — `curl`, `python3`, `uv`, `bash` (any standard CLI tool)
 - `read_file`, `write_file`, `patch`, `search_files` — local file ops
-- `execute_code` — Python sandbox with hermes_tools
+- `execute_code` — Python sandbox (sometimes exposes helpers like `hermes_tools` for file/terminal operations from inside the sandbox)
 - `skill_view`, `skills_list` — skill loading
 - `clarify`, `todo` — interactive
 
@@ -83,7 +83,7 @@ Direct `curl https://api.github.com/repos/<owner>/<repo>` returns **404** for so
 - Works for some repos (xlrd at `python-excel/xlrd`, pandas, pyexcel) but not others
 
 **Workaround 1 — GitHub Search API (most reliable):**
-Write a small helper script to disk and run it — avoid inline `-c` flag scripts which get `pending_approval` repeatedly in some Hermes setups:
+Write a small helper script to disk and run it — avoid inline `-c` flag scripts which get `pending_approval` repeatedly in some agentic environments:
 
 ```python
 import urllib.request, json, ssl
@@ -114,7 +114,7 @@ The browser tool sometimes succeeds where curl fails due to different IP routing
 - `pyxlsb`: repo moved/renamed — `willtrnr/pyxlsb` (96 stars) is the active one, not `pyutils/pyxlsb`
 - `pandas-excel`: does not exist as a standalone package — pandas' Excel I/O is built into pandas itself with openpyxl/xlrd/pyxlsb engines
 
-**`python3 -c` inline scripts are denied:** Inline `-c` flag scripts get `pending_approval` repeatedly in some Hermes setups. **Always write scripts to a file** (`write_file`) then run with `python3 script.py`) instead of inline `-c "..."` strings.
+**`python3 -c` inline scripts are denied in some agents:** Inline `-c` flag scripts get `pending_approval` repeatedly in some agentic environments. **Always write scripts to a file** (`write_file`) then run with `python3 script.py`) instead of inline `-c "..."` strings.
 
 ### 7a. GitHub Org/Repo Discovery — Non-Obvious Org Names
 

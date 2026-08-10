@@ -26,10 +26,14 @@ arXiv landing URLs (`/abs/<id>`) redirect to `/pdf/<id>` automatically. Use the 
 
 ### 2. Extract text with PyMuPDF
 
-On Windows Hermes, the default `python` is the Hermes venv (no pip). Install PyMuPDF into it:
+In many agentic environments, the default `python` points to a venv without `pip`. Install PyMuPDF into the agent's venv explicitly:
 
 ```bash
-uv pip install pymupdf --python "C:/Users/<user>/AppData/Local/hermes/hermes-agent/venv/Scripts/python.exe"
+# Windows — replace with your agent's actual venv path
+uv pip install pymupdf --python "C:/Users/<user>/AppData/Local/<agent>/<agent>/venv/Scripts/python.exe"
+
+# Linux/macOS
+uv pip install pymupdf --python "$HOME/.local/share/<agent>/venv/bin/python"
 ```
 
 Write extraction script to disk (NOT inline `-c` — terminal blocks those):

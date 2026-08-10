@@ -63,7 +63,7 @@ Main topic: "LLaMA fine-tuning methods"
 
 ### Phase 2 — Information Gathering
 
-**Tools actually available** (verified against the active Hermes tool list): `browser_navigate` / `browser_snapshot` / `browser_console` / `browser_get_images`, `delegate_task`, `terminal` (with `curl`/`python3`/`uv`), `read_file`, `search_files`, `execute_code`, `skill_view`, `browser_vision`. **There is no `web_search` tool** — earlier versions of this skill referenced one; do not call it.
+**Tools commonly available across agentic environments** (verify against the active tool list at session start — names vary by agent): `browser_navigate` / `browser_snapshot` / `browser_console` / `browser_get_images`, `delegate_task`, `terminal` (with `curl` / `python3` / `uv`), `read_file`, `search_files`, `execute_code`, `skill_view`, `browser_vision`. **There is no `web_search` tool** in most agentic environments — earlier versions of this skill referenced one; do not call it. Use delegate_task / browser_navigate / curl instead.
 
 Run searches and data collection in parallel for all sub-questions. Three patterns that work well:
 
@@ -102,14 +102,14 @@ curl -s "http://export.arxiv.org/api/query?search_query=ti:llama+AND+ti:fine-tun
 skill_view(name="arxiv")
 ```
 
-**⚠️ Pitfall — `web_search` tool does not exist:** Earlier skill versions referenced `web_search`. It is not in the Hermes tool list. Calling it produces an error. Use Pattern A/B/C above instead.
+**⚠️ Pitfall — `web_search` tool rarely exists in agentic environments:** Earlier skill versions referenced `web_search`. It is not available in most agentic tool lists. Calling it produces an error. Use Pattern A/B/C above instead.
 
-**⚠️ Pitfall — DuckDuckGo CAPTCHA:** `browser_navigate("https://duckduckgo.com/?q=...")` returns a CAPTCHA page in Hermes (bot-detection). The page snapshot will say "Unfortunately, bots use DuckDuckGo too." Workarounds:
+**⚠️ Pitfall — DuckDuckGo CAPTCHA:** `browser_navigate("https://duckduckgo.com/?q=...")` returns a CAPTCHA page in many browser-based agents (bot-detection). The page snapshot will say "Unfortunately, bots use DuckDuckGo too." Workarounds:
 - Go straight to primary sources (GitHub, PyPI, official docs) — usually faster and more accurate anyway.
 - Use the Bing or Google search engines if you must use a search box.
 - Use `terminal curl` against DuckDuckGo's HTML endpoint (`https://html.duckduckgo.com/html/?q=...`) — less aggressive bot detection.
 
-**⚠️ Pitfall — arXiv search scope:** Direct `curl` to `export.arxiv.org/api/query` can timeout in network-restricted environments (e.g., inside Hermes sandbox). Workaround:
+**⚠️ Pitfall — arXiv search scope:** Direct `curl` to `export.arxiv.org/api/query` can timeout in network-restricted environments (e.g., inside sandboxes). Workaround:
 - Use Semantic Scholar API (`api.semanticscholar.org`) first — JSON response, faster, usually unblocked.
 - Use the `scripts/search_arxiv.py` helper if the arxiv skill loaded it.
 - If both fail, dispatch a `delegate_task` with goal="Find papers on {topic} via arxiv/Semantic Scholar".
@@ -146,30 +146,36 @@ import urllib.request, json
 
 This workflow completed in ~10 tool calls for a 42-page paper; document-extraction approaches (PDF→text→grep→read slices) are dramatically faster than reading PDFs via `browser_navigate`.
 
-**PDF extraction workflow (PyMuPDF on Windows Hermes):**
+**PDF extraction workflow (PyMuPDF — venv setup):**
+
+The pitfalls here apply to any agent whose default `python` points to a venv without `pip` (a common pattern). The exact path below is illustrative; on Windows it's typically `C:\Users\<user>\AppData\Local\<agent>\...\venv\Scripts\python.exe`. On macOS/Linux it's usually `~/.local/share/<agent>/venv/bin/python`.
+
 ```
-# 1. Default `python` on Hermes desktop app points to Hermes venv (no pip).
-#    `python3` may point to a separate system Python — `import fitz` will fail on whichever doesn't have pymupdf.
-# 2. Install pymupdf INTO the Hermes venv explicitly:
-uv pip install pymupdf --python "C:/Users/<user>/AppData/Local/hermes/hermes-agent/venv/Scripts/python.exe"
-#    (Plain `uv pip install pymupdf --system` installs into a different Python.)
+# 1. The default `python` may point to a venv without pip — `python3` may
+#    point to a separate system Python. `import fitz` will fail on whichever
+#    doesn't have pymupdf installed.
+# 2. Install pymupdf INTO the agent's venv explicitly. Example path:
+uv pip install pymupdf --python "<agent-venv>/Scripts/python.exe"
+#    (Plain `uv pip install pymupdf --system` installs into a different Python
+#    that the terminal may not invoke by default — confusing when `import fitz`
+#    then fails.)
 # 3. Write extraction script to disk (NOT inline `-c` — terminal blocks those):
-# write_file → C:/Users/<user>/extract.py with fitz.open(...).get_text()
-# 4. terminal → python C:/Users/<user>/extract.py
+# write_file → extract.py with fitz.open(...).get_text()
+# 4. terminal → python extract.py
 ```
 
-**⚠️ Pitfall — Subagent output files land in user's home directory:** Background `delegate_task` subagents write files to `C:\Users\<user>\` (the user's home directory), NOT the active workspace. After subagents complete, ALWAYS check for output files in `C:\Users\<user>\` and move them to the active workspace (`D:\Documents\` or wherever `os.getcwd()` points). Do not assume files written inside a subagent's `write_file` call will appear in the workspace.
+**⚠️ Pitfall — Subagent output files land in user's home directory:** Background `delegate_task` subagents sometimes write files to the user's home directory (`C:\Users\<user>\` on Windows, `~` on Linux/macOS), NOT the active workspace. After subagents complete, ALWAYS check for output files in the home directory and move them to the active workspace (wherever `os.getcwd()` points). Do not assume files written inside a subagent's `write_file` call will appear in the workspace.
 
 **⚠️ Pitfall — Subagent results arrive as conversation messages, not via `process()`:** After dispatching `delegate_task` with background subagents, do NOT call `process(action='poll')` on the delegation IDs — they return `"not_found"`. Subagent results re-enter the conversation as new assistant messages when each subagent finishes. Simply continue working; the results will arrive asynchronously. Only use `process()` for processes started with `terminal(background=true)`.
 
 **⚠️ Pitfall — `search_files` fails on some Windows paths:** `search_files` (ripgrep) intermittently fails with "The system cannot find the path specified" on POSIX-style paths like `C:/Users/<user>/file.txt` when the path contains spaces or when called with `\\` separators. **Fallback: use `terminal grep -n "<pattern>" <file>`** — it's reliable on the same Windows MSYS bash environment. Example:
 ```
-cd "C:/Users/<user>/hermes_research" && grep -n "Appendix L\|Patient agent" paper.txt | head -20
+cd "C:/Users/<user>/research_workspace" && grep -n "Appendix L\|Patient agent" paper.txt | head -20
 ```
 
 **⚠️ Pitfall — `search_files` for directory discovery returns 0 silently on Windows:** Specifically when using `target="files"` (file search) with an absolute path like `path="E:/Documents/..."`, `search_files` can return `total_count: 0` even when the folder is populated. This is a different failure mode from the grep path issue above — `terminal ls "<path>"` (POSIX bash form) reliably returns the file list. Rule: for any "what's in this folder?" question on Windows, default to `terminal ls` first; only fall back to `search_files` if you specifically need ripgrep's filtering.
 
-**⚠️ Pitfall — Hermes venv Python vs system Python on Windows:** The `python` on PATH inside `terminal` is `C:\Users\<user>\AppData\Local\hermes\hermes-agent\venv\Scripts\python.exe`. It has NO `pip` (`python -m pip install ...` fails with "No module named pip"). Use `uv pip install <pkg> --python <hermes-venv-exe>` to install. `uv pip install <pkg> --system` installs into a DIFFERENT Python that `terminal` does NOT invoke by default — confusing when `import fitz` then fails under `terminal python`.
+**⚠️ Pitfall — agent venv Python vs system Python (common on Windows):** When an agent's `terminal` runs inside an app-bundled venv, the default `python` on PATH is the venv's Python — it has NO `pip` (`python -m pip install ...` fails with "No module named pip"). Use `uv pip install <pkg> --python <agent-venv-exe>` to install into the correct interpreter. `uv pip install <pkg> --system` installs into a DIFFERENT Python that `terminal` does NOT invoke by default — confusing when `import fitz` then fails under `terminal python`. The exact venv path is agent-specific; check the agent's installation directory on Windows.
 
 **For software / library comparisons** (use Pattern A + Pattern B from above):
 - Dispatch `delegate_task` per library in parallel — ask for stars, last release, license, features, limitations.
@@ -259,7 +265,7 @@ Gaps identified, unresolved debates, promising directions.
 
 ---
 
-*Report generated by Hermes Research Workflow — {date}*
+*Report generated by the research workflow skill — {date}*
 - `Finding(text, citation_indices)` — add via `findings.append()`
 
 **The script is a TEMPLATE** — the agent must populate these structures via actual tool calls, then call `generate_report()` to produce output. Do not treat the placeholder output as real research.
@@ -422,7 +428,7 @@ Requirements:
 - **Vietnamese input:** Translate queries to English for search. Preserve original input verbatim in report header (`**Query:**`). Translate sub-questions to English for API calls. If topic contains Vietnamese script (regex `\p{InVietnamese}`), trigger this automatically — do not ask.
 - **Report language for Vietnamese users:** Default to writing the report body in **English** unless the user explicitly asks for Vietnamese — paper citations, technical terms, and arXiv section references are universally in English. Translate only a short TL;DR / executive summary if the user's query was in Vietnamese and they might prefer a recap in their language. Do NOT translate the full body — fidelity to source matters more than language matching for research reports.
 - **No results:** If a search returns nothing, try alternative phrasing or broaden the query.
-- **Use Mermaid diagrams for lifecycle/process flows:** Inside markdown reports, Mermaid `flowchart TD` blocks render natively in the Hermes chat surface. Use them for state machines, agent interaction loops, or pipeline diagrams — far more readable than ASCII art and the user can pan/zoom. Example:
+- **Use Mermaid diagrams for lifecycle/process flows:** Inside markdown reports, Mermaid `flowchart TD` blocks render natively in most chat surfaces that support GitHub-flavored Markdown. Use them for state machines, agent interaction loops, or pipeline diagrams — far more readable than ASCII art and the user can pan/zoom. Example:
   ```
   ```mermaid
   flowchart TD

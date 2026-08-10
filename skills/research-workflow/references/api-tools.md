@@ -29,7 +29,7 @@ curl -s "https://export.arxiv.org/api/query?..." | grep -E "<title>|<summary>|<p
 
 **Pitfall:** The `scripts/research_report.py` path in this doc is a relative reference that may be stale. The actual script lives at:
 ```
-~/AppData/Local/hermes/profiles/researcher/scripts/research_report.py
+~/.local/share/<agent>/profiles/<profile>/scripts/research_report.py
 ```
 Use the full absolute path or invoke directly.
 
@@ -65,7 +65,7 @@ curl -s "https://api.semanticscholar.org/graph/v1/paper/arXiv:2402.03300/referen
 
 ## Web Search
 
-**`web_search` tool does NOT exist in Hermes.** Do not call it — it will error.
+**`web_search` tool does NOT exist in most agentic environments.** Do not call it — it will error. If your agent exposes it (some do), prefer the alternatives below for consistency.
 
 **Instead use:**
 1. **`delegate_task`** — dispatch concurrent subagents for multi-source queries
@@ -84,12 +84,12 @@ browser_navigate("https://www.bing.com/search?q=React+vs+Vue+Svelte+2024")
 
 ## Script (report generator)
 
-**Location:** `~/AppData/Local/hermes/profiles/researcher/scripts/research_report.py`
+**Location:** `~/.local/share/<agent>/profiles/<profile>/scripts/research_report.py`
 
 **Usage:**
 ```
-python3 ~/AppData/Local/hermes/profiles/researcher/scripts/research_report.py "Your topic" --type compare --libraries React Vue Svelte
-python3 ~/AppData/Local/hermes/profiles/researcher/scripts/research_report.py "LLaMA fine-tuning" --type hybrid --output D:/Documents/research_reports/llama.md
+python3 ~/.local/share/<agent>/profiles/<profile>/scripts/research_report.py "Your topic" --type compare --libraries React Vue Svelte
+python3 ~/.local/share/<agent>/profiles/<profile>/scripts/research_report.py "LLaMA fine-tuning" --type hybrid --output D:/Documents/research_reports/llama.md
 ```
 
 **Key classes (for agent population):**
