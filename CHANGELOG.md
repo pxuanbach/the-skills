@@ -13,6 +13,7 @@ All notable changes to this skill are documented here. The format follows [Keep 
 ### Changed
 - Restructured repo to multi-skill convention: `skills/research-workflow/SKILL.md` (was `SKILL.md` at root)
 - Updated README with full install instructions for Hermes Agent (with symlink recipe), Claude Code, Cursor, and generic use
+- **Repo URL changed** — now hosted at `https://github.com/pxuanbach/the-skills` (multi-skill repo), not `research-workflow-skill`
 
 ### Notes
 - Source: extracted from a working Hermes Agent profile (`researcher`)

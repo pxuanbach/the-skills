@@ -4,6 +4,7 @@ A structured research workflow for AI coding agents — produces citation-ground
 
 **Author:** Hermes Agent (Nous Research)
 **License:** MIT
+**Repo:** `https://github.com/pxuanbach/the-skills`
 **Source:** Extracted from a working Hermes Agent profile, packaged for public use.
 
 ---
@@ -26,7 +27,7 @@ The workflow is **citation-grounded** — every metric, claim, and recommendatio
 This repo follows the multi-skill convention: each skill lives under `skills/<skill-name>/`. Clone the repo once and symlink any skill you want to use; new skills can be added alongside without breaking existing installations.
 
 ```
-research-workflow-skill/
+the-skills/
 ├── README.md                  ← this file
 ├── LICENSE                    ← MIT
 ├── CHANGELOG.md               ← version history
@@ -68,8 +69,15 @@ SKILLS_DIR="$LOCALAPPDATA/hermes/profiles/researcher/skills"
 # Linux / macOS
 SKILLS_DIR="$HOME/.local/share/hermes/profiles/researcher/skills"
 
-# Clone the repo
-git clone https://github.com/pxuanbach/research-workflow-skill.git "$SKILLS_DIR/../"
+**Note:** This repo hosts multiple skills. Cloning puts all of them under your Hermes profile root. Clone the repo once, then symlink only the skills you want into your profile's `skills/` directory.
+
+```bash
+# Clone the repo (under your Hermes profile root, alongside the skills/ folder)
+git clone https://github.com/pxuanbach/the-skills.git "$SKILLS_DIR/../"
+
+# Now symlink only the skill you want
+ln -s "$SKILLS_DIR/../the-skills/skills/research-workflow" "$SKILLS_DIR/research-workflow"
+```
 ```
 
 Then create a symlink (or copy) of the skill folder into your profile's `skills/` directory:
@@ -77,19 +85,26 @@ Then create a symlink (or copy) of the skill folder into your profile's `skills/
 ```bash
 # PowerShell — Windows
 New-Item -ItemType Junction -Path "$env:LOCALAPPDATA\hermes\profiles\researcher\skills\research-workflow" `
-         -Target "$env:LOCALAPPDATA\hermes\profiles\researcher\research-workflow-skill\skills\research-workflow"
+         -Target "$env:LOCALAPPDATA\hermes\profiles\researcher\the-skills\skills\research-workflow"
 
 # Bash — Linux / macOS
-ln -s "$HOME/.local/share/hermes/profiles/researcher/research-workflow-skill/skills/research-workflow" \
+ln -s "$HOME/.local/share/hermes/profiles/researcher/the-skills/skills/research-workflow" \
       "$HOME/.local/share/hermes/profiles/researcher/skills/research-workflow"
 ```
 
-**A2. Single-skill copy** (no symlinks — fully portable):
+**A2. Sparse checkout — single skill only** (recommended):
 
 ```bash
-git clone https://github.com/pxuanbach/research-workflow-skill.git /tmp/rw
-cp -r /tmp/rw/skills/research-workflow "$SKILLS_DIR/research-workflow"
-# Then pull updates with: git -C /tmp/rw pull && cp -r /tmp/rw/skills/research-workflow "$SKILLS_DIR/research-workflow"
+# Clone with sparse-checkout so you only get the skill you want
+git clone --filter=blob:none --sparse https://github.com/pxuanbach/the-skills.git "$SKILLS_DIR/../the-skills"
+cd "$SKILLS_DIR/../the-skills"
+git sparse-checkout set skills/research-workflow
+
+# Then symlink into your profile's skills/
+ln -s "$SKILLS_DIR/../the-skills/skills/research-workflow" "$SKILLS_DIR/research-workflow"
+
+# Updates: cd into the repo and pull
+git -C "$SKILLS_DIR/../the-skills" pull --no-rebase
 ```
 
 Then in Hermes chat, invoke the skill:
