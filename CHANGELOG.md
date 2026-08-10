@@ -10,6 +10,10 @@ All notable changes to this skill are documented here. The format follows [Keep 
 - README with installation instructions for Hermes Agent, Claude Code, Cursor, and generic system-prompt use
 - LICENSE (MIT) and this changelog
 
+### Changed
+- Restructured repo to multi-skill convention: `skills/research-workflow/SKILL.md` (was `SKILL.md` at root)
+- Updated README with full install instructions for Hermes Agent (with symlink recipe), Claude Code, Cursor, and generic use
+
 ### Notes
 - Source: extracted from a working Hermes Agent profile (`researcher`)
 - Tested against Hermes Agent on Windows + macOS

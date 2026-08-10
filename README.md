@@ -2,9 +2,9 @@
 
 A structured research workflow for AI coding agents — produces citation-grounded reports from any topic, technical problem, or scientific question.
 
-**Author:** Hermes Agent (Nous Research)  
-**License:** MIT  
-**Original skill:** [`research-workflow`](https://github.com/strands-agents/...) — extracted from a working Hermes Agent profile
+**Author:** Hermes Agent (Nous Research)
+**License:** MIT
+**Source:** Extracted from a working Hermes Agent profile, packaged for public use.
 
 ---
 
@@ -23,27 +23,32 @@ The workflow is **citation-grounded** — every metric, claim, and recommendatio
 
 ## Repository structure
 
+This repo follows the multi-skill convention: each skill lives under `skills/<skill-name>/`. Clone the repo once and symlink any skill you want to use; new skills can be added alongside without breaking existing installations.
+
 ```
 research-workflow-skill/
 ├── README.md                  ← this file
 ├── LICENSE                    ← MIT
 ├── CHANGELOG.md               ← version history
-├── SKILL.md                   ← the skill itself (load with skill_view)
-├── references/                ← supporting reference files
-│   ├── api-tools.md
-│   ├── data-collection-patterns.md
-│   ├── software-comparison-patterns.md
-│   ├── single-paper-deep-dive.md
-│   ├── local-pdf-batch-extraction.md
-│   ├── word-extraction-libraries.md
-│   ├── excel-libraries.md
-│   ├── elearning-nextjs-supabase.md
-│   ├── elearning-techstack-reference.md
-│   ├── elearning-gamification-data.md
-│   ├── elearning-proposal-template.md
-│   └── lms-analytics-reference.md
-└── examples/
-    └── sample-report.md       ← example output
+├── .gitignore
+└── skills/
+    └── research-workflow/     ← the skill itself
+        ├── SKILL.md           ← the skill (load with skill_view)
+        ├── references/        ← supporting reference files (12 files)
+        │   ├── api-tools.md
+        │   ├── data-collection-patterns.md
+        │   ├── software-comparison-patterns.md
+        │   ├── single-paper-deep-dive.md
+        │   ├── local-pdf-batch-extraction.md
+        │   ├── word-extraction-libraries.md
+        │   ├── excel-libraries.md
+        │   ├── elearning-nextjs-supabase.md
+        │   ├── elearning-techstack-reference.md
+        │   ├── elearning-gamification-data.md
+        │   ├── elearning-proposal-template.md
+        │   └── lms-analytics-reference.md
+        └── examples/
+            └── sample-report.md
 ```
 
 ---
@@ -52,9 +57,9 @@ research-workflow-skill/
 
 ### Option A — Hermes Agent (Nous Research)
 
-The skill is in this repo's SKILL.md format, which Hermes Agent loads natively.
+Skills are loaded from a profile's `skills/` directory. Two approaches:
 
-Drop it into a Hermes profile:
+**A1. Whole-repo install** (recommended — preserves references):
 
 ```bash
 # Locate your Hermes profile (default: %LOCALAPPDATA%\hermes\profiles\<name>\skills\)
@@ -63,8 +68,28 @@ SKILLS_DIR="$LOCALAPPDATA/hermes/profiles/researcher/skills"
 # Linux / macOS
 SKILLS_DIR="$HOME/.local/share/hermes/profiles/researcher/skills"
 
-# Clone straight into the skills directory
-git clone https://github.com/<your-username>/research-workflow-skill "$SKILLS_DIR/research-workflow"
+# Clone the repo
+git clone https://github.com/pxuanbach/research-workflow-skill.git "$SKILLS_DIR/../"
+```
+
+Then create a symlink (or copy) of the skill folder into your profile's `skills/` directory:
+
+```bash
+# PowerShell — Windows
+New-Item -ItemType Junction -Path "$env:LOCALAPPDATA\hermes\profiles\researcher\skills\research-workflow" `
+         -Target "$env:LOCALAPPDATA\hermes\profiles\researcher\research-workflow-skill\skills\research-workflow"
+
+# Bash — Linux / macOS
+ln -s "$HOME/.local/share/hermes/profiles/researcher/research-workflow-skill/skills/research-workflow" \
+      "$HOME/.local/share/hermes/profiles/researcher/skills/research-workflow"
+```
+
+**A2. Single-skill copy** (no symlinks — fully portable):
+
+```bash
+git clone https://github.com/pxuanbach/research-workflow-skill.git /tmp/rw
+cp -r /tmp/rw/skills/research-workflow "$SKILLS_DIR/research-workflow"
+# Then pull updates with: git -C /tmp/rw pull && cp -r /tmp/rw/skills/research-workflow "$SKILLS_DIR/research-workflow"
 ```
 
 Then in Hermes chat, invoke the skill:
@@ -81,7 +106,7 @@ These tools don't have a native "skill" system like Hermes, but you can convert 
 
 ```bash
 # Extract the body of SKILL.md (skip the YAML frontmatter)
-awk 'BEGIN{p=0} /^---$/{p++; next} p==2{print}' SKILL.md > CLAUDE.md
+awk 'BEGIN{p=0} /^---$/{p++; next} p==2{print}' skills/research-workflow/SKILL.md > CLAUDE.md
 
 # Place it where the agent picks it up
 cp CLAUDE.md ~/CLAUDE.md          # Claude Code (user-level)
@@ -93,7 +118,11 @@ cp CLAUDE.md ./.cursorrules       # Cursor (project-level)
 
 ### Option C — Generic use as a system prompt
 
-Load `SKILL.md` into your agent's system prompt or context window. The YAML frontmatter is informational; the markdown body is the operational instruction.
+Load `skills/research-workflow/SKILL.md` into your agent's system prompt or context window. The YAML frontmatter is informational; the markdown body is the operational instruction.
+
+### Option D — Just read the references
+
+If you only need the pre-researched data (PDF/Excel/Word library comparisons, elearning reference data, etc.) without the skill workflow itself, browse the `references/` folder directly.
 
 ---
 
@@ -145,12 +174,21 @@ The skill (especially `data-collection-patterns.md`) captures real failure modes
 
 ## Contributing
 
-PRs welcome. When adding or modifying reference files:
+When adding a new skill to this repo, follow the same convention:
+
+```
+skills/<skill-name>/
+├── SKILL.md          # Required: YAML frontmatter + workflow body
+├── references/        # Optional: supporting reference files
+└── examples/          # Optional: example outputs
+```
+
+PRs welcome. Before submitting:
 
 1. Keep the data live and verifiable — cite the source
-2. Update the frontmatter `version` in `SKILL.md` if behavior changes
-3. Add a row to `CHANGELOG.md`
-4. Verify the skill still works against a fresh Hermes Agent profile before submitting
+2. Update the frontmatter `version` in the skill's `SKILL.md` if behavior changes
+3. Add a row to `CHANGELOG.md` under a new version section
+4. Verify the skill still works against a fresh Hermes Agent profile
 
 ---
 
