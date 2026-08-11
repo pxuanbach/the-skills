@@ -12,6 +12,7 @@ A small repo of AI agent skills — modular, each skill is self-contained with i
 | Skill | Description |
 |---|---|
 | [research-workflow](skills/research-workflow/) | Structured 4-phase research workflow (problem framing → info gathering → analysis → report drafting) with parallel data collection, citation-grounded outputs, and reusable reference data for software comparisons, paper deep-dives, and PDF batch extraction. |
+| [screenshot](skills/screenshot/) | Capture screenshots of web pages with stealth mode to bypass anti-bot detection. Saves images to `.temp/` in the current workspace. Supports Cloudflare-protected sites. |
 
 ---
 
