@@ -21,6 +21,15 @@ output/
 reports/
 *.log
 
+# Pi agent files
+.pi-subagents/
+
+# Node modules (for screenshot skill)
+node_modules/
+
+# Screenshot output
+.temp/
+
 # Temporary files
 *.tmp
 *.bak

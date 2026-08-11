@@ -2,6 +2,28 @@
 
 All notable changes to this skill are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.3.0] — 2026-08-12
+
+### Added
+- New `screenshot` skill for capturing web page screenshots
+- Stealth mode using `playwright-extra` and `puppeteer-extra-plugin-stealth` to bypass Cloudflare and anti-bot detection
+- Three scripts: `screenshot.mjs`, `validate-url.mjs`, `check-deps.mjs`
+- Support for multiple output formats: WebP (default), PNG, JPEG
+- Viewport-only capture by default (16:9: 1280x720)
+- Random browser fingerprints (Chrome, Firefox) to avoid pattern detection
+- Automatic `.temp/` folder creation in workspace
+
+### Features
+- URL validation with security checks (blocks localhost, private IPs)
+- Dependency checker with global install vs npx options
+- Cloudflare challenge detection and reporting
+- 30s default timeout, configurable via `--timeout`
+
+### Dependencies
+- `playwright`
+- `playwright-extra`
+- `puppeteer-extra-plugin-stealth`
+
 ## [1.2.0] — 2026-08-10
 
 ### Added
