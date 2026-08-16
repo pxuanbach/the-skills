@@ -2,6 +2,8 @@
 
 Use this when the user asks to read, summarize, compare, or review **N local PDFs in a folder** (a book series, vendor paper dump, conference proceedings, research library). Distinct from single-paper deep-dive (`references/single-paper-deep-dive.md`) and from URL-based paper work.
 
+> **Tool names in this file** (e.g. `terminal`, `read_file`, `write_file`, `search_files`) are placeholder names for the corresponding capability. See the Tool Capability Reference in SKILL.md for the mapping. If your agent lacks a capability, report back to the user before substituting.
+
 ## Why this needs its own workflow
 
 - Single-paper workflow reads one PDF end-to-end into context. With N PDFs of 30-60 pages each, that blows the context window and degrades fidelity on later files.
@@ -10,7 +12,7 @@ Use this when the user asks to read, summarize, compare, or review **N local PDF
 
 ## Step 1 — Enumerate the folder (Windows quirk)
 
-`search_files(pattern="*", path="E:/Documents/...")` sometimes silently returns 0 results for absolute Windows paths even when the folder is populated. Do NOT conclude the folder is empty.
+The content-search tool (ripgrep-backed) sometimes silently returns 0 results for absolute Windows paths even when the folder is populated. Do NOT conclude the folder is empty.
 
 Reliable fallbacks, in order:
 
@@ -25,28 +27,30 @@ If still nothing, try the native form:
 ls -la "E:/Documents/Research/Series Name" 2>&1
 ```
 
-**Pitfall — don't trust `search_files` for directory discovery on Windows.** It's a ripgrep-backed content/file finder; absolute paths with spaces or with `/e/` prefix may not resolve. Use `terminal ls` for any "what's in this folder?" question.
+**Pitfall — don't trust the content-search tool for directory discovery on Windows.** It's a ripgrep-backed file finder; absolute paths with spaces or with `/e/` prefix may not resolve. Use shell `ls` for any "what's in this folder?" question.
 
 ## Step 2 — Bulk extract to markdown in one pass
 
 Don't read PDFs page-by-page into context. Extract everything to disk first, then read selectively.
 
 ```python
-# write_file → path: D:/Documents/Research/Series Name/_extract.py
+# Write this script to disk first, then run it.
+# Inputs: base_dir (folder holding the PDFs), file_label_pairs (list of (filename, label) tuples)
+# Output: writes <base_dir>/_extracted/<label>_full.md for each input file
 import pymupdf, os
 
-base = "E:/Documents/Research/Series Name"
-files = [
+base_dir = "/path/to/folder/with/pdfs"
+file_label_pairs = [
     ("file1.pdf", "Label1"),
     ("file2.pdf", "Label2"),
-    # ...
+    # ...add more (filename, label) tuples here
 ]
-os.makedirs(os.path.join(base, "_extracted"), exist_ok=True)
+os.makedirs(os.path.join(base_dir, "_extracted"), exist_ok=True)
 
-for fname, label in files:
-    path = os.path.join(base, fname)
+for fname, label in file_label_pairs:
+    path = os.path.join(base_dir, fname)
     doc = pymupdf.open(path)
-    out = os.path.join(base, "_extracted", f"{label}_full.md")
+    out = os.path.join(base_dir, "_extracted", f"{label}_full.md")
     with open(out, "w", encoding="utf-8") as f:
         f.write(f"# {label}: {fname}\n\nTotal pages: {len(doc)}\n\n")
         for i, page in enumerate(doc):
@@ -56,12 +60,12 @@ for fname, label in files:
 ```
 
 ```bash
-# terminal → uv run python "E:/Documents/Research/Series Name/_extract.py"
+# shell → uv run python /path/to/folder/_extract.py
 ```
 
-**Pitfall — extract cheap, read selective.** The whole point of writing to disk is to enable selective reading via `read_file(offset=N, limit=M)`. Do NOT then read every `_full.md` end-to-end back into context — that defeats the extraction.
+**Pitfall — extract cheap, read selective.** The whole point of writing to disk is to enable selective reading via the file-reading tool with offset/limit. Do NOT then read every `_full.md` end-to-end back into context — that defeats the extraction.
 
-**Pitfall — pymupdf vs marker-pdf per file.** For text-based PDFs, pymupdf is instant. For scanned PDFs you need marker-pdf. Scan the first page of each PDF via `page.get_text().strip()` before committing to the bulk extract — if any file is a scan, switch that file (or the whole batch) to marker-pdf. See `ocr-and-documents` skill for marker-pdf install steps.
+**Pitfall — pymupdf vs marker-pdf per file.** For text-based PDFs, pymupdf is instant. For scanned PDFs you need marker-pdf. Scan the first page of each PDF via `page.get_text().strip()` before committing to the bulk extract — if any file is a scan, switch that file (or the whole batch) to marker-pdf. See the `ocr-and-documents` skill for marker-pdf install steps.
 
 ## Step 3 — Selective reading per file (in this order)
 
@@ -85,7 +89,7 @@ Once every file has a per-file summary, build the cross-cutting output:
 ## Language and terminology rules
 
 - Preserve original titles, author names, and proper nouns verbatim (e.g. "MCP", "A2A", "Karpathy", "vibe coding"). Do NOT translate proper nouns unless the user asks.
-- If user is Vietnamese and files are English (common case): default to **Vietnamese narrative** with English terms in parentheses. The Vietnamese research-workflow pitfall on language preference applies.
+- If user is Vietnamese and files are English (common case): default to **Vietnamese narrative** with English terms in parentheses. The Vietnamese writing style guidance in SKILL.md applies.
 - For each file, surface at least one concrete number, citation, or named framework from the source. Generic phrasing ("covers many topics") is the failure mode.
 
 ## Reference template — working example
@@ -102,5 +106,5 @@ Total context cost: ~2000 lines of source text across all files, not 12000. Qual
 
 - **Single PDF** (one URL or one local file) → `references/single-paper-deep-dive.md`
 - **Search the web for N papers** (URL-based) → Phase 2 Pattern A/B/C in main skill
-- **N Excel/Word/PPT files** → `references/excel-libraries.md`, `references/word-extraction-libraries.md`, and the `ocr-and-documents` skill (but the bulk-extract-then-selective-read shape still applies — adapt the file type accordingly)
 - **N scanned PDFs needing OCR** → marker-pdf via `ocr-and-documents`, then this workflow from Step 2
+- **N files of other formats** (Excel, Word, PPT) → use the same bulk-extract-then-selective-read shape, but adapt the extraction tool to the format (e.g. `openpyxl` for Excel, `python-docx` for Word)

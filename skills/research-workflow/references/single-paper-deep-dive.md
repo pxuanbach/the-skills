@@ -2,6 +2,8 @@
 
 Use when the user provides a specific arXiv URL (or any PDF URL) and asks for analysis of THAT paper — not a literature survey.
 
+> **Tool names in this file** (e.g. `read_file`, `write_file`, `terminal`, `search_files`, `browser_navigate`, `delegate_task`) are placeholder names for the corresponding capability. See the Tool Capability Reference in SKILL.md for the mapping. If your agent lacks a capability, report back to the user before substituting.
+
 ## When to use
 
 Trigger signals:
@@ -26,20 +28,19 @@ arXiv landing URLs (`/abs/<id>`) redirect to `/pdf/<id>` automatically. Use the 
 
 ### 2. Extract text with PyMuPDF
 
-In many agentic environments, the default `python` points to a venv without `pip`. Install PyMuPDF into the agent's venv explicitly:
+Many sandboxed Python installs do not have pymupdf preinstalled and lack `pip`. Install it into the active Python explicitly:
 
 ```bash
-# Windows — replace with your agent's actual venv path
-uv pip install pymupdf --python "C:/Users/<user>/AppData/Local/<agent>/<agent>/venv/Scripts/python.exe"
-
-# Linux/macOS
-uv pip install pymupdf --python "$HOME/.local/share/<agent>/venv/bin/python"
+# Install into the Python your shell actually invokes.
+# Replace <python-exe> with the path to your Python (e.g. the venv python your agent uses).
+uv pip install pymupdf --python "<python-exe>"
 ```
 
-Write extraction script to disk (NOT inline `-c` — terminal blocks those):
+Write extraction script to disk (NOT inline `-c` — some sandboxed shells block those):
 
 ```python
-# write_file → C:/Users/<user>/extract_paper.py
+# Write to disk first, then run via shell.
+# Usage: python extract_paper.py <input.pdf> <output.txt>
 import fitz, sys
 
 pdf_path = sys.argv[1]
@@ -53,12 +54,12 @@ print(f"Extracted {len(text)} chars to {out_path}", file=sys.stderr)
 ```
 
 ```bash
-python C:/Users/<user>/extract_paper.py "<workspace>/paper.pdf" "<workspace>/paper.txt"
+python <path-to-extract_paper.py> "<workspace>/paper.pdf" "<workspace>/paper.txt"
 ```
 
-### 3. Locate sections (use grep, not search_files)
+### 3. Locate sections (use grep, not the content-search tool)
 
-`search_files` (ripgrep) fails on some Windows paths with spaces. Use terminal grep instead:
+The content-search tool (ripgrep-backed) fails on some Windows paths with spaces. Use shell `grep` instead:
 
 ```bash
 cd "<workspace>" && grep -n "Appendix L\|Patient agent\|Diagnosis Ready\|Request Test" paper.txt | head -30
@@ -72,12 +73,12 @@ Useful section markers for typical ML papers:
 - Limitations / Conclusion (search "limitation", "future work", "conclusion")
 - Appendix (look for "Appendix", "A.", "B.", "C.")
 
-### 4. Read specific slices with read_file
+### 4. Read specific slices with the file-reading tool
 
-For long extracted files (>2000 lines), use `read_file` with `offset` and `limit`:
+For long extracted files (>2000 lines), use the file-reading tool with offset and limit:
 
 ```
-read_file(path="C:/.../paper.txt", offset=740, limit=200)  # Appendix A.1 Agents
+file_read(path="<workspace>/paper.txt", offset=740, limit=200)  # Appendix A.1 Agents
 ```
 
 Combine with grep results to jump to the right slice — much faster than reading top-to-bottom.
@@ -117,8 +118,8 @@ Citation style: `[1, §X]` / `[1, Appendix X]` / `[1, p. N]` referencing the ori
 
 ## Pitfalls
 
-- **Don't dispatch `delegate_task` for paper extraction** — downloading + local PyMuPDF is faster and gives you exact text control. Subagents can't see your PDF.
-- **Don't `browser_navigate` to the PDF URL** — the browser snapshot truncates long PDFs and can't be grep'd. Extract to text first.
+- **Don't spawn subagents for paper extraction** — downloading + local PyMuPDF is faster and gives you exact text control. Subagents can't see your PDF.
+- **Don't open the PDF URL in a browser tool** — the page snapshot truncates long PDFs and can't be grep'd. Extract to text first.
 - **arXiv versions matter** — if a paper has v1 from 2023 and v5 from 2025 with major changes, cite the version you read. The PDF at `/pdf/<id>` is always the latest.
-- **Tables and figures** — PyMuPDF extracts table text linearly (rows concatenated). For structured tables, look at `page.get_text("dict")` blocks or use `pdfplumber.extract_tables()`. For figures, use `browser_navigate` to arxiv.org/html/<id> if available (HTML version preserves figures).
+- **Tables and figures** — PyMuPDF extracts table text linearly (rows concatenated). For structured tables, look at `page.get_text("dict")` blocks or use `pdfplumber.extract_tables()`. For figures, open arxiv.org/html/<id> if available (HTML version preserves figures).
 - **References** — the bibliography is usually at the end. Use grep `"References"` or `"Bibliography"` to find the start line.
