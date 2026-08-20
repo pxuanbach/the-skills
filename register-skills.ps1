@@ -49,8 +49,8 @@ foreach ($skillDir in $skillDirs) {
 
         # Create symlink using cmd mklink (more reliable on Windows)
         $sourceAbsolute = $skillDir.FullName
-        cmd /c "mklink /D `"$targetPath`" `"$sourceAbsolute`"*" | Out-Null
-        
+        cmd /c "mklink /D `"$targetPath`" `"$sourceAbsolute`"" | Out-Null
+
         if ($LASTEXITCODE -eq 0) {
             Write-Host "  Registered: $skillName" -ForegroundColor Green
         } else {
