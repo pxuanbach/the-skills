@@ -53,7 +53,7 @@ Before drafting mockups or plans, create the technical design document that serv
 4. **Mark status**: `status: approved` (or `draft` if still pending technical decisions).
 5. Persist and sync using `wiki-manager` skill:
    ```bash
-   python .agents/skills/wiki-manager/scripts/wiki_tool.py sync
+   python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py sync
    ```
 
 ---
@@ -63,7 +63,7 @@ Determine whether the feature introduces or modifies UI screens:
 
 - **If UI/UX is involved**:
   1. Create `wiki/<NNN>-<feature>/mockup/<screen-slug>.md`.
-  2. Use ASCII wireframe conventions from [references/ascii_wireframe_guide.md](file:///.agents/skills/user-designer/references/ascii_wireframe_guide.md).
+  2. Use ASCII wireframe conventions from [references/ascii_wireframe_guide.md](references/ascii_wireframe_guide.md).
   3. Include sections: `## Screen Name`, ASCII wireframe block, `## Components`, `## Interactions`, and `## Related Requirements`.
 
 - **If Backend / API / CLI only**:
@@ -149,7 +149,7 @@ Before finalizing:
 1. Ensure files are saved in `wiki/<NNN>-<feature>/`.
 2. Sync `wiki/registry.yaml`:
    ```bash
-   python .agents/skills/wiki-manager/scripts/wiki_tool.py sync
+   python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py sync
    ```
 
 ---
@@ -157,5 +157,5 @@ Before finalizing:
 ### Step 7: Validate Plan & Mockup
 Run the validator script:
 ```bash
-python .agents/skills/user-designer/scripts/validate_plan_mockup.py wiki/<NNN>-<feature>/plan.md
+python <SKILLS_DIR>/user-designer/scripts/validate_plan_mockup.py wiki/<NNN>-<feature>/plan.md
 ```

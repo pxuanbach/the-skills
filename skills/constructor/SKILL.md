@@ -51,6 +51,14 @@ Before writing code or running tests:
 2. Check available skills (e.g. React, Next.js, Python, FastAPI, Vitest, Pytest) and load applicable skills into context.
 3. Consult loaded skill guidelines to adhere to project-specific coding standards and patterns.
 
+**Parallel subagent acceleration (when implementation tasks are independent)**:
+- If multiple implementation tasks (`I-xxx`) can run in parallel without blocking each other, spawn one subagent per independent task group.
+- Each subagent handles: code implementation, test writing, and evidence collection for its assigned task group.
+- The main agent coordinates results, merges evidence, and ensures no file conflicts (e.g., different subagents writing to different modules/files).
+- If tasks share a common module or require shared state (e.g., a new model imported by multiple tasks), complete that shared piece first in the main agent before spawning parallel subagents.
+
+> **Rule of thumb**: Spawn parallel subagents only when tasks have no inter-dependencies. If Task A's output feeds into Task B, run them sequentially in the main agent.
+
 ---
 
 ### Step 4: Incremental Task Implementation & Testing
@@ -67,14 +75,14 @@ For each task in the Todo list:
 ---
 
 ### Step 5: Persist Evidence to LLM Wiki
-Format testing and execution evidence using the template in [references/evidence_template.md](file:///.agents/skills/constructor/references/evidence_template.md):
+Format testing and execution evidence using the template in [references/evidence_template.md](references/evidence_template.md):
 
 1. Save the evidence document to `wiki/<NNN>-<feature>/evidence.md`.
 2. Ensure frontmatter metadata includes `id` (`evidence-xxx`), `title`, `derived_from` (`plan-xxx`), `status` (`completed`), and `tasks_completed` list (`[I-001, I-002, T-003]`).
 3. Include raw terminal test logs, execution summaries, and clickable links to created/modified files.
 4. Sync the LLM Wiki index:
    ```bash
-   python .agents/skills/wiki-manager/scripts/wiki_tool.py sync
+   python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py sync
    ```
 
 ---
@@ -82,7 +90,7 @@ Format testing and execution evidence using the template in [references/evidence
 ### Step 6: Validate Evidence Specification
 Run the evidence validator script to verify structure, metadata, and log completeness:
 ```bash
-python .agents/skills/constructor/scripts/validate_evidence.py wiki/<NNN>-<feature>/evidence.md
+python <SKILLS_DIR>/constructor/scripts/validate_evidence.py wiki/<NNN>-<feature>/evidence.md
 ```
 
 ---
@@ -90,7 +98,7 @@ python .agents/skills/constructor/scripts/validate_evidence.py wiki/<NNN>-<featu
 ## Reviewer Integration & Iteration Loops
 
 When the optional **Quality Reviewer** or **Security Reviewer** provides feedback or requests changes:
-1. Review feedback items carefully against [references/implementation_guidelines.md](file:///.agents/skills/constructor/references/implementation_guidelines.md).
+1. Review feedback items carefully against [references/implementation_guidelines.md](references/implementation_guidelines.md).
 2. Refactor source code to fix reported issues or vulnerabilities.
 3. Re-run tests to confirm fixes do not introduce regressions.
 4. Update `wiki/<NNN>-<feature>/evidence.md` with revised execution logs.

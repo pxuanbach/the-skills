@@ -46,7 +46,7 @@ $ <test command e.g. pytest tests/>
 ```
 
 ## Artifacts & Changed Files
-- [models/task.py](file:///models/task.py)
-- [routers/tasks.py](file:///routers/tasks.py)
-- [tests/test_tasks.py](file:///tests/test_tasks.py)
+- `models/task.py`
+- `routers/tasks.py`
+- `tests/test_tasks.py`
 ```

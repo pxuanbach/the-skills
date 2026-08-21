@@ -35,7 +35,7 @@ When conducting a security review, follow these 5 steps sequentially:
 ---
 
 ### Step 2: 10-Category Vulnerability Analysis
-Scan code for vulnerabilities listed in [references/vulnerability_catalog.md](file:///.agents/skills/security-reviewer/references/vulnerability_catalog.md):
+Scan code for vulnerabilities listed in [references/vulnerability_catalog.md](references/vulnerability_catalog.md):
 
 1. **Injection Attacks**: SQLi, Command Injection, LDAP, XPath, NoSQL, XXE.
 2. **Authentication & Authorization**: Broken auth, privilege escalation, IDOR, authorization bypass, session management flaws.
@@ -48,10 +48,19 @@ Scan code for vulnerabilities listed in [references/vulnerability_catalog.md](fi
 9. **Remote Code Execution**: Dangerous deserialization (Python `pickle`, Java deserialization, `eval()`, `exec()`).
 10. **Cross-Site Scripting (XSS)**: Reflected, stored, or DOM-based XSS in frontend templates/responses.
 
+**Parallel subagent acceleration (for large codebases)**:
+- For features with substantial code volume, spawn **~2 parallel subagents** to scan different code areas simultaneously.
+- **Assign each subagent a distinct scan scope** to avoid duplicate effort:
+  - **Subagent A** — Scan: injection, auth/authz, data exposure, cryptographic issues.
+  - **Subagent B** — Scan: input validation, business logic, configuration security, supply chain, RCE, XSS.
+- Each subagent returns a categorized findings list with: `category`, `file`, `line`, `description`, `severity`.
+- After subagents return, merge findings, apply false positive filtering (Step 3), and consolidate into the final report.
+- If the codebase is small or the feature touches only a few files, skip subagent spawning and scan sequentially in the main agent.
+
 ---
 
 ### Step 3: False Positive & Impact Filtering
-Apply filtering guidelines from [references/false_positive_rules.md](file:///.agents/skills/security-reviewer/references/false_positive_rules.md) to eliminate low-impact or irrelevant findings:
+Apply filtering guidelines from [references/false_positive_rules.md](references/false_positive_rules.md) to eliminate low-impact or irrelevant findings:
 
 - **Exclude Low-Impact Findings**:
   - Pure Denial of Service (DoS) or CPU/memory exhaustion concerns without execution impact.
@@ -64,7 +73,7 @@ Focus exclusively on actionable, high-impact security vulnerabilities that compr
 ---
 
 ### Step 4: Report Generation & Security Decision
-Using the template in [references/security_report_template.md](file:///.agents/skills/security-reviewer/references/security_report_template.md), create `wiki/<NNN>-<feature>/security-review.md`:
+Using the template in [references/security_report_template.md](references/security_report_template.md), create `wiki/<NNN>-<feature>/security-review.md`:
 
 - **Status Decision**:
   - `PASS`: Zero high/medium severity true-positive vulnerabilities detected.
@@ -77,9 +86,9 @@ Using the template in [references/security_report_template.md](file:///.agents/s
 ### Step 5: Validate Security Review Document
 Run the validator script to verify report structure and frontmatter:
 ```bash
-python .agents/skills/security-reviewer/scripts/validate_security_review.py wiki/<NNN>-<feature>/security-review.md
+python <SKILLS_DIR>/security-reviewer/scripts/validate_security_review.py wiki/<NNN>-<feature>/security-review.md
 ```
 Then sync the LLM Wiki index:
 ```bash
-python .agents/skills/wiki-manager/scripts/wiki_tool.py sync
+python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py sync
 ```

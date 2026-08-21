@@ -28,14 +28,27 @@ When receiving a feature request or project request, follow these 5 steps sequen
 ---
 
 ### Step 1: Context & Codebase Discovery
-Before asking questions, perform background research:
-1. Search the current codebase, database models, and API routes for existing functionality related to the request.
-2. Read `wiki/SYSTEM.md` and `wiki/registry.yaml` (using the `wiki-manager` skill) to understand current architecture and feature module numbering.
+Before asking questions, perform background research using parallel subagents for speed and breadth:
+
+1. **Spawn subagent A — Local Codebase Inspection**:
+   - Inspect relevant local files, existing patterns, constraints, tests, and likely integration points.
+   - Search for similar functionality in the codebase to avoid duplication.
+   - Identify existing models, API routes, configuration files, and shared utilities related to the request.
+   - Return a structured summary: `files_found`, `patterns_identified`, `integration_points`, `gaps`.
+
+2. **Spawn subagent B — External & Ecosystem Context** (conditional, only when needed):
+   - Use when external docs, recent sources, ecosystem context, or primary evidence would improve the answer.
+   - Search for official documentation, recent releases, community patterns, or best practices from external sources.
+   - Return a structured summary: `external_sources`, `ecosystem_patterns`, `relevant_versions`, `recommendations`.
+
+3. **After both subagents return**, read `wiki/SYSTEM.md` and `wiki/registry.yaml` (using the `wiki-manager` skill) to understand current architecture and feature module numbering.
+
+> **When to skip subagent B**: If the request is purely local (e.g., refactoring existing code, updating a known feature), skip external research and rely on subagent A + wiki files only.
 
 ---
 
 ### Step 2: Ambiguity Resolution
-Review the request against [references/clarification_checklist.md](file:///.agents/skills/requirement-analyzer/references/clarification_checklist.md).
+Review the request against [references/clarification_checklist.md](references/clarification_checklist.md).
 If the request is ambiguous or lacks critical details (e.g. scope boundary, user roles, error handling, performance targets), interact with the user to ask concise, direct questions:
 - Group related questions logically.
 - Offer reasonable default choices based on codebase conventions when asking.
@@ -106,7 +119,7 @@ Target Users: <list of target users>
 2. Write the file to `wiki/<NNN>-<feature-slug>/requirement.md`.
 3. Invoke the `wiki-manager` skill synchronization tool to index the artifact in `wiki/registry.yaml`:
    ```bash
-   python .agents/skills/wiki-manager/scripts/wiki_tool.py sync
+   python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py sync
    ```
 
 ---
@@ -114,5 +127,5 @@ Target Users: <list of target users>
 ### Step 5: Validate Specification
 Run the requirement validator script to confirm that all required sections and frontmatter metadata are present:
 ```bash
-python .agents/skills/requirement-analyzer/scripts/validate_requirement.py wiki/<NNN>-<feature-slug>/requirement.md
+python <SKILLS_DIR>/requirement-analyzer/scripts/validate_requirement.py wiki/<NNN>-<feature-slug>/requirement.md
 ```

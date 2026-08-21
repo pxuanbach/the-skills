@@ -9,23 +9,28 @@ A small repo of AI agent skills — modular, each skill is self-contained with i
 
 ## Skills
 
-| Skill | Description |
-|---|---|
-| [research-workflow](skills/research-workflow/) | Structured 4-phase research workflow (problem framing → info gathering → analysis → report drafting) with parallel data collection, citation-grounded outputs, and reusable reference data for software comparisons, paper deep-dives, and PDF batch extraction. |
-| [screenshot](skills/screenshot/) | Capture screenshots of web pages with stealth mode to bypass anti-bot detection. Saves images to `.temp/` in the current workspace. Supports Cloudflare-protected sites. |
 
-### SDLC Workflow (6 skills)
+| Skill                                          | Description                                                                                                                                                                                                                                                      |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [research-workflow](skills/research-workflow/) | Structured 4-phase research workflow (problem framing → info gathering → analysis → report drafting) with parallel data collection, citation-grounded outputs, and reusable reference data for software comparisons, paper deep-dives, and PDF batch extraction. |
+| [screenshot](skills/screenshot/)               | Capture screenshots of web pages with stealth mode to bypass anti-bot detection. Saves images to `.temp/` in the current workspace. Supports Cloudflare-protected sites.                                                                                         |
+| [review-skill](skills/review-skill/)           | Review and validate Agent Skills for structural consistency, metadata accuracy, instruction clarity, and adherence to repo conventions.                                                                                                                |
+
+
+### New SDLC Workflow - RAD (6 skills)
 
 A modular software development lifecycle workflow — each skill is self-contained and can be used independently or as a pipeline.
 
-| Skill | Role |
-|---|---|
-| [requirement-analyzer](skills/requirement-analyzer/) | Gathers, clarifies, and formalizes software requirements and user stories into the LLM Wiki. |
-| [user-designer](skills/user-designer/) | Transforms approved requirements into UI/UX mockups and implementation plans (`plan.md`). |
-| [wiki-manager](skills/wiki-manager/) | Central documentation hub — manages, organizes, and queries all SDLC artifacts (requirements, designs, mockups, plans, evidence). Used by all other SDLC skills. |
-| [constructor](skills/constructor/) | Executes implementation plans step-by-step — writes code, runs tests, and produces testing evidence in the LLM Wiki. |
-| [quality-reviewer](skills/quality-reviewer/) | Reviews source code, implementation plans, and test evidence for quality, design integrity, and test coverage. |
-| [security-reviewer](skills/security-reviewer/) | Audits code for security vulnerabilities across 10 critical categories and issues pass/fail decisions. |
+
+| Skill                                                | Role                                                                                                                                                             |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [requirement-analyzer](skills/requirement-analyzer/) | Gathers, clarifies, and formalizes software requirements and user stories into the LLM Wiki.                                                                     |
+| [user-designer](skills/user-designer/)               | Transforms approved requirements into technical design, UI/UX mockups and implementation plans (`plan.md`).                                                      |
+| [wiki-manager](skills/wiki-manager/)                 | Central documentation hub — manages, organizes, and queries all SDLC artifacts (requirements, designs, mockups, plans, evidence). Used by all other SDLC skills. |
+| [constructor](skills/constructor/)                   | Executes implementation plans step-by-step — writes code, runs tests, and produces testing evidence in the LLM Wiki.                                             |
+| [quality-reviewer](skills/quality-reviewer/)         | Reviews source code, implementation plans, and test evidence for quality, design integrity, and test coverage.                                                   |
+| [security-reviewer](skills/security-reviewer/)       | Audits code for security vulnerabilities across 10 critical categories and issues pass/fail decisions.                                                           |
+
 
 ---
 

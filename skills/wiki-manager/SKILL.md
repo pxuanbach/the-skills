@@ -46,7 +46,7 @@ Whenever an agent (Requirement Analyzer, User Designer, Constructor, Quality Rev
 ### 1. Initialize Wiki (`INIT`)
 Before creating artifacts, check if `wiki/registry.yaml` exists. If not, initialize it using the helper script:
 ```bash
-python .agents/skills/wiki-manager/scripts/wiki_tool.py init
+python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py init
 ```
 Or create the root folder `wiki/` with baseline files: `registry.yaml`, `DESIGN.md`, `SYSTEM.md`, and `log.md`.
 
@@ -99,7 +99,7 @@ Before starting any new requirement analysis or implementation task:
 ### 8. Validate & Lint Wiki (`VALIDATE_LINT`)
 To ensure cross-link integrity and schema compliance across all feature modules:
 ```bash
-python .agents/skills/wiki-manager/scripts/wiki_tool.py lint
+python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py lint
 ```
 The script checks for:
 - Missing required frontmatter fields (`id`, `title`, `status`).
@@ -110,5 +110,5 @@ The script checks for:
 
 ## Reference Guides
 
-- See [references/schemas.md](file:///.agents/skills/wiki-manager/references/schemas.md) for strict YAML frontmatter metadata rules.
-- See [references/templates.md](file:///.agents/skills/wiki-manager/references/templates.md) for complete Markdown & ASCII wireframe templates.
+- See [references/schemas.md](references/schemas.md) for strict YAML frontmatter metadata rules.
+- See [references/templates.md](references/templates.md) for complete Markdown & ASCII wireframe templates.

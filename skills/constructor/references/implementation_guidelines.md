@@ -11,7 +11,7 @@
 ## 2. Skill Auto-Discovery
 - Look for project configuration files (`package.json`, `pyproject.toml`, `requirements.txt`, `go.mod`, `Cargo.toml`).
 - Auto-detect libraries and frameworks (e.g. Next.js, React, FastAPI, SQLAlchemy, Pytest, Jest, Vitest).
-- If skills exist in `.agents/skills/` or user's skill catalog matching the tech stack, load and follow their best practices.
+- If skills exist in `<SKILLS_DIR>` or user's skill catalog matching the tech stack, load and follow their best practices.
 
 ## 3. Code Implementation Best Practices
 - **No Mock Fallbacks**: Write genuine, fully functional logic. Do not write placeholder stubs that bypass real logic.
