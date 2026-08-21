@@ -59,6 +59,41 @@ When adding a new skill:
 
 ---
 
+## Installation
+
+Register skills to your preferred agent(s).
+
+### Windows (PowerShell)
+
+```powershell
+# Register to all agents (Pi + Claude Code)
+.\register-skills.ps1
+
+# Register to specific agent only
+.\register-skills.ps1 -Target pi
+.\register-skills.ps1 -Target claude
+```
+
+### macOS / Linux (Bash)
+
+```bash
+# Register to all agents (Pi + Claude Code)
+./register-skills.sh
+
+# Register to specific agent only
+./register-skills.sh --target pi
+./register-skills.sh --target claude
+```
+
+### Target Locations
+
+| Agent | Path |
+|---|---|
+| Pi Agent | `~/.pi/agent/skills` |
+| Claude Code | `~/.claude/skills` |
+
+---
+
 ## License
 
 MIT — see `LICENSE`.
