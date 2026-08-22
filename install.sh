@@ -77,8 +77,9 @@ fetch_skills() {
 download_skill() {
   local skill="$1"
   local dest_dir="$2"
-  local target_path="$dest_dir/$skill"
-  
+  if [ -d "$target_path" ]; then
+    rm -rf "$target_path"
+  fi
   mkdir -p "$target_path"
   echo -e "  -> Installing '${CYAN}$skill${NC}'..."
 

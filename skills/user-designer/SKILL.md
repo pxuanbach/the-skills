@@ -12,11 +12,11 @@ The **User Designer** skill guides AI agents in transforming approved requiremen
 ```
 [Requirement Document (requirement.md)]
                 ↓
-1. Read Requirement & Scope Assessment
+1. Read Requirement & Scope Assessment (SYSTEM.md)
                 ↓
 2. Create Technical Design (design.md) — Final approved technical spec
                 ↓
-3. Evaluate UI Need ──→ [UI Involved?] ──Yes──> Create Mockup (mockup/*.md)
+3. Evaluate UI Need ──→ [UI Involved?] ──Yes──> Create Mockup (DESIGN.md → mockup/*.md)
                 │                                    │
                 └───No (Backend/API/CLI) ────────────┤
                                                      ↓
@@ -29,6 +29,8 @@ The **User Designer** skill guides AI agents in transforming approved requiremen
 7. Persist to LLM Wiki & Sync (wiki_tool.py sync)
                                                      ↓
 8. Validation (validate_plan_mockup.py)
+                                                     ↓
+9. Next Skill Guidance (Handoff to constructor)
 ```
 
 ---
@@ -161,3 +163,12 @@ Run the validator script:
 ```bash
 python <SKILLS_DIR>/user-designer/scripts/validate_plan_mockup.py wiki/<NNN>-<feature>/plan.md
 ```
+
+---
+
+### Step 9: Next Skill Guidance (Handoff)
+
+After user approves the implementation plan and mockups:
+1. Confirm all artifacts (`design.md`, `plan.md`, `mockup/*.md`) are saved and synced in `wiki/<NNN>-<feature>/`.
+2. **Explicitly guide the user on the next step**:
+   - *"The design specifications and implementation plan are approved. Next, run the `/constructor` skill (or type `constructor`) to begin executing implementation tasks, running tests, and generating test evidence (`evidence.md`)."*

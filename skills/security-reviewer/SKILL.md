@@ -23,6 +23,8 @@ When conducting a security review, follow these 5 steps sequentially:
 4. Report Generation & Decision (security-review.md)
                        ↓
 5. Validation (validate_security_review.py)
+                       ↓
+6. Next Skill Guidance (Handoff based on security decision)
 ```
 
 ---
@@ -92,3 +94,15 @@ Then sync the LLM Wiki index:
 ```bash
 python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py sync
 ```
+
+---
+
+### Step 6: Next Skill Guidance (Handoff)
+
+Based on the security decision in `security-review.md`, **explicitly guide the user on the next action**:
+- **If `FAIL`**:
+  - *"Security audit detected actionable vulnerabilities. Next, invoke `/constructor` (or type `constructor`) with the findings in `wiki/<NNN>-<feature>/security-review.md` to patch vulnerabilities and provide verified evidence."*
+- **If `PASS`**:
+  - Check if `quality-review.md` exists:
+    - If `quality-review.md` is **not yet done**: *"Security audit is PASSED (0 high/medium vulnerabilities). Next, run the `/quality-reviewer` skill (or type `quality-reviewer`) to review code quality and architecture."*
+    - If `quality-review.md` is **already APPROVED**: *"Both Quality and Security reviews are APPROVED/PASSED! The feature is verified and ready for final user confirmation and release."*

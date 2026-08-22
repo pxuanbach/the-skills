@@ -23,6 +23,8 @@ When reviewing completed tasks or test evidence from Constructor, follow these 5
 4. Constructor Feedback Loop (Max N iterations)
                           ↓
 5. Validation (validate_quality_review.py)
+                          ↓
+6. Next Skill Guidance (Handoff based on review outcome)
 ```
 
 ---
@@ -80,3 +82,15 @@ Then sync the LLM Wiki index:
 ```bash
 python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py sync
 ```
+
+---
+
+### Step 6: Next Skill Guidance (Handoff)
+
+Based on the review outcome in `quality-review.md`, **explicitly guide the user on the next action**:
+- **If `CHANGES_REQUESTED`**:
+  - *"Quality review identified issues that require resolution. Next, invoke `/constructor` (or type `constructor`) with the feedback in `wiki/<NNN>-<feature>/quality-review.md` to address findings and re-run tests."*
+- **If `APPROVED`**:
+  - Check if `security-review.md` exists:
+    - If `security-review.md` is **not yet done**: *"Quality review is APPROVED. Next, run the `/security-reviewer` skill (or type `security-reviewer`) to perform the security and static vulnerability audit."*
+    - If `security-review.md` is **already PASSED**: *"Both Quality and Security reviews are APPROVED/PASSED! The feature is ready for final confirmation and deployment."*

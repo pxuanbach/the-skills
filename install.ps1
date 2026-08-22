@@ -172,9 +172,10 @@ function Download-Skill {
     )
 
     $targetSkillPath = Join-Path $DestinationDir $SkillName
-    if (-not (Test-Path $targetSkillPath)) {
-        New-Item -ItemType Directory -Path $targetSkillPath -Force | Out-Null
+    if (Test-Path $targetSkillPath) {
+        Remove-Item -Path $targetSkillPath -Recurse -Force -ErrorAction SilentlyContinue
     }
+    New-Item -ItemType Directory -Path $targetSkillPath -Force | Out-Null
 
     Write-Host "  -> Installing '$SkillName'..." -ForegroundColor Cyan
 

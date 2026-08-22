@@ -22,11 +22,13 @@ When receiving a feature request or project request, follow these 5 steps sequen
 4. Persist to LLM Wiki (wiki-manager skill integration)
        ↓
 5. Validation (validate_requirement.py)
+       ↓
+6. Next Skill Guidance (Handoff to user-designer)
 ```
 
 ---
 
-### Step 1: Context &amp; Codebase Discovery
+### Step 1: Context & Codebase Discovery
 
 Before asking questions, perform background research using parallel subagents for speed and breadth:
 
@@ -131,6 +133,15 @@ Target Users: <list of target users>
 Run the requirement validator script to confirm that all required sections and frontmatter metadata are present:
 
 ```bash
-python [[ORCA_RICH_MD:4320332a9faee8e708a45cfd2acdef53:inline-html:%3CSKILLS_DIR%3E]]/requirement-analyzer/scripts/validate_requirement.py wiki/[[ORCA_RICH_MD:4320332a9faee8e708a45cfd2acdef53:inline-html:%3CNNN%3E]]-[[ORCA_RICH_MD:4320332a9faee8e708a45cfd2acdef53:inline-html:%3Cfeature-slug%3E]]/requirement.md
+python <SKILLS_DIR>/requirement-analyzer/scripts/validate_requirement.py wiki/<NNN>-<feature-slug>/requirement.md
 ```
 
+---
+
+### Step 6: Next Skill Guidance (Handoff)
+
+After validating and presenting the finalized requirement to the user:
+1. Ask the user for confirmation/approval of `requirement.md`.
+2. **Explicitly guide the user on the next step**:
+   - If approved: *"The requirements are formalized in `wiki/<NNN>-<feature-slug>/requirement.md`. Next, run the `/user-designer` skill (or type `user-designer`) to produce the Technical Design (`design.md`), UI mockups (`mockup/*.md`), and Implementation Plan (`plan.md`)."*
+   - If revisions are requested: Iterate on `requirement.md` with the user until approved.

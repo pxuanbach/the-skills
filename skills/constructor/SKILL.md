@@ -24,6 +24,8 @@ When assigned to build a feature or execute an implementation plan, follow these
 5. Persist Evidence to LLM Wiki (wiki/<feature>/evidence.md & wiki_tool.py sync)
                          ↓
 6. Validation (validate_evidence.py)
+                         ↓
+7. Next Skill Guidance (Handoff to quality-reviewer / security-reviewer)
 ```
 
 ---
@@ -99,8 +101,19 @@ Format testing and execution evidence using the template in [references/evidence
 Run the evidence validator script to verify structure, metadata, and log completeness:
 
 ```bash
-python [[ORCA_RICH_MD:4f7b9025a7f98d03e677fddce7c3b1e8:inline-html:%3CSKILLS_DIR%3E]]/constructor/scripts/validate_evidence.py wiki/[[ORCA_RICH_MD:4f7b9025a7f98d03e677fddce7c3b1e8:inline-html:%3CNNN%3E]]-[[ORCA_RICH_MD:4f7b9025a7f98d03e677fddce7c3b1e8:inline-html:%3Cfeature%3E]]/evidence.md
+python <SKILLS_DIR>/constructor/scripts/validate_evidence.py wiki/<NNN>-<feature>/evidence.md
 ```
+
+---
+
+### Step 7: Next Skill Guidance (Handoff)
+
+After completing all tasks, passing tests, and generating `evidence.md`:
+1. Summarize implemented files and automated test results to the user.
+2. **Explicitly guide the user on the next step**:
+   - *"All implementation tasks and automated tests are completed with evidence logged in `wiki/<NNN>-<feature>/evidence.md`. Next, run the reviewer skills:*
+     - *Run `/quality-reviewer` (or type `quality-reviewer`) to review code quality, architecture integrity, and clean-code standards.*
+     - *Run `/security-reviewer` (or type `security-reviewer`) to perform a 10-category vulnerability and static security audit."*
 
 ---
 

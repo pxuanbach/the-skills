@@ -77,6 +77,12 @@ The Agent prompts the user for three core inputs:
    python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py init
    ```
 
+#### Step 4: Next Skill Guidance (Handoff)
+After completing wiki initialization:
+1. Confirm that `wiki/SYSTEM.md`, `wiki/DESIGN.md`, and `wiki/registry.yaml` are created.
+2. **Explicitly guide the user on the next step**:
+   - *"Wiki initialization complete. Next, run the `/requirement-analyzer` skill (or type `requirement-analyzer`) to begin gathering, clarifying, and formalizing requirements for your first feature module."*
+
 ### 2. Query / Read Wiki Knowledge (`READ_QUERY`)
 Before starting any new requirement analysis or implementation task:
 1. Read `wiki/registry.yaml` to discover existing feature modules and document IDs.
