@@ -61,36 +61,47 @@ When adding a new skill:
 
 ## Installation
 
-Register skills to your preferred agent(s).
+Run a single command to launch an interactive selection menu. You can selectively choose which **Coding Agents** and which **Skills** to download and install (no git clone required):
 
 ### Windows (PowerShell)
 
 ```powershell
-# Register to all agents (Pi + Claude Code)
-.\register-skills.ps1
+irm https://raw.githubusercontent.com/pxuanbach/the-skills/main/install.ps1 | iex
+```
 
-# Register to specific agent only
-.\register-skills.ps1 -Target pi
-.\register-skills.ps1 -Target claude
+*Non-interactive / CLI flags (optional):*
+```powershell
+# Install specific skills to specific agents
+.\install.ps1 -Targets claude,antigravity -Skills wiki-manager,constructor
+
+# Install all skills to all agents
+.\install.ps1 -Targets all -Skills all
 ```
 
 ### macOS / Linux (Bash)
 
 ```bash
-# Register to all agents (Pi + Claude Code)
-./register-skills.sh
-
-# Register to specific agent only
-./register-skills.sh --target pi
-./register-skills.sh --target claude
+curl -fsSL https://raw.githubusercontent.com/pxuanbach/the-skills/main/install.sh | bash
 ```
 
-### Target Locations
+*Non-interactive / CLI flags (optional):*
+```bash
+# Install specific skills to specific agents
+./install.sh --targets claude,antigravity --skills wiki-manager,constructor
 
-| Agent | Path |
+# Install all skills to all agents
+./install.sh --targets all --skills all
+```
+
+---
+
+### Target Agent Directories
+
+| Agent | Default Path |
 |---|---|
-| Pi Agent | `~/.pi/agent/skills` |
-| Claude Code | `~/.claude/skills` |
+| **Pi Agent** | `~/.pi/agent/skills` |
+| **Claude Code** | `~/.claude/skills` |
+| **Antigravity / Gemini CLI** | `~/.gemini/config/skills` |
 
 ---
 

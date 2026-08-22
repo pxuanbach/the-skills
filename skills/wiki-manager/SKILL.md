@@ -1,6 +1,6 @@
 ---
 name: wiki-manager
-description: Manage, organize, query, store, and update project documentation and artifacts in the LLM Wiki (wiki/). Use this skill whenever initializing a wiki, storing or updating requirements (requirement.md), technical designs (design.md), mockups (mockup/*.md), implementation plans (plan.md), testing evidence (evidence.md), high-level design (DESIGN.md), system architecture (SYSTEM.md), appending log entries (log.md), or reading project knowledge across the SDLC workflow.
+description: Manage, organize, query, store, and update project documentation and artifacts in the LLM Wiki (wiki/). Use this skill whenever initializing a wiki, storing or updating requirements (requirement.md), technical designs (design.md), mockups (mockup/*.md), implementation plans (plan.md), testing evidence (evidence.md), project UI/UX design standards (DESIGN.md), system architecture (SYSTEM.md), appending log entries (log.md), or reading project knowledge across the SDLC workflow.
 ---
 
 # Wiki Manager Skill
@@ -14,8 +14,8 @@ All wiki documents reside in the `wiki/` directory at the project root:
 ```
 wiki/
 ├── registry.yaml             # Central index of feature modules, artifacts, status, and descriptions
-├── DESIGN.md                 # High-level architecture and design principles
-├── SYSTEM.md                 # System overview, tech stack, and component topology
+├── DESIGN.md                 # UI style, design tokens, UI/UX guidelines, component standards (UI source of truth)
+├── SYSTEM.md                 # Core project intent, high-level architecture, tech stack, directory structure, app boundaries
 ├── log.md                    # Chronological append-only record of all SDLC events
 ├── 001-task-management/      # Feature module directory (NNN-feature-name)
 │   ├── requirement.md        # Requirement & user stories (Requirement Analyzer)
@@ -44,11 +44,38 @@ wiki/
 Whenever an agent (Requirement Analyzer, User Designer, Constructor, Quality Reviewer, Security Reviewer) performs an SDLC step, follow these operational workflows:
 
 ### 1. Initialize Wiki (`INIT`)
-Before creating artifacts, check if `wiki/registry.yaml` exists. If not, initialize it using the helper script:
-```bash
-python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py init
-```
-Or create the root folder `wiki/` with baseline files: `registry.yaml`, `DESIGN.md`, `SYSTEM.md`, and `log.md`.
+Before creating feature artifacts, check if `wiki/registry.yaml` exists. If not, the Agent MUST execute the interactive initialization workflow:
+
+#### Step 1: Collect Project Information
+The Agent prompts the user for three core inputs:
+1. **Project Description & Intent**: Summary of the project, target audience, core problem solved, and key user flows.
+2. **`DESIGN.md` Specifications**:
+   - UI style & aesthetic direction.
+   - Design tokens (color palette, typography, spacing, border radius, shadows).
+   - Component guidelines and interactive UI/UX patterns.
+   - *Role*: Serves as the single source of truth so that whenever an Agent implements or modifies UI components, it strictly adheres to these project design standards.
+3. **`SYSTEM.md` Specifications**:
+   - Core project intent & high-level architecture (services, communication, topology).
+   - Tech stack (languages, frameworks, DB, tools).
+   - Directory structure (including the explicit purpose and use of each directory).
+   - Monorepo application boundaries and modular isolation rules (if applicable).
+
+#### Step 2: Auto-Generation Option
+- For `DESIGN.md` and `SYSTEM.md`, ask the user if they want to provide custom content or have the Agent **auto-generate standard-compliant files** based on the Project Description.
+- If **auto-generate** is selected:
+  - Agent synthesizes the Project Description to establish appropriate, high-quality standards.
+  - Generates `wiki/SYSTEM.md` with concrete architecture, tech stack selections, detailed directory mapping, and app boundaries.
+  - Generates `wiki/DESIGN.md` with complete UI tokens, component rules, styling conventions, and accessibility rules matching the tech stack.
+
+#### Step 3: Write Files & Initialize Registry
+1. Create `wiki/` directory.
+2. Create `wiki/registry.yaml` initialized with project name, system/design doc links, and empty modules array.
+3. Write `wiki/SYSTEM.md` and `wiki/DESIGN.md` (user-provided or auto-generated).
+4. Create `wiki/log.md` with an initial initialization entry.
+5. Alternatively, run the helper script and populate the content:
+   ```bash
+   python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py init
+   ```
 
 ### 2. Query / Read Wiki Knowledge (`READ_QUERY`)
 Before starting any new requirement analysis or implementation task:

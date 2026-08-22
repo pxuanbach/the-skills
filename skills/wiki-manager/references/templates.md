@@ -288,31 +288,165 @@ Chronological append-only record of all SDLC events. Never edit past entries.
 ```markdown
 # System Architecture & Topology
 
-## Overview
-<High level system summary>
+## 1. Core Project Intent
+<Clear summary of project mission, primary objectives, problem domain, and target users.>
 
-## Tech Stack
-- **Language**: Python / TypeScript / etc.
-- **Framework**: FastAPI / React / Node.js
-- **Database**: PostgreSQL / SQLite
+## 2. High-Level Architecture
+<High-level architectural style (e.g. Clean Architecture, Event-Driven, Microservices, Modular Monolith) and communication protocols.>
 
-## Component Topology
 ```mermaid
-graph LR
-    Client[Client App] --> API[API Server]
-    API --> DB[(Database)]
+graph TD
+    Client[Frontend / Client Application]
+    Gateway[API Gateway / Routing Layer]
+    ServiceA[Core Domain Service]
+    ServiceB[Background Worker / Queue]
+    DB[(Primary Database)]
+    Cache[(Cache / Redis)]
+
+    Client --> Gateway
+    Gateway --> ServiceA
+    Gateway --> ServiceB
+    ServiceA --> DB
+    ServiceA --> Cache
+    ServiceB --> DB
 ```
+
+## 3. Tech Stack
+- **Backend / Core Engine**: <Language, Runtime, Framework, e.g. Python 3.12, FastAPI, Pydantic>
+- **Frontend / Client**: <Framework, State Management, Styling, e.g. React 19, TypeScript, Tailwind CSS, shadcn/ui>
+- **Data & Storage**: <Databases, ORM, Migrations, Caching, e.g. PostgreSQL, SQLAlchemy, Alembic, Redis>
+- **Build & Package Management**: <e.g. uv, pnpm, Docker>
+- **Testing & Tooling**: <e.g. pytest, Vitest, Playwright, Ruff, ESLint>
+- **External Integrations & APIs**: <Third-party services, LLM providers, OAuth, Payment gateways>
+
+## 4. Directory Structure & Directory Purpose
+```
+project-root/
+├── app/                  # Application runtime source code
+│   ├── api/              # API endpoints, route controllers, request/response schemas
+│   ├── core/             # Core configurations, security/auth, application lifecycle
+│   ├── models/           # Database entity models and persistence schemas
+│   ├── repositories/     # Data access layer and database query abstractions
+│   ├── services/         # Business logic and domain service orchestration
+│   └── utils/            # Shared helper functions and common utilities
+├── frontend/             # Client application UI codebase
+│   ├── src/components/   # Reusable UI component library (adhering to wiki/DESIGN.md)
+│   ├── src/features/     # Feature-scoped views, hooks, and presentation state
+│   └── src/styles/       # Global CSS, theme variables, and design tokens
+├── tests/                # Automated test suites
+│   ├── unit/             # Fast isolated unit tests
+│   └── integration/      # End-to-end and database integration tests
+├── wiki/                 # Central SDLC documentation and knowledge wiki
+│   ├── registry.yaml     # Module registry & review configuration
+│   ├── DESIGN.md         # UI/UX design standards & component conventions
+│   └── SYSTEM.md         # System architecture, topology, and boundaries
+└── scripts/              # Automation scripts, devops workflows, and seed data
+```
+
+### Directory Usage Breakdown
+- `app/api/`: Handles incoming HTTP/RPC traffic, validates requests with schemas, and maps to services.
+- `app/services/`: Encapsulates pure business logic without direct HTTP dependencies.
+- `app/models/` & `app/repositories/`: Isolates database operations and schema definitions.
+- `frontend/`: Standalone client frontend; all UI elements must implement `wiki/DESIGN.md` guidelines.
+- `wiki/`: Single source of truth for SDLC artifacts and project knowledge.
+
+## 5. Monorepo App Boundaries & Modular Isolation
+- **Boundary Rules**:
+  - `frontend/` cannot import directly from `app/` internal modules; communicates strictly via REST/GraphQL API.
+  - Domain services in `app/services/` must remain decoupled from specific database drivers (utilize repositories).
+  - Shared models or contracts must be exposed via designated interface packages or OpenAPI specifications.
+
+## 6. Architectural Principles & Non-Functional Constraints
+- **Performance**: P95 response times < 200ms for core endpoints.
+- **Security**: Strict input validation, zero trust authentication, role-based access control.
+- **Maintainability**: Clear separation of concerns, test coverage >= 80% for domain logic.
 ```
 
 ---
 
-## 7. High-Level Design Template (`DESIGN.md`)
+## 8. UI/UX Design Standards Template (`DESIGN.md`)
 
 ```markdown
-# High-Level Design Guidelines
+# UI/UX Design Standards & Style Guide
 
-## Core Principles
-1. Maintain clean architecture and strict modular boundaries.
-2. Store all SDLC artifacts within `wiki/` indexed by `registry.yaml`.
-3. Provide traceability across requirements, plans, mockups, code, and evidence.
+> [!IMPORTANT]
+> **Single Source of Truth for UI Components**
+> When any Agent creates, modifies, or refactors UI components, layouts, or wireframes, it MUST adhere strictly to the design system, styling rules, and tokens specified in this document.
+
+## 1. Visual Theme & Philosophy
+- **Aesthetic Direction**: <e.g., Clean modern minimal, dense data-rich dashboard, playful accessible SaaS>
+- **Design Metaphor**: <e.g., Flat design with subtle elevation and micro-borders>
+- **Mode Support**: Light mode and Dark mode with consistent contrast ratios (WCAG AA minimum).
+
+## 2. Design Tokens
+
+### Color Palette
+- **Primary / Brand**: `#2563EB` (Blue 600) — Primary CTAs, active highlights
+- **Primary Hover**: `#1D4ED8` (Blue 700)
+- **Secondary / Accent**: `#7C3AED` (Violet 600) — Special badges, highlights
+- **Neutral Background (Light)**: `#F8FAFC` (Slate 50) | **Dark**: `#0F172A` (Slate 900)
+- **Surface / Card (Light)**: `#FFFFFF` | **Dark**: `#1E293B` (Slate 800)
+- **Text Primary (Light)**: `#0F172A` | **Dark**: `#F8FAFC`
+- **Text Secondary (Light)**: `#64748B` | **Dark**: `#94A3B8`
+- **Border / Divider (Light)**: `#E2E8F0` | **Dark**: `#334155`
+- **Feedback Colors**:
+  - Success: `#16A34A` (Green 600)
+  - Warning: `#D97706` (Amber 600)
+  - Error / Danger: `#DC2626` (Red 600)
+  - Info: `#0284C7` (Sky 600)
+
+### Typography
+- **Font Family**:
+  - Primary UI: `Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`
+  - Code / Monospace: `"JetBrains Mono", "Fira Code", monospace`
+- **Scale & Hierarchy**:
+  - Heading 1: `2rem (32px)` / Bold (700) / Line-height `1.2`
+  - Heading 2: `1.5rem (24px)` / Semi-bold (600) / Line-height `1.3`
+  - Heading 3: `1.25rem (20px)` / Semi-bold (600) / Line-height `1.4`
+  - Body Regular: `1rem (16px)` / Normal (400) / Line-height `1.5`
+  - Body Small / Caption: `0.875rem (14px)` / Normal (400) / Line-height `1.4`
+  - Microcopy / Tag: `0.75rem (12px)` / Medium (500)
+
+### Spacing & Elevation
+- **Grid Baseline**: `4px` grid (`4px`, `8px`, `12px`, `16px`, `24px`, `32px`, `48px`, `64px`)
+- **Border Radius**: Small (`4px`), Medium (`8px`), Large (`12px`), Pill (`9999px`)
+- **Shadows**:
+  - Subtle (Card): `0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)`
+  - Elevated (Dropdown/Popover): `0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)`
+  - Modal / Overlay: `0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)`
+
+## 3. UI Component Standards
+
+### Buttons
+- **Primary**: Solid primary color background, white text, 8px radius, medium font weight.
+- **Secondary**: Outlined with border color, surface background, primary text.
+- **Danger / Destructive**: Solid error red background or red text on ghost button for low-risk actions.
+- **States Required**: Default, Hover, Active, Focus Ring (2px offset), Disabled (`opacity: 50%`, `cursor: not-allowed`), Loading (spinner + text).
+
+### Form Controls & Inputs
+- Standard height: `40px` (Desktop), `44px` (Touch).
+- Clear labels above inputs, mandatory indicators (`*`), helper text below.
+- Validation states: Inline red error message below input with red border on field; success indicators where helpful.
+
+### Cards & Surfaces
+- Padding: `16px` (Compact) or `24px` (Standard).
+- Subtle 1px border with light background; hover state with slight elevation shift if clickable.
+
+### Modals & Dialogs
+- Backdrop overlay with blur (`backdrop-blur-sm bg-black/50`).
+- Clear header with title + close button (`X`), scrollable body, fixed footer with `[Cancel]` and `[Primary Action]`.
+
+## 4. Responsive & Layout Rules
+- **Breakpoints**: Mobile (`< 640px`), Tablet (`640px - 1024px`), Desktop (`> 1024px`).
+- **Layout Behavior**:
+  - Desktop: Multi-column grid, persistent sidebar/navigation.
+  - Mobile: Single-column stack, collapsible drawer navigation, full-width touch targets.
+
+## 5. Agent Code Compliance Checklist
+When generating or reviewing UI code, verify:
+- [ ] Uses defined color tokens and theme variables (no raw arbitrary hex colors).
+- [ ] Matches typography scale and line heights.
+- [ ] Includes all interaction states (hover, focus, disabled, loading).
+- [ ] Accessible color contrast ratio (WCAG 2.1 AA compliant).
+- [ ] Responsive across defined breakpoints without horizontal overflow.
 ```

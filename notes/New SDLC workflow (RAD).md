@@ -19,8 +19,8 @@ Workflow này mô tả một quy trình phát triển phần mềm (SDLC) có s�
     ```
     wiki/
     ├── registry.yaml              # Central index; includes max_review_iterations
-    ├── DESIGN.md                 # High-level design principles
-    ├── SYSTEM.md                 # System topology & tech stack
+    ├── DESIGN.md                 # UI style, UI/UX design tokens & component standards (UI source of truth)
+    ├── SYSTEM.md                 # Core project intent, architecture, tech stack, directory structure & boundaries
     ├── 001-task-management/
     │   ├── requirement.md        # User stories, FR/NFR, success criteria
     │   ├── design.md              # Technical design (API, data models, approved UI summary)
@@ -42,7 +42,13 @@ Workflow này mô tả một quy trình phát triển phần mềm (SDLC) có s�
         └── security-review.md
     ```
 
-- **Mô tả chi tiết**: Đây là 1 skill hướng dẫn AI Agents cách lưu trữ, truy xuất, và cập nhật thông tin vào LLM Wiki. Các agents sẽ sử dụng skill này để đảm bảo rằng tất cả các tài liệu quan trọng được tổ chức và dễ dàng truy cập.
+- **Mô tả chi tiết**: Đây là skill (`wiki-manager`) hướng dẫn AI Agents cách lưu trữ, truy xuất, và cập nhật thông tin vào LLM Wiki. Các agents sẽ sử dụng skill này để đảm bảo rằng tất cả các tài liệu quan trọng được tổ chức và dễ dàng truy cập.
+    - **Lệnh INIT (Khởi tạo Wiki)**:
+      - Agent phỏng vấn User để lấy:
+        1. **Mô tả dự án**: Mục tiêu cốt lõi, bài toán giải quyết, đối tượng người dùng.
+        2. **`DESIGN.md`**: Phong cách UI, design tokens (màu sắc, typography, khoảng cách), UI/UX rules, component standards. Đóng vai trò **single source of truth** khi Agent code hoặc sửa UI components.
+        3. **`SYSTEM.md`**: Core project intent, kiến trúc tổng quan, Tech stack, cấu trúc thư mục (kèm mục đích từng thư mục), và monorepo app boundaries.
+      - **Auto-generation**: Nếu User chọn auto-generate, Agent sẽ từ Mô tả dự án tự động sinh ra các chuẩn mực hoàn chỉnh cho `DESIGN.md` và `SYSTEM.md`.
 
 ### 2. Các Agents chính (hiện thực hóa dưới dạng skill/workflow)
 
@@ -117,11 +123,18 @@ Workflow này mô tả một quy trình phát triển phần mềm (SDLC) có s�
 
 #### User Designer
 - **Nhiệm vụ**: Tạo design/mockup/plan từ requirement
-- **Input**: Requirement/user story
+- **Input**:
+    - `requirement.md` (yêu cầu nghiệp vụ)
+    - `wiki/SYSTEM.md` (kiến trúc tổng thể, tech stack, directory structure, boundaries)
+    - `wiki/DESIGN.md` (UI style, design tokens, component standards — khi feature có UI)
 - **Output**:
     - Technical Design (`design.md`) — API contracts, data models, acceptance criteria
-    - Mockup / Plan
-- **Thứ tự thực hiện**: design.md → mockup/ (user review loop) → plan.md
+    - Mockup (`mockup/*.md`) tuân thủ `DESIGN.md` / Plan (`plan.md`)
+- **Thứ tự thực hiện**:
+    1. Đọc `requirement.md` & `wiki/SYSTEM.md` (đảm bảo thiết kế khớp kiến trúc)
+    2. Tạo `design.md` (API contracts, data models)
+    3. Đọc `wiki/DESIGN.md` → Tạo `mockup/` (user review loop)
+    4. Cập nhật `design.md` approved UI summary & tạo `plan.md`
 - **Vòng lặp với User**:
     - User review mockups → gửi request changes
     - User Designer xử lý yêu cầu thay đổi (loop)
@@ -328,8 +341,8 @@ Workflow này mô tả một quy trình phát triển phần mềm (SDLC) có s�
     ```
 
 - **Mô tả chi tiết**: 
-    - User Designer (as an agent) sẽ tạo `design.md` (technical design) TRƯỚC, sau đó tạo mockup/plan dựa trên requirement/user story. `design.md` là tài liệu kỹ thuật cuối cùng bao gồm API contracts, data models, và approved UI summary — nó là single source of truth cho implementation. Khi UI có thay đổi hoặc requirement tạo mới UI, agent sẽ tạo thêm các bản mockup UI design để user review layout/components/interactions. Agent đọc skill llm-wiki để lưu trữ tài liệu vào wiki/ đúng cách.
-    - user-designer (as a skill) sẽ hướng dẫn agent: (1) tạo `design.md` với đầy đủ API contracts và data models, (2) tạo mockup và loop với user để approve UI, (3) cập nhật design.md UI summary sau khi user approve, (4) tạo `plan.md` với task list rõ ràng. Skill này cũng tham chiếu/nhắc đến skill llm-wiki để agent lưu trữ tài liệu vào wiki/ đúng cách.
+    - User Designer (as an agent) đọc `requirement.md` cùng `wiki/SYSTEM.md` để nắm rõ kiến trúc hệ thống, tech stack và app boundaries. Sau đó tạo `design.md` (technical design) TRƯỚC làm single source of truth cho implementation (API contracts, data models). Khi feature có UI, agent đọc `wiki/DESIGN.md` (design tokens, component guidelines) để vẽ các bản mockup UI (`mockup/*.md`) cho user review. Sau khi user approve, agent cập nhật `design.md` và tạo `plan.md`. Agent dùng skill `wiki-manager` để lưu trữ tài liệu vào `wiki/` đúng cách.
+    - user-designer (as a skill) sẽ hướng dẫn agent: (1) đọc `requirement.md` và `wiki/SYSTEM.md`, (2) tạo `design.md` với đầy đủ API contracts và data models, (3) đọc `wiki/DESIGN.md` để tạo mockup và loop với user để approve UI, (4) cập nhật `design.md` UI summary sau khi user approve, (5) tạo `plan.md` với task list rõ ràng. Skill này cũng tham chiếu/nhắc đến skill `wiki-manager` để agent lưu trữ tài liệu vào `wiki/` đúng cách.
 
 #### Constructor
 - **Nhiệm vụ**: Implement tasks và testing theo Implementation Process trên plan
@@ -429,24 +442,26 @@ Workflow này mô tả một quy trình phát triển phần mềm (SDLC) có s�
 ## Luồng workflow chi tiết
 
 ```
+0. Wiki Manager -> [INIT: phỏng vấn Mô tả dự án, SYSTEM.md, DESIGN.md (hoặc auto-gen)]
+   ↓
 User -> [ask ambiguous requirements]
    ↓
 Requirement Analyzer -> [gather & clarify with sub-agents]
    ↓
-Requirement/User Story -> [lưu vào wiki/ bằng llm-wiki skill]
+Requirement/User Story -> [lưu vào wiki/ bằng wiki-manager skill]
    ↓
-User Designer -> [tạo design.md (API contracts, data models)]
+User Designer -> [đọc requirement.md + wiki/SYSTEM.md → tạo design.md (API contracts, data models)]
    ↓
-User Designer -> [tạo mockup/]
+User Designer -> [nếu có UI: đọc wiki/DESIGN.md → tạo mockup/]
    ↓ ←-> User [loop: review mockup ↔ request changes]
    ↓
 User Designer -> [cập nhật design.md status=approved, tạo plan.md]
    ↓
-Plan/Prototype -> [lưu vào wiki/ bằng llm-wiki skill]
+Plan/Prototype -> [lưu vào wiki/ bằng wiki-manager skill]
    ↓
-Constructor -> [implement tasks + testing]
+Constructor -> [đọc design.md + plan.md → implement tasks + testing]
    ↓
-Source Code + evidence.md -> [lưu vào wiki/ bằng llm-wiki skill]
+Source Code + evidence.md -> [lưu vào wiki/ bằng wiki-manager skill]
    ↓
 Quality Reviewer -> [review & request changes] -> Constructor [loop max N lần từ registry.yaml]
    ↓

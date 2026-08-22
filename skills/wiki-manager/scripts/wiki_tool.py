@@ -69,20 +69,60 @@ modules: []
 
     design_path = os.path.join(wiki_dir, "DESIGN.md")
     if not os.path.exists(design_path):
+        design_default = """# UI/UX Design Standards & Style Guide
+
+> [!IMPORTANT]
+> **Single Source of Truth for UI Components**
+> When any Agent creates, modifies, or refactors UI components, layouts, or wireframes, it MUST adhere strictly to the design system, styling rules, and tokens specified in this document.
+
+## 1. Visual Theme & Philosophy
+- **Aesthetic Direction**: Modern, clean, and accessible
+- **Mode Support**: Light & Dark mode support with WCAG AA contrast compliance
+
+## 2. Design Tokens
+- **Colors**: Primary, Secondary, Neutral backgrounds, Surface cards, Text hierarchy, Feedback states
+- **Typography**: Primary UI font, Monospace code font, Scale (h1-h3, body, small, caption)
+- **Spacing & Elevation**: 4px baseline grid, standard border radiuses, subtle elevation shadows
+
+## 3. UI Component Standards
+- **Buttons, Form Controls & Inputs, Cards, Modals**: Baseline styles, interactive states (hover, focus, disabled, loading)
+
+## 4. Responsive & Layout Rules
+- **Breakpoints**: Mobile (<640px), Tablet (640px-1024px), Desktop (>1024px)
+"""
         with open(design_path, "w", encoding="utf-8") as f:
-            f.write("# High-Level Design\n\nCentral design specs and rules for the system.\n")
+            f.write(design_default)
         print(f"[OK] Created {design_path}")
 
     system_path = os.path.join(wiki_dir, "SYSTEM.md")
     if not os.path.exists(system_path):
+        system_default = """# System Architecture & Topology
+
+## 1. Core Project Intent
+- **Purpose**: Core mission and target user domain.
+
+## 2. High-Level Architecture
+- Architecture topology, communication flow, and system components.
+
+## 3. Tech Stack
+- **Core Engine / Backend**: Framework, Runtime, Language
+- **Frontend / Client**: Framework, UI Library, State Management
+- **Database & Storage**: Persistence layers, cache, migrations
+
+## 4. Directory Structure & Directory Purpose
+- Repository directory tree and the designated responsibility for each folder.
+
+## 5. Monorepo App Boundaries & Modular Isolation
+- Package boundaries, dependency direction, and module isolation rules.
+"""
         with open(system_path, "w", encoding="utf-8") as f:
-            f.write("# System Topology\n\nSystem architecture, component breakdown, and tech stack.\n")
+            f.write(system_default)
         print(f"[OK] Created {system_path}")
 
     log_path = os.path.join(wiki_dir, "log.md")
     if not os.path.exists(log_path):
         with open(log_path, "w", encoding="utf-8") as f:
-            f.write("# SDLC Activity Log\n\nChronological append-only record of all SDLC events. Never edit past entries.\n\n")
+            f.write(f"# SDLC Activity Log\n\nChronological append-only record of all SDLC events. Never edit past entries.\n\n## {datetime.now().strftime('%Y-%m-%d')}\n\n- **{datetime.now().strftime('%H:%M')}** — [Wiki Manager] Initialized wiki repository with SYSTEM.md and DESIGN.md.\n")
         print(f"[OK] Created {log_path}")
 
     print("[SUCCESS] Wiki initialized successfully.")

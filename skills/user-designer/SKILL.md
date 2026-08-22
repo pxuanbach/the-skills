@@ -33,9 +33,10 @@ The **User Designer** skill guides AI agents in transforming approved requiremen
 
 ---
 
-### Step 1: Read Requirement & Context
-1. Read `wiki/<NNN>-<feature>/requirement.md` using the `wiki-manager` skill.
-2. Extract Requirement ID (`req-xxx`), User Stories (`US-xxx`), Functional Requirements (`FR-xxx`), and Success Criteria.
+### Step 1: Read Requirement & Architectural Context
+1. **Read `wiki/<NNN>-<feature>/requirement.md`** using the `wiki-manager` skill.
+2. **Read `wiki/SYSTEM.md`** for architectural context: verify tech stack, component topology, directory structure, and application boundaries to ensure the design fits the system architecture.
+3. Extract Requirement ID (`req-xxx`), User Stories (`US-xxx`), Functional Requirements (`FR-xxx`), and Success Criteria.
 
 ---
 
@@ -46,7 +47,7 @@ Before drafting mockups or plans, create the technical design document that serv
 2. **Key sections to fill**:
    - **API Contracts**: Define exact endpoints, request/response schemas, HTTP methods, status codes, error formats.
    - **Data Models**: Define database schema, field types, constraints, relationships.
-   - **Architecture**: High-level component breakdown, service boundaries, internal module dependencies.
+   - **Architecture**: High-level component breakdown, service boundaries, internal module dependencies (consistent with `wiki/SYSTEM.md`).
    - **UI Summary**: Approved screen list linking to mockups (to be created next).
    - **Acceptance Criteria**: Directly map from requirement's Success Criteria section — these are verifiable conditions Constructor will use to validate implementation.
 3. **Link to parent requirement**: `derived_from: [req-xxx]` in frontmatter.
@@ -62,9 +63,10 @@ Before drafting mockups or plans, create the technical design document that serv
 Determine whether the feature introduces or modifies UI screens:
 
 - **If UI/UX is involved**:
-  1. Create `wiki/<NNN>-<feature>/mockup/<screen-slug>.md`.
-  2. Use ASCII wireframe conventions from [references/ascii_wireframe_guide.md](references/ascii_wireframe_guide.md).
-  3. Include sections: `## Screen Name`, ASCII wireframe block, `## Components`, `## Interactions`, and `## Related Requirements`.
+  1. **Read `wiki/DESIGN.md`**: Inspect project-wide UI/UX standards, design tokens (colors, typography, spacing, elevation), component conventions, and responsive rules. All wireframes and component specifications must adhere to `wiki/DESIGN.md`.
+  2. Create `wiki/<NNN>-<feature>/mockup/<screen-slug>.md`.
+  3. Use ASCII wireframe conventions from [references/ascii_wireframe_guide.md](references/ascii_wireframe_guide.md).
+  4. Include sections: `## Screen Name`, ASCII wireframe block, `## Components`, `## Interactions`, and `## Related Requirements`.
 
 - **If Backend / API / CLI only**:
   1. Skip creating the `mockup/` folder.
@@ -137,7 +139,7 @@ graph TD
 
 ---
 
-### Step 4: User Review & Revision Loop
+### Step 6: User Review & Revision Loop
 Before finalizing:
 1. Present the draft plan and mockups (if any) to the user.
 2. If the user requests changes, update `plan.md` or `mockup/*.md` accordingly.
@@ -145,7 +147,7 @@ Before finalizing:
 
 ---
 
-### Step 6: Persist to LLM Wiki & Sync
+### Step 7: Persist to LLM Wiki & Sync
 1. Ensure files are saved in `wiki/<NNN>-<feature>/`.
 2. Sync `wiki/registry.yaml`:
    ```bash
@@ -154,7 +156,7 @@ Before finalizing:
 
 ---
 
-### Step 7: Validate Plan & Mockup
+### Step 8: Validate Plan & Mockup
 Run the validator script:
 ```bash
 python <SKILLS_DIR>/user-designer/scripts/validate_plan_mockup.py wiki/<NNN>-<feature>/plan.md
