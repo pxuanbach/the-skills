@@ -132,14 +132,31 @@ def sync_wiki(wiki_dir="wiki"):
         print(f"[ERROR] Directory '{wiki_dir}' does not exist. Run 'init' first.")
         return
 
+    # Load existing registry to preserve module statuses
+    existing_status = {}
+    registry_path = os.path.join(wiki_dir, "registry.yaml")
+    if os.path.exists(registry_path):
+        with open(registry_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        # Parse existing module statuses from registry
+        current_id = None
+        for line in content.splitlines():
+            m = re.match(r'^\s+-\s+id:\s+"([^"]+)"', line)
+            if m:
+                current_id = m.group(1)
+            elif re.match(r'^\s+status:\s+"([^"]+)"', line) and current_id:
+                existing_status[current_id] = line.strip().split('"')[1]
+                current_id = None
+
     modules = []
     for item in sorted(os.listdir(wiki_dir)):
         item_path = os.path.join(wiki_dir, item)
         if os.path.isdir(item_path) and re.match(r"^\d{3}-", item):
+            # Preserve existing status; only set in_progress for new modules
             mod_info = {
                 "id": item,
                 "name": item[4:].replace("-", " ").title(),
-                "status": "in_progress",
+                "status": existing_status.get(item, "in_progress"),
                 "artifacts": {}
             }
             arts = mod_info["artifacts"]
