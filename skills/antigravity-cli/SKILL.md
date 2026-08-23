@@ -1,6 +1,7 @@
 ---
 name: antigravity-cli
 description: Delegate frontend coding tasks to Google's Antigravity CLI (agy). Use this skill when the user asks to build, implement, refactor, or redesign React/Next.js components, styling, responsive layouts, UI interactions, or any frontend work that would benefit from a specialized coding subagent. Invoke agy in headless mode with a complete, self-contained task description.
+version: 1.0.0
 ---
 
 # Antigravity CLI
