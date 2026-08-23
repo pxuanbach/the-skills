@@ -1,52 +1,60 @@
-# 11-Point Quality Review Checklist
+# 12-Point Quality Review Checklist
 
-## 1. Design
-- Are interactions between modules/components logical and well-structured?
-- Should this change belong in the main codebase or be abstracted into a library?
-- Does it integrate seamlessly with the rest of the system architecture?
-- Is the timing right for introducing this functionality?
+## 1. Design & Integration Points
+- Are interactions between modules, services, and components logical, decoupled, and well-structured?
+- **Contract & Data Flow**: Are schemas, payloads, headers, and types strictly compatible between caller and callee?
+- **Multi-Step Workflows / API Chaining**: Is the end-to-end chain verified (e.g., Auth/Login → Token/Session storage → State propagation → Next API / View)?
+- Does the change integrate cleanly with system architecture without leaking abstractions?
 
-## 2. Functionality
-- Does the code achieve what the developer intended?
-- Is it good for both end-users and future maintainers/developers?
-- Have edge cases, null pointer risks, concurrency issues, race conditions, and deadlocks been evaluated?
+## 2. Functionality & Routing Logic
+- Does the code achieve developer and business intent end-to-end?
+- **Routing & Navigation**: Are route transitions, redirect status codes (e.g., 302/303/307 redirects vs 200 JSON responses), route guards (Auth/Role permissions), query parameters, and history navigation correctly handled?
+- **State Persistence**: Is session/application state preserved and synchronized across redirects, page reloads, and navigation events?
 
-## 3. Complexity
+## 3. Error Handling & Resilience
+- Are error paths and failure modes handled at every integration point (network failure, timeout, non-200 HTTP statuses, unauthorized 401/403, missing resources 404, server 500)?
+- In multi-step flows, if a subsequent step fails (e.g. login succeeds but redirect route or destination API fails), is there graceful fallback and clear user feedback?
+- Are resources cleaned up and states/transactions rolled back on error (no dangling state or half-committed mutations)?
+- Are there any swallowed exceptions, silent `catch {}` blocks, or unhandled promise rejections?
+
+## 4. Edge Cases & Data Boundaries
+- Have boundary values been evaluated: null/undefined, empty strings/arrays, zero/negative numbers, special/unicode characters, oversized payloads?
+- Are concurrency, race conditions, debounce/throttle, and double-submission risks (e.g., rapid clicks on submit/login) protected against?
+- Is token/session expiration during in-flight requests handled gracefully?
+
+## 5. Complexity
 - Is the code more complex than necessary?
 - Avoid over-engineering: do not implement speculative future requirements.
-- Solve present problems cleanly.
+- Solve present problems cleanly and concisely.
 
-## 4. Tests
-- Are there sufficient unit, integration, and end-to-end tests for the change?
-- Are tests correct, sensible, and useful?
-- Do tests fail accurately when code breaks, or do they produce false positives?
-- Are test files kept clean and free of unnecessary complexity?
+## 6. Tests & Flow Verification
+- Are there sufficient unit tests for isolated business logic?
+- **Integration / Flow Tests**: Are multi-step interactions, API handoffs, and integration points tested (e.g., login → redirect → protected route data fetch)?
+- Are error paths, redirect status codes, and edge case scenarios explicitly covered by tests?
+- Do tests fail accurately when code breaks, without producing false positives?
 
-## 5. Naming
-- Are identifiers (variables, parameters, classes, methods) long enough to communicate intent clearly without being overly verbose?
+## 7. Naming
+- Are identifiers (variables, parameters, classes, methods, routes, endpoints) clear, descriptive, and concise without being overly verbose?
 
-## 6. Comments
+## 8. Comments
 - Are comments written in clear English?
 - Do comments explain **WHY** a decision was made rather than **WHAT** the code does?
 - If code is unclear, simplify the code rather than adding explanatory comments.
 - Are obsolete TODOs or temporary comments removed?
 
-## 7. Style
+## 9. Style
 - Does the code strictly follow the programming language's standard style guide?
 - Does it adhere to project-specific styling and formatting rules?
 
-## 8. Consistency
-- Is the style guide treated as the ultimate authority?
-- If local code is inconsistent with project style guidelines, follow the official style guide and log cleanup issues if needed.
+## 10. Consistency
+- Follows existing codebase conventions, design patterns, and architectural standards?
+- If local code is inconsistent with project guidelines, adhere to the official standard.
 
-## 9. Documentation
-- If changes impact build, setup, testing, or deployment processes, are READMEs and documentation updated accordingly?
+## 11. Documentation
+- If changes impact build, setup, APIs, route definitions, environment variables, or deployment, are READMEs and docs updated?
 - If features were deleted or deprecated, was obsolete documentation removed?
 
-## 10. Every Line
+## 12. Every Line & System Context
 - Did the reviewer inspect every assigned line of code (excluding auto-generated code and data files)?
-- If logic is hard to understand, request clarification from Constructor.
-
-## 11. System Context
 - Is the change evaluated in the context of the full file and surrounding architecture?
 - Does this change improve or degrade the overall health of the codebase?

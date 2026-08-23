@@ -14,7 +14,7 @@ REQUIRED_FRONTMATTER = ["id", "title", "derived_from", "status", "iteration"]
 VALID_STATUSES = ["APPROVED", "CHANGES_REQUESTED"]
 REQUIRED_SECTIONS = [
     r"## Review Summary",
-    r"## 11-Point Checklist Evaluation",
+    r"## (?:11-Point |12-Point |Quality )?Checklist Evaluation",
     r"## Detailed Findings & Action Items"
 ]
 

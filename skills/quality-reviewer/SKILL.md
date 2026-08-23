@@ -16,7 +16,7 @@ When reviewing completed tasks or test evidence from Constructor, follow these 5
                           ↓
 1. Artifact & Context Discovery (wiki-manager skill)
                           ↓
-2. 11-Point Quality Inspection (quality_checklist.md)
+2. 12-Point Quality Inspection (quality_checklist.md)
                           ↓
 3. Review Decision & Report Generation (quality-review.md)
                           ↓
@@ -36,20 +36,21 @@ When reviewing completed tasks or test evidence from Constructor, follow these 5
 
 ---
 
-### Step 2: 11-Point Quality Inspection
+### Step 2: 12-Point Quality Inspection
 Evaluate the changes using the checklist in [references/quality_checklist.md](references/quality_checklist.md):
 
-1. **Design**: Are component interactions clean? Should functionality live in a library vs codebase? Integrates cleanly with system architecture?
-2. **Functionality**: Fulfills developer intent? Safe for end-users and developers? Checked edge cases, concurrency, race conditions, deadlocks?
-3. **Complexity**: Free of over-engineering? Solves the present problem rather than speculative future features?
-4. **Tests**: Adequate unit/integration tests? Tests fail when code breaks (no false positives)? Free of unnecessary test complexity?
-5. **Naming**: Clear, descriptive, and concise names for functions, variables, and modules?
-6. **Comments**: Comments written in clear English? Explain *WHY* decisions were made, not *WHAT* code does? Obsolete TODOs cleaned up?
-7. **Style**: Adheres strictly to language and project style guides?
-8. **Consistency**: Follows existing codebase conventions unless overriding obsolete practices?
-9. **Documentation**: Updated READMEs/docs if build, test, or deployment was affected? Cleaned up deleted/deprecated feature docs?
-10. **Every Line**: Carefully inspected every assigned line of code? Clarified ambiguities with Constructor?
-11. **Context**: Evaluated full file and system context to ensure overall code health is improved, not degraded?
+1. **Design & Integration Points**: Clean component interactions? Data contracts, schemas, and multi-step API chains (e.g. Auth → Session/Token → Navigation/Redirect → Subsequent API) verified?
+2. **Functionality & Routing Logic**: Fulfills developer/user intent? Route transitions, redirect status codes, route guards (Auth/Role), and state persistence handled?
+3. **Error Handling & Resilience**: Graceful error handling at all integration points? Fallback on multi-step failures? No silent `catch {}` blocks or unhandled rejections?
+4. **Edge Cases & Data Boundaries**: Boundary values (null/empty/unicode), concurrency, race conditions, double-submissions, and token expiration evaluated?
+5. **Complexity**: Free of over-engineering? Solves the present problem rather than speculative future features?
+6. **Tests & Flow Verification**: Adequate unit AND integration/workflow tests covering multi-endpoint interactions, redirect cascades, and error paths?
+7. **Naming**: Clear, descriptive, and concise names for functions, variables, and modules?
+8. **Comments**: Comments written in clear English? Explain *WHY* decisions were made, not *WHAT* code does? Obsolete TODOs cleaned up?
+9. **Style**: Adheres strictly to language and project style guides?
+10. **Consistency**: Follows existing codebase conventions unless overriding obsolete practices?
+11. **Documentation**: Updated READMEs/docs, API specs, and route definitions if affected? Cleaned up deleted/deprecated feature docs?
+12. **Every Line & System Context**: Inspected every assigned line of code and evaluated overall system health?
 
 ---
 
@@ -57,7 +58,7 @@ Evaluate the changes using the checklist in [references/quality_checklist.md](re
 Using the template in [references/review_report_template.md](references/review_report_template.md), create `wiki/<NNN>-<feature>/quality-review.md`:
 
 - **Status Options**:
-  - `APPROVED`: Code meets all 11 quality criteria. Ready for security review or user confirmation.
+  - `APPROVED`: Code meets all 12 quality criteria. Ready for security review or user confirmation.
   - `CHANGES_REQUESTED`: Concrete actionable findings must be addressed by Constructor.
 - Frontmatter metadata required: `id` (`qreview-xxx`), `title`, `derived_from` (`evidence-xxx`), `status` (`APPROVED` or `CHANGES_REQUESTED`), `iteration` (1 to N).
 - **Max iterations**: Read from `wiki/registry.yaml` → `max_review_iterations` (defaults to `3` if not set).
