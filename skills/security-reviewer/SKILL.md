@@ -7,6 +7,27 @@ description: Review source code, API routes, data handling, authentication, auth
 
 The **Security Reviewer** skill guides AI agents in performing security audits and static vulnerability analyses on code produced by Constructor. It identifies security vulnerabilities across 10 critical categories, applies false positive filtering, and issues formal security review decisions (`PASS` or `FAIL`).
 
+## SDLC Workflow Position
+
+```
+[0. wiki-manager] (Init & Central Knowledge Hub)
+       │
+       ▼
+[1. requirement-analyzer]
+       │
+       ▼
+[2. user-designer]
+       │
+       ▼
+[3. constructor]
+       │
+       ├──► [4a. quality-reviewer]  ──────────────────────(loop)──┐
+       │                                                         ▼
+       └──► [4b. security-reviewer] <=== (YOU ARE HERE) ──(loop)──┴─► [User Confirmation]
+```
+
+> **Current Position**: `security-reviewer` (Step 4 — Optional security audit and vulnerability scanning with pass/fail decision)
+
 ## Operational Workflow
 
 When conducting a security review, follow these 5 steps sequentially:

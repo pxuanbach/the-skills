@@ -7,6 +7,27 @@ description: Review source code, implementation plans, and test evidence for qua
 
 The **Quality Reviewer** skill guides AI agents in conducting comprehensive code and documentation reviews on artifacts produced by Constructor. It evaluates design, functionality, complexity, test validity, naming, comments, style, consistency, and overall system health before final user confirmation.
 
+## SDLC Workflow Position
+
+```
+[0. wiki-manager] (Init & Central Knowledge Hub)
+       │
+       ▼
+[1. requirement-analyzer]
+       │
+       ▼
+[2. user-designer]
+       │
+       ▼
+[3. constructor]
+       │
+       ├──► [4a. quality-reviewer]  <=== (YOU ARE HERE) ──(loop)──┐
+       │                                                         ▼
+       └──► [4b. security-reviewer] ──────────────────────(loop)──┴─► [User Confirmation]
+```
+
+> **Current Position**: `quality-reviewer` (Step 4 — Optional quality review and feedback loop on code, design, and tests)
+
 ## Operational Workflow
 
 When reviewing completed tasks or test evidence from Constructor, follow these 5 steps sequentially:

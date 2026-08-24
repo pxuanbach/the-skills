@@ -2,6 +2,11 @@
 
 All notable changes to this skill are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.3.1] — 2026-08-24
+
+### Added
+- Added SDLC workflow position flowchart to all 6 RAD skills (`wiki-manager`, `requirement-analyzer`, `user-designer`, `constructor`, `quality-reviewer`, `security-reviewer`) highlighting current node position.
+
 ## [1.3.0] — 2026-08-12
 
 ### Added

@@ -7,6 +7,27 @@ description: Create UI/UX mockups, wireframes, technical implementation plans, a
 
 The **User Designer** skill guides AI agents in transforming approved requirement documents into detailed technical implementation plans (`plan.md`) and UI/UX mockups (`mockup/*.md`), managing an interactive review loop with the user.
 
+## SDLC Workflow Position
+
+```
+[0. wiki-manager] (Init & Central Knowledge Hub)
+       │
+       ▼
+[1. requirement-analyzer]
+       │
+       ▼
+[2. user-designer]  <=== (YOU ARE HERE)
+       │
+       ▼
+[3. constructor]
+       │
+       ├──► [4a. quality-reviewer]  ──(loop)──┐
+       │                                      ▼
+       └──► [4b. security-reviewer] ──(loop)──┴─► [User Confirmation]
+```
+
+> **Current Position**: `user-designer` (Step 2 — Transforms requirements into technical design `design.md`, UI `mockup/*.md`, and `plan.md`)
+
 ## Operational Workflow
 
 ```

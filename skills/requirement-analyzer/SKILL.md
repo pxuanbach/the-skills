@@ -6,6 +6,27 @@ description: Gather, clarify, structure, and formalize software requirements and
 
 The **Requirement Analyzer** skill guides AI agents in turning vague or high-level user ideas into precise, structured, and testable requirement specifications within the LLM Wiki.
 
+## SDLC Workflow Position
+
+```
+[0. wiki-manager] (Init & Central Knowledge Hub)
+       │
+       ▼
+[1. requirement-analyzer]  <=== (YOU ARE HERE)
+       │
+       ▼
+[2. user-designer]
+       │
+       ▼
+[3. constructor]
+       │
+       ├──► [4a. quality-reviewer]  ──(loop)──┐
+       │                                      ▼
+       └──► [4b. security-reviewer] ──(loop)──┴─► [User Confirmation]
+```
+
+> **Current Position**: `requirement-analyzer` (Step 1 — Gathers, clarifies, and formalizes requirements into `wiki/<feature>/requirement.md`)
+
 ## Operational Workflow
 
 When receiving a feature request or project request, follow these 5 steps sequentially:

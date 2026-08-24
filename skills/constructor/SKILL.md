@@ -4,7 +4,28 @@ description: Implement tasks and execute testing according to the Implementation
 ---
 # Constructor Skill
 
-The **Constructor** skill guides AI agents in reading approved implementation plans (`plan.md`) and UI mockups (`mockup/*.md`), executing defined tasks step-by-step, discovering &amp; loading appropriate programming language/framework skills, executing tests, and producing testing evidence (`evidence.md`) within the LLM Wiki.
+The **Constructor** skill guides AI agents in reading approved implementation plans (`plan.md`) and UI mockups (`mockup/*.md`), executing defined tasks step-by-step, discovering & loading appropriate programming language/framework skills, executing tests, and producing testing evidence (`evidence.md`) within the LLM Wiki.
+
+## SDLC Workflow Position
+
+```
+[0. wiki-manager] (Init & Central Knowledge Hub)
+       │
+       ▼
+[1. requirement-analyzer]
+       │
+       ▼
+[2. user-designer]
+       │
+       ▼
+[3. constructor]  <=== (YOU ARE HERE)
+       │
+       ├──► [4a. quality-reviewer]  ──(loop)──┐
+       │                                      ▼
+       └──► [4b. security-reviewer] ──(loop)──┴─► [User Confirmation]
+```
+
+> **Current Position**: `constructor` (Step 3 — Implements tasks, executes tests, and produces test evidence `evidence.md`)
 
 ## Operational Workflow
 

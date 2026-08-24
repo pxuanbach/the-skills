@@ -7,6 +7,27 @@ description: Manage, organize, query, store, and update project documentation an
 
 The **Wiki Manager** is the central documentation and knowledge repository for the SDLC workflow. It organizes all requirements, designs, mockups, implementation plans, and testing evidence into a structured markdown wiki indexed by `wiki/registry.yaml`. A chronological `log.md` tracks all changes for auditability.
 
+## SDLC Workflow Position
+
+```
+[0. wiki-manager] (Init & Central Knowledge Hub)  <=== (YOU ARE HERE)
+       │
+       ▼
+[1. requirement-analyzer]
+       │
+       ▼
+[2. user-designer]
+       │
+       ▼
+[3. constructor]
+       │
+       ├──► [4a. quality-reviewer]  ──(loop)──┐
+       │                                      ▼
+       └──► [4b. security-reviewer] ──(loop)──┴─► [User Confirmation]
+```
+
+> **Current Position**: `wiki-manager` (Step 0 & Central Documentation Hub used across all SDLC phases)
+
 ## Wiki Architecture & Directory Structure
 
 All wiki documents reside in the `wiki/` directory at the project root:
