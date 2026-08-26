@@ -50,6 +50,7 @@ get_target_path() {
     pi) echo "$HOME/.pi/agent/skills" ;;
     claude) echo "$HOME/.claude/skills" ;;
     antigravity) echo "$HOME/.gemini/config/skills" ;;
+    codex) echo "$HOME/.codex/skills" ;;
     *) echo "" ;;
   esac
 }
@@ -59,6 +60,7 @@ get_target_name() {
     pi) echo "Pi Agent" ;;
     claude) echo "Claude Code" ;;
     antigravity) echo "Antigravity / Gemini CLI" ;;
+    codex) echo "OpenAI Codex CLI" ;;
     *) echo "$1" ;;
   esac
 }
@@ -110,7 +112,7 @@ echo -e "${CYAN}==========================================================${NC}\
 CHOSEN_TARGETS=()
 if [ -n "$CLI_TARGETS" ]; then
   if [ "$CLI_TARGETS" = "all" ]; then
-    CHOSEN_TARGETS=("pi" "claude" "antigravity")
+    CHOSEN_TARGETS=("pi" "claude" "antigravity" "codex")
   else
     IFS=',' read -ra ADDR <<< "$CLI_TARGETS"
     for i in "${ADDR[@]}"; do CHOSEN_TARGETS+=("$(echo "$i" | tr -d ' ')"); done
@@ -120,13 +122,14 @@ else
   echo "  [1] Pi Agent (~/.pi/agent/skills)"
   echo "  [2] Claude Code (~/.claude/skills)"
   echo "  [3] Antigravity / Gemini CLI (~/.gemini/config/skills)"
+  echo "  [4] OpenAI Codex CLI (~/.codex/skills)"
   echo "  [A] All Agents"
   echo ""
   read -p "Enter selections separated by comma (e.g. 1,2) [default: A]: " target_input < /dev/tty || target_input="A"
   target_input="${target_input:-A}"
 
   if [[ "$target_input" =~ ^[Aa]$ ]]; then
-    CHOSEN_TARGETS=("pi" "claude" "antigravity")
+    CHOSEN_TARGETS=("pi" "claude" "antigravity" "codex")
   else
     IFS=',' read -ra ADDR <<< "$target_input"
     for choice in "${ADDR[@]}"; do
@@ -134,6 +137,7 @@ else
         1) CHOSEN_TARGETS+=("pi") ;;
         2) CHOSEN_TARGETS+=("claude") ;;
         3) CHOSEN_TARGETS+=("antigravity") ;;
+        4) CHOSEN_TARGETS+=("codex") ;;
       esac
     done
   fi
