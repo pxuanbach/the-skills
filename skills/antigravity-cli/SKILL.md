@@ -49,10 +49,11 @@ agy -p "<task>" --output-format json --print-timeout 15m --disable-slash-command
 | `--disable-slash-commands` | Prevent skill/slash expansion interference |
 | `--effort high` | Maximum reasoning effort for complex tasks |
 | `--mode accept-edits` | Allow direct file modifications |
+| `--dangerously-skip-permissions` | Auto-approve all permission prompts (required for headless/CI mode) |
 
 Use `--output-format json` when the result needs to be programmatically inspected.
 
-Do not use `--dangerously-skip-permissions` unless explicitly required. Prefer configured permission rules.
+For headless mode (automated/CI pipelines), `--dangerously-skip-permissions` is **required** to prevent interactive permission prompts from blocking execution. In interactive sessions, prefer configured permission rules or manual approval.
 
 ## Task Handoff
 

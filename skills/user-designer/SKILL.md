@@ -1,11 +1,15 @@
 ---
 name: user-designer
-description: Create UI/UX mockups, wireframes, technical implementation plans, and structured tasks from requirement specifications. Use this skill whenever converting user requirements (requirement.md) into actionable implementation plans (plan.md), drawing ASCII UI mockups (mockup/*.md), defining step-by-step tasks, or handling user design review loops.
+description: Create technical designs (design.md), UI/UX mockups (mockup/*.md), and implementation plans (plan.md) from requirement specifications. Supports two core sub-commands: 'DESIGN' (produces design.md & mockups for user review) and 'PLAN' (transforms approved design into plan.md tasks for constructor).
 ---
 
 # User Designer Skill
 
-The **User Designer** skill guides AI agents in transforming approved requirement documents into detailed technical implementation plans (`plan.md`) and UI/UX mockups (`mockup/*.md`), managing an interactive review loop with the user.
+The **User Designer** skill transforms approved requirement documents into detailed technical designs (`design.md`), UI/UX mockups (`mockup/*.md`), and actionable implementation plans (`plan.md`).
+
+This skill operates via two sequential sub-commands:
+1. **`DESIGN`**: Focuses purely on technical architecture, API/data contracts, and UI mockups. Halts for user review and approval.
+2. **`PLAN`**: Transforms the approved design into a structured task breakdown (`plan.md`) ready for implementation.
 
 ## SDLC Workflow Position
 
@@ -16,7 +20,10 @@ The **User Designer** skill guides AI agents in transforming approved requiremen
 [1. requirement-analyzer]
        │
        ▼
-[2. user-designer]  <=== (YOU ARE HERE)
+[2a. user-designer DESIGN] ──► Produces design.md & mockup/*.md ──► User Reviews/Approves
+       │
+       ▼
+[2b. user-designer PLAN]   ──► Produces plan.md (from approved design.md)
        │
        ▼
 [3. constructor]
@@ -26,88 +33,105 @@ The **User Designer** skill guides AI agents in transforming approved requiremen
        └──► [4b. security-reviewer] ──(loop)──┴─► [User Confirmation]
 ```
 
-> **Current Position**: `user-designer` (Step 2 — Transforms requirements into technical design `design.md`, UI `mockup/*.md`, and `plan.md`)
-
-## Operational Workflow
-
-```
-[Requirement Document (requirement.md)]
-                ↓
-1. Read Requirement & Scope Assessment (SYSTEM.md)
-                ↓
-2. Create Technical Design (design.md) — Final approved technical spec
-                ↓
-3. Evaluate UI Need ──→ [UI Involved?] ──Yes──> Create Mockup (DESIGN.md → mockup/*.md)
-                │                                    │
-                └───No (Backend/API/CLI) ────────────┤
-                                                     ↓
-4. User Design Review Loop (mockup changes ↔ review)  ← User participates here
-                                                     ↓
-5. Draft Implementation Plan & Tasks (plan.md)
-                                                     ↓
-6. User Review & Revision Loop (Request Changes ↔ Update Plan)
-                                                     ↓
-7. Persist to LLM Wiki & Sync (wiki_tool.py sync)
-                                                     ↓
-8. Validation (validate_plan_mockup.py)
-                                                     ↓
-9. Next Skill Guidance (Handoff to constructor)
-```
+> **Current Position**: `user-designer` (Step 2 — Technical Design & Mockups via `DESIGN`, Implementation Planning via `PLAN`)
 
 ---
 
-### Step 1: Read Requirement & Architectural Context
-1. **Read `wiki/<NNN>-<feature>/requirement.md`** using the `wiki-manager` skill.
-2. **Read `wiki/SYSTEM.md`** for architectural context: verify tech stack, component topology, directory structure, and application boundaries to ensure the design fits the system architecture.
+## Command 1: `DESIGN` (`/user-designer DESIGN`)
+
+Use this command to create the Technical Design (`design.md`) and UI Mockups (`mockup/*.md`).
+
+### Prerequisite Check
+- Ensure `wiki/<NNN>-<feature>/requirement.md` exists and is approved.
+- If missing, stop and instruct the user: *"Requirement specification not found. Please run `/requirement-analyzer` first to gather and persist requirements."*
+
+### Execution Workflow
+
+```
+[requirement.md & wiki/SYSTEM.md]
+              ↓
+1. Read Requirement & Scope Assessment
+              ↓
+2. Create Technical Design (design.md)
+              ↓
+3. Evaluate UI Need ──→ [UI Involved?] ──Yes──> Create Mockup (DESIGN.md → mockup/*.md)
+              │                                    │
+              └───No (Backend/API/CLI) ────────────┤
+                                                   ↓
+4. Persist to LLM Wiki & Sync (wiki_tool.py sync)
+                                                   ↓
+5. User Design Review Loop (Present design.md & mockups)
+```
+
+#### Step 1: Read Requirement & Architectural Context
+1. Read `wiki/<NNN>-<feature>/requirement.md` using the `wiki-manager` skill.
+2. Read `wiki/SYSTEM.md` for architectural context: verify tech stack, component topology, directory structure, and application boundaries.
 3. Extract Requirement ID (`req-xxx`), User Stories (`US-xxx`), Functional Requirements (`FR-xxx`), and Success Criteria.
 
----
+#### Step 2: Create Technical Design (`design.md`)
+1. Write `wiki/<NNN>-<feature>/design.md` using the template in `wiki-manager/references/templates.md#design-template`.
+2. Key sections:
+   - **API Contracts**: Endpoints, HTTP methods, request/response schemas, error codes.
+   - **Data Models**: Database schemas, entities, relations, field constraints.
+   - **Architecture**: Service boundaries, component breakdown, module interactions.
+   - **UI Summary**: List of screens/components linking to `mockup/` (or `N/A (Backend/CLI)`).
+   - **Acceptance Criteria**: Verifiable functional criteria mapped from requirement's Success Criteria.
+3. Link frontmatter: `derived_from: [req-xxx]`, `status: approved` (or `draft`).
 
-### Step 2: Create Technical Design (design.md)
-Before drafting mockups or plans, create the technical design document that serves as the single source of truth for all implementation decisions:
-
-1. **Write `wiki/<NNN>-<feature>/design.md`** using the template in `wiki-manager/references/templates.md#design-template`.
-2. **Key sections to fill**:
-   - **API Contracts**: Define exact endpoints, request/response schemas, HTTP methods, status codes, error formats.
-   - **Data Models**: Define database schema, field types, constraints, relationships.
-   - **Architecture**: High-level component breakdown, service boundaries, internal module dependencies (consistent with `wiki/SYSTEM.md`).
-   - **UI Summary**: Approved screen list linking to mockups (to be created next).
-   - **Acceptance Criteria**: Directly map from requirement's Success Criteria section — these are verifiable conditions Constructor will use to validate implementation.
-3. **Link to parent requirement**: `derived_from: [req-xxx]` in frontmatter.
-4. **Mark status**: `status: approved` (or `draft` if still pending technical decisions).
-5. Persist and sync using `wiki-manager` skill:
-   ```bash
-   python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py sync
-   ```
-
----
-
-### Step 3: Evaluate UI Need & Create Mockup (Optional)
-Determine whether the feature introduces or modifies UI screens:
-
+#### Step 3: Evaluate UI Need & Create Mockup (Optional)
 - **If UI/UX is involved**:
-  1. **Read `wiki/DESIGN.md`**: Inspect project-wide UI/UX standards, design tokens (colors, typography, spacing, elevation), component conventions, and responsive rules. All wireframes and component specifications must adhere to `wiki/DESIGN.md`.
-  2. Create `wiki/<NNN>-<feature>/mockup/<screen-slug>.md`.
-  3. Use ASCII wireframe conventions from [references/ascii_wireframe_guide.md](references/ascii_wireframe_guide.md).
-  4. Include sections: `## Screen Name`, ASCII wireframe block, `## Components`, `## Interactions`, and `## Related Requirements`.
-
+  1. Read `wiki/DESIGN.md` for project-wide UI tokens, components, and styling conventions.
+  2. Create `wiki/<NNN>-<feature>/mockup/<screen-slug>.md` using ASCII wireframes per [references/ascii_wireframe_guide.md](references/ascii_wireframe_guide.md).
+  3. Include: `## Screen Name`, wireframe block, `## Components`, `## Interactions`, and `## Related Requirements`.
 - **If Backend / API / CLI only**:
-  1. Skip creating the `mockup/` folder.
-  2. Document `UI Mockup: N/A (Backend / Non-UI feature)` inside `plan.md`.
+  1. Omit the `mockup/` directory.
+  2. Mark `UI Summary: N/A (Backend / Non-UI feature)` in `design.md`.
+
+#### Step 4: Persist & Sync
+Sync the wiki registry:
+```bash
+python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py sync
+```
+
+#### Step 5: User Design Review & Handoff Hint
+1. Present `design.md` and `mockup/*.md` (if any) to the user for review.
+2. Iterate on changes if the user requests modifications.
+3. **Explicit Handoff Hint**: Once the user approves the technical design and mockups:
+   - *"The technical design and UI mockups are ready and synced in `wiki/<NNN>-<feature>/`. If you approve this design, run `/user-designer PLAN` (or type `user-designer PLAN`) to generate the Implementation Plan (`plan.md`)."*
 
 ---
 
-### Step 4: User Design Review Loop
-Present mockups to the user for review. This is the interactive loop where the user validates UI/layout/interactions:
+## Command 2: `PLAN` (`/user-designer PLAN`)
 
-1. Show the mockup(s) to the user.
-2. Incorporate feedback and update mockup(s) until user explicitly approves.
-3. Once approved, update `design.md` UI Summary section to reflect approved mockups.
-4. Mark `design.md` status as `approved` if not already set.
+Use this command to transform approved design specifications and UI mockups into an actionable implementation plan (`plan.md`).
 
----
+### Prerequisite Check (Mandatory)
+- Check for the existence of `wiki/<NNN>-<feature>/design.md` (and `mockup/` if UI is required).
+- **If `design.md` does NOT exist**:
+  - **Halt execution immediately.**
+  - Guide the user: *"Technical design file `wiki/<NNN>-<feature>/design.md` not found. Please run `/user-designer DESIGN` first to produce the technical specifications and mockups before creating the implementation plan."*
 
-### Step 5: Draft Implementation Plan & Tasks
+### Execution Workflow
+
+```
+[Approved design.md & mockup/*.md]
+              ↓
+1. Read Approved Design & Mockups
+              ↓
+2. Draft Implementation Plan (plan.md with Tasks & Mermaid diagram)
+              ↓
+3. Persist to LLM Wiki & Sync (wiki_tool.py sync)
+              ↓
+4. Validate (validate_plan_mockup.py)
+              ↓
+5. Next Skill Guidance (Handoff to constructor)
+```
+
+#### Step 1: Read Approved Design & Context
+1. Read `wiki/<NNN>-<feature>/design.md` and any mockups in `wiki/<NNN>-<feature>/mockup/`.
+2. Extract API contracts, schema models, component interactions, and acceptance criteria.
+
+#### Step 2: Draft Implementation Plan (`plan.md`)
 Write `wiki/<NNN>-<feature>/plan.md` using the standard template:
 
 ```markdown
@@ -160,36 +184,18 @@ graph TD
 - Relative link: `mockup/screen-name.md` OR `N/A (Backend/CLI requirement)`
 ```
 
----
+#### Step 3: Persist & Sync
+Sync `wiki/registry.yaml`:
+```bash
+python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py sync
+```
 
-### Step 6: User Review & Revision Loop
-Before finalizing:
-1. Present the draft plan and mockups (if any) to the user.
-2. If the user requests changes, update `plan.md` or `mockup/*.md` accordingly.
-3. Repeat until the user explicitly approves the design and implementation plan.
-
----
-
-### Step 7: Persist to LLM Wiki & Sync
-1. Ensure files are saved in `wiki/<NNN>-<feature>/`.
-2. Sync `wiki/registry.yaml`:
-   ```bash
-   python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py sync
-   ```
-
----
-
-### Step 8: Validate Plan & Mockup
+#### Step 4: Validate Plan & Mockup
 Run the validator script:
 ```bash
 python <SKILLS_DIR>/user-designer/scripts/validate_plan_mockup.py wiki/<NNN>-<feature>/plan.md
 ```
 
----
-
-### Step 9: Next Skill Guidance (Handoff)
-
-After user approves the implementation plan and mockups:
-1. Confirm all artifacts (`design.md`, `plan.md`, `mockup/*.md`) are saved and synced in `wiki/<NNN>-<feature>/`.
-2. **Explicitly guide the user on the next step**:
-   - *"The design specifications and implementation plan are approved. Next, run the `/constructor` skill (or type `constructor`) to begin executing implementation tasks, running tests, and generating test evidence (`evidence.md`)."*
+#### Step 5: Next Skill Guidance (Handoff to Constructor)
+Present the finalized `plan.md` to the user and **explicitly guide them to the next step in the New SDLC workflow**:
+- *"The implementation plan has been established and validated in `wiki/<NNN>-<feature>/plan.md`. Next in the New SDLC workflow, run the `/constructor` skill (or type `constructor`) to begin executing implementation tasks, running tests, and generating verification evidence (`evidence.md`)."*

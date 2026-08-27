@@ -1,10 +1,13 @@
 ---
 name: requirement-analyzer
-description: Gather, clarify, structure, and formalize software requirements and user stories in the SDLC workflow. Use this skill whenever receiving raw or ambiguous feature requests, gathering domain requirements, formulating User Stories (US), Functional Requirements (FR), Non-Functional Requirements (NFR), Testing Scenarios, and storing formatted requirements into the LLM Wiki (wiki/<feature>/requirement.md).
+description: Gather, clarify, structure, and formalize software requirements and user stories in the SDLC workflow. Use this skill whenever receiving any feature request or requirement specification (whether raw, ambiguous, or already well-defined). Always use this skill to structure, validate, and persist or update requirements into the LLM Wiki (wiki/<feature>/requirement.md) whenever the wiki does not yet contain them, before moving to design or implementation.
 ---
 # Requirement Analyzer Skill
 
-The **Requirement Analyzer** skill guides AI agents in turning vague or high-level user ideas into precise, structured, and testable requirement specifications within the LLM Wiki.
+The **Requirement Analyzer** skill guides AI agents in structuring, clarifying, and formalizing feature requests — from vague, high-level ideas to already well-defined specifications — into precise, standardized, and testable requirement specifications within the LLM Wiki.
+
+> [!IMPORTANT]
+> **Wiki Persistence is Mandatory**: Even if a requirement is provided with full clarity and detail by the user, you must still use this skill to structure, validate, and persist it to `wiki/<feature>/requirement.md` if the wiki does not yet have it. Never bypass requirement formalization and go straight to implementation without wiki documentation.
 
 ## SDLC Workflow Position
 
@@ -29,18 +32,18 @@ The **Requirement Analyzer** skill guides AI agents in turning vague or high-lev
 
 ## Operational Workflow
 
-When receiving a feature request or project request, follow these 5 steps sequentially:
+When receiving a feature request or project request, follow these steps sequentially:
 
 ```
-[Raw User Request] 
+[Feature Request (Raw, Ambiguous, or Clear)] 
        ↓
-1. Context Discovery (Codebase & Wiki)
+1. Context Discovery (Codebase & Wiki Check)
        ↓
-2. Ambiguity Resolution (Clarification Questions)
+2. Ambiguity & Completeness Check (Clarify only if needed)
        ↓
-3. Document Structuring (Requirement Template)
+3. Document Structuring (Standard Template)
        ↓
-4. Persist to LLM Wiki (wiki-manager skill integration)
+4. Persist to LLM Wiki (wiki/<feature>/requirement.md)
        ↓
 5. Validation (validate_requirement.py)
        ↓
@@ -51,30 +54,38 @@ When receiving a feature request or project request, follow these 5 steps sequen
 
 ### Step 1: Context & Codebase Discovery
 
-Before asking questions, perform background research using parallel subagents for speed and breadth:
+Before asking questions or drafting, perform background research using parallel subagents for speed and breadth:
 
-1. **Spawn subagent A — Local Codebase Inspection**:
+1. **Check Wiki First**:
+  - Read `wiki/SYSTEM.md` and `wiki/registry.yaml` (using the `wiki-manager` skill) to understand current architecture, existing feature modules, and check if this requirement already exists or needs updating.
+2. **Spawn subagent A — Local Codebase Inspection**:
   - Inspect relevant wiki documents, local files, existing patterns, constraints, tests, and likely integration points.
   - Search for similar functionality in the codebase to avoid duplication.
   - Identify existing models, API routes, configuration files, and shared utilities related to the request.
   - Return a structured summary: `files_found`, `patterns_identified`, `integration_points`, `gaps`.
-2. **Spawn subagent B — External &amp; Ecosystem Context** (conditional, only when needed):
+3. **Spawn subagent B — External & Ecosystem Context** (conditional, only when needed):
   - Use when external docs, recent sources, ecosystem context, or primary evidence would improve the answer.
   - Search for official documentation, recent releases, community patterns, or best practices from external sources.
   - Return a structured summary: `external_sources`, `ecosystem_patterns`, `relevant_versions`, `recommendations`.
-3. **After both subagents return**, read `wiki/SYSTEM.md` and `wiki/registry.yaml` (using the `wiki-manager` skill) to understand current architecture and feature module numbering.
 
 > **When to skip subagent B**: If the request is purely local (e.g., refactoring existing code, updating a known feature), skip external research and rely on subagent A + wiki files only.
 
 ---
 
-### Step 2: Ambiguity Resolution
+### Step 2: Ambiguity & Completeness Check
 
-Review the request against [references/clarification_checklist.md](references/clarification_checklist.md).
-If the request is ambiguous or lacks critical details (e.g. scope boundary, user roles, error handling, performance targets), interact with the user to ask concise, direct questions:
+Review the request against [references/clarification_checklist.md](references/clarification_checklist.md):
 
-- Group related questions logically.
-- Offer reasonable default choices based on codebase conventions when asking.
+- **Case A: Request is already clear and complete**:
+  - If the prompt provides complete scope, behaviors, and constraints that pass the checklist, **do NOT ask redundant questions**.
+  - Proceed directly to **Step 3 (Document Structuring)** to standardize and format the specification.
+- **Case B: Request is raw, vague, or ambiguous**:
+  - If the request lacks critical details (e.g. scope boundary, user roles, error handling, performance targets), interact with the user to ask concise, direct questions:
+    - Group related questions logically.
+    - Offer reasonable default choices based on codebase conventions when asking.
+
+> [!NOTE]
+> Regardless of whether Case A or Case B applies, **Steps 3, 4, and 5 must always be executed** if the requirement is not yet recorded in `wiki/<feature>/requirement.md`.
 
 ---
 
@@ -162,7 +173,7 @@ python <SKILLS_DIR>/requirement-analyzer/scripts/validate_requirement.py wiki/<N
 ### Step 6: Next Skill Guidance (Handoff)
 
 After validating and presenting the finalized requirement to the user:
-1. Ask the user for confirmation/approval of `requirement.md`.
+1. Ask the user for confirmation/approval of `requirement.md` (or confirm directly if formulated from a pre-approved clear spec).
 2. **Explicitly guide the user on the next step**:
-   - If approved: *"The requirements are formalized in `wiki/<NNN>-<feature-slug>/requirement.md`. Next, run the `/user-designer` skill (or type `user-designer`) to produce the Technical Design (`design.md`), UI mockups (`mockup/*.md`), and Implementation Plan (`plan.md`)."*
+   - If approved: *"The requirements are formalized in `wiki/<NNN>-<feature-slug>/requirement.md`. Next, run the `/user-designer` skill with the `DESIGN` command (or type `user-designer DESIGN`) to produce the Technical Design (`design.md`) and UI mockups (`mockup/*.md`)."*
    - If revisions are requested: Iterate on `requirement.md` with the user until approved.
