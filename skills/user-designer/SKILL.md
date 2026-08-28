@@ -1,6 +1,6 @@
 ---
 name: user-designer
-description: Create technical designs (design.md), UI/UX mockups (mockup/*.md), and implementation plans (plan.md) from requirement specifications. Supports two core sub-commands: 'DESIGN' (produces design.md & mockups for user review) and 'PLAN' (transforms approved design into plan.md tasks for constructor).
+description: "Create technical designs (design.md), UI/UX mockups (mockup/*.md), and implementation plans (plan.md) from requirement specifications. Supports two core sub-commands: 'DESIGN' (produces design.md & mockups for user review) and 'PLAN' (transforms approved design into plan.md tasks for constructor)."
 ---
 
 # User Designer Skill
