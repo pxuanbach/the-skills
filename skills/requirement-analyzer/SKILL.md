@@ -52,7 +52,7 @@ When receiving a feature request or project request, follow these steps sequenti
 
 ---
 
-### Step 1: Context & Codebase Discovery
+### Step 1: Context &amp; Codebase Discovery
 
 Before asking questions or drafting, perform background research using parallel subagents for speed and breadth:
 
@@ -63,16 +63,16 @@ Before asking questions or drafting, perform background research using parallel 
   - Search for similar functionality in the codebase to avoid duplication.
   - Identify existing models, API routes, configuration files, and shared utilities related to the request.
   - Return a structured summary: `files_found`, `patterns_identified`, `integration_points`, `gaps`.
-3. **Spawn subagent B — External & Ecosystem Context** (conditional, only when needed):
-  - Use when external docs, recent sources, ecosystem context, or primary evidence would improve the answer.
-  - Search for official documentation, recent releases, community patterns, or best practices from external sources.
+3. **Spawn subagent B — External &amp; Ecosystem Context**:
+  - Explore external knowledge from official docs, related blog to improve/enrich the answer.
+  - Search for official documentation, recent releases, community patterns, blog, or best practices from external sources.
   - Return a structured summary: `external_sources`, `ecosystem_patterns`, `relevant_versions`, `recommendations`.
 
 > **When to skip subagent B**: If the request is purely local (e.g., refactoring existing code, updating a known feature), skip external research and rely on subagent A + wiki files only.
 
 ---
 
-### Step 2: Ambiguity & Completeness Check
+### Step 2: Ambiguity &amp; Completeness Check
 
 Review the request against [references/clarification_checklist.md](references/clarification_checklist.md):
 
@@ -165,7 +165,7 @@ Target Users: <list of target users>
 Run the requirement validator script to confirm that all required sections and frontmatter metadata are present:
 
 ```bash
-python <SKILLS_DIR>/requirement-analyzer/scripts/validate_requirement.py wiki/<NNN>-<feature-slug>/requirement.md
+python [[ORCA_RICH_MD:27785be5634e8e9f3b28080d21344a53:inline-html:%3CSKILLS_DIR%3E]]/requirement-analyzer/scripts/validate_requirement.py wiki/[[ORCA_RICH_MD:27785be5634e8e9f3b28080d21344a53:inline-html:%3CNNN%3E]]-[[ORCA_RICH_MD:27785be5634e8e9f3b28080d21344a53:inline-html:%3Cfeature-slug%3E]]/requirement.md
 ```
 
 ---
@@ -173,7 +173,9 @@ python <SKILLS_DIR>/requirement-analyzer/scripts/validate_requirement.py wiki/<N
 ### Step 6: Next Skill Guidance (Handoff)
 
 After validating and presenting the finalized requirement to the user:
+
 1. Ask the user for confirmation/approval of `requirement.md` (or confirm directly if formulated from a pre-approved clear spec).
 2. **Explicitly guide the user on the next step**:
-   - If approved: *"The requirements are formalized in `wiki/<NNN>-<feature-slug>/requirement.md`. Next, run the `/user-designer` skill with the `DESIGN` command (or type `user-designer DESIGN`) to produce the Technical Design (`design.md`) and UI mockups (`mockup/*.md`)."*
-   - If revisions are requested: Iterate on `requirement.md` with the user until approved.
+  - If approved: *"The requirements are formalized in `wiki/<NNN>-<feature-slug>/requirement.md`. Next, run the `/user-designer` skill with the `DESIGN` command (or type `user-designer DESIGN`) to produce the Technical Design (`design.md`) and UI mockups (`mockup/*.md`)."*
+  - If revisions are requested: Iterate on `requirement.md` with the user until approved.
+
