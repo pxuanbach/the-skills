@@ -52,7 +52,7 @@ When receiving a feature request or project request, follow these steps sequenti
 
 ---
 
-### Step 1: Context &amp; Codebase Discovery
+### Step 1: Context & Codebase Discovery
 
 Before asking questions or drafting, perform background research using parallel subagents for speed and breadth:
 
@@ -63,7 +63,7 @@ Before asking questions or drafting, perform background research using parallel 
   - Search for similar functionality in the codebase to avoid duplication.
   - Identify existing models, API routes, configuration files, and shared utilities related to the request.
   - Return a structured summary: `files_found`, `patterns_identified`, `integration_points`, `gaps`.
-3. **Spawn subagent B — External &amp; Ecosystem Context**:
+3. **Spawn subagent B — External & Ecosystem Context**:
   - Explore external knowledge from official docs, related blog to improve/enrich the answer.
   - Search for official documentation, recent releases, community patterns, blog, or best practices from external sources.
   - Return a structured summary: `external_sources`, `ecosystem_patterns`, `relevant_versions`, `recommendations`.
@@ -72,17 +72,16 @@ Before asking questions or drafting, perform background research using parallel 
 
 ---
 
-### Step 2: Ambiguity &amp; Completeness Check
+### Step 2: Ambiguity & Completeness Check
 
-Review the request against [references/clarification_checklist.md](references/clarification_checklist.md):
+Hỏi những câu hỏi chưa thể giải quyết từ bước gather (Step 1).
 
 - **Case A: Request is already clear and complete**:
-  - If the prompt provides complete scope, behaviors, and constraints that pass the checklist, **do NOT ask redundant questions**.
+  - If the prompt and Step 1 discovery provide sufficient clarity, **do NOT ask redundant questions**.
   - Proceed directly to **Step 3 (Document Structuring)** to standardize and format the specification.
-- **Case B: Request is raw, vague, or ambiguous**:
-  - If the request lacks critical details (e.g. scope boundary, user roles, error handling, performance targets), interact with the user to ask concise, direct questions:
-    - Group related questions logically.
-    - Offer reasonable default choices based on codebase conventions when asking.
+- **Case B: Request has unresolved ambiguities or missing details**:
+  - Only ask concise, targeted questions that could not be resolved from codebase inspection or context gathering in Step 1.
+  - Group related questions logically and offer reasonable default choices based on codebase conventions when asking.
 
 > [!NOTE]
 > Regardless of whether Case A or Case B applies, **Steps 3, 4, and 5 must always be executed** if the requirement is not yet recorded in `wiki/<feature>/requirement.md`.
@@ -165,7 +164,7 @@ Target Users: <list of target users>
 Run the requirement validator script to confirm that all required sections and frontmatter metadata are present:
 
 ```bash
-python [[ORCA_RICH_MD:27785be5634e8e9f3b28080d21344a53:inline-html:%3CSKILLS_DIR%3E]]/requirement-analyzer/scripts/validate_requirement.py wiki/[[ORCA_RICH_MD:27785be5634e8e9f3b28080d21344a53:inline-html:%3CNNN%3E]]-[[ORCA_RICH_MD:27785be5634e8e9f3b28080d21344a53:inline-html:%3Cfeature-slug%3E]]/requirement.md
+python <SKILLS_DIR>/requirement-analyzer/scripts/validate_requirement.py wiki/<NNN>-<feature-slug>/requirement.md
 ```
 
 ---

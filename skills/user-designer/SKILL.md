@@ -1,15 +1,15 @@
 ---
 name: user-designer
-description: "Create technical designs (design.md), UI/UX mockups (mockup/*.md), and implementation plans (plan.md) from requirement specifications. Supports two core sub-commands: 'DESIGN' (produces design.md & mockups for user review) and 'PLAN' (transforms approved design into plan.md tasks for constructor)."
+description: "Create technical designs (design.md), E2E/integration test cases, UI/UX mockups (mockup/*.md), and implementation plans (plan.md) from requirement specifications. Supports two core sub-commands: 'DESIGN' (produces design.md & mockups for user review) and 'PLAN' (transforms approved design into plan.md tasks for constructor)."
 ---
 
 # User Designer Skill
 
-The **User Designer** skill transforms approved requirement documents into detailed technical designs (`design.md`), UI/UX mockups (`mockup/*.md`), and actionable implementation plans (`plan.md`).
+The **User Designer** skill transforms approved requirement documents into detailed technical designs (`design.md`), E2E/integration test cases, UI/UX mockups (`mockup/*.md`), and actionable implementation plans (`plan.md`).
 
 This skill operates via two sequential sub-commands:
-1. **`DESIGN`**: Focuses purely on technical architecture, API/data contracts, and UI mockups. Halts for user review and approval.
-2. **`PLAN`**: Transforms the approved design into a structured task breakdown (`plan.md`) ready for implementation.
+1. **`DESIGN`**: Focuses on technical architecture, API/data contracts, E2E & integration test cases (UI flows & data/state transitions), and UI mockups. Halts for user review and approval.
+2. **`PLAN`**: Transforms the approved design (including designed test cases) into a structured task breakdown (`plan.md`) ready for implementation.
 
 ## SDLC Workflow Position
 
@@ -39,7 +39,7 @@ This skill operates via two sequential sub-commands:
 
 ## Command 1: `DESIGN` (`/user-designer DESIGN`)
 
-Use this command to create the Technical Design (`design.md`) and UI Mockups (`mockup/*.md`).
+Use this command to create the Technical Design (`design.md`) with E2E/Integration test cases, and UI Mockups (`mockup/*.md`).
 
 ### Prerequisite Check
 - Ensure `wiki/<NNN>-<feature>/requirement.md` exists and is approved.
@@ -52,7 +52,7 @@ Use this command to create the Technical Design (`design.md`) and UI Mockups (`m
               ↓
 1. Read Requirement & Scope Assessment
               ↓
-2. Create Technical Design (design.md)
+2. Create Technical Design (design.md: Architecture, API, Data Models, E2E & Integration Test Cases)
               ↓
 3. Evaluate UI Need ──→ [UI Involved?] ──Yes──> Create Mockup (DESIGN.md → mockup/*.md)
               │                                    │
@@ -60,7 +60,7 @@ Use this command to create the Technical Design (`design.md`) and UI Mockups (`m
                                                    ↓
 4. Persist to LLM Wiki & Sync (wiki_tool.py sync)
                                                    ↓
-5. User Design Review Loop (Present design.md & mockups)
+5. User Design Review Loop (Present design.md with Test Cases & Mockups)
 ```
 
 #### Step 1: Read Requirement & Architectural Context
@@ -71,9 +71,12 @@ Use this command to create the Technical Design (`design.md`) and UI Mockups (`m
 #### Step 2: Create Technical Design (`design.md`)
 1. Write `wiki/<NNN>-<feature>/design.md` using the template in `wiki-manager/references/templates.md#design-template`.
 2. Key sections:
+   - **Architecture**: Service boundaries, component breakdown, module interactions, and rationale.
    - **API Contracts**: Endpoints, HTTP methods, request/response schemas, error codes.
    - **Data Models**: Database schemas, entities, relations, field constraints.
-   - **Architecture**: Service boundaries, component breakdown, module interactions.
+   - **E2E & Integration Test Cases (Design)**:
+     - **UI Interaction & E2E Flows**: Explicit test flows capturing step-by-step user interaction with the UI (e.g., input steps, button clicks, validation triggers, loading spinners, toast/feedback messages, dialog transitions).
+     - **State Transitions & Data Flow**: Integration test scenarios tracing data propagation across components/services and state transitions (e.g., state lifecycle changes like `pending` -> `in_progress` -> `completed`, event broadcasting, database persistence, and side effects).
    - **UI Summary**: List of screens/components linking to `mockup/` (or `N/A (Backend/CLI)`).
    - **Acceptance Criteria**: Verifiable functional criteria mapped from requirement's Success Criteria.
 3. Link frontmatter: `derived_from: [req-xxx]`, `status: approved` (or `draft`).
@@ -94,16 +97,16 @@ python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py sync
 ```
 
 #### Step 5: User Design Review & Handoff Hint
-1. Present `design.md` and `mockup/*.md` (if any) to the user for review.
+1. Present `design.md` (including architecture, API contracts, data models, and E2E/integration test cases) and `mockup/*.md` (if any) to the user for review.
 2. Iterate on changes if the user requests modifications.
 3. **Explicit Handoff Hint**: Once the user approves the technical design and mockups:
-   - *"The technical design and UI mockups are ready and synced in `wiki/<NNN>-<feature>/`. If you approve this design, run `/user-designer PLAN` (or type `user-designer PLAN`) to generate the Implementation Plan (`plan.md`)."*
+   - *"The technical design, test cases, and UI mockups are ready and synced in `wiki/<NNN>-<feature>/`. If you approve this design, run `/user-designer PLAN` (or type `user-designer PLAN`) to generate the Implementation Plan (`plan.md`)."*
 
 ---
 
 ## Command 2: `PLAN` (`/user-designer PLAN`)
 
-Use this command to transform approved design specifications and UI mockups into an actionable implementation plan (`plan.md`).
+Use this command to transform approved design specifications, test cases, and UI mockups into an actionable implementation plan (`plan.md`).
 
 ### Prerequisite Check (Mandatory)
 - Check for the existence of `wiki/<NNN>-<feature>/design.md` (and `mockup/` if UI is required).
@@ -129,7 +132,7 @@ Use this command to transform approved design specifications and UI mockups into
 
 #### Step 1: Read Approved Design & Context
 1. Read `wiki/<NNN>-<feature>/design.md` and any mockups in `wiki/<NNN>-<feature>/mockup/`.
-2. Extract API contracts, schema models, component interactions, and acceptance criteria.
+2. Extract API contracts, schema models, component interactions, E2E & integration test cases, and acceptance criteria.
 
 #### Step 2: Draft Implementation Plan (`plan.md`)
 Write `wiki/<NNN>-<feature>/plan.md` using the standard template:

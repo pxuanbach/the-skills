@@ -118,7 +118,7 @@ Workflow này mô tả một quy trình phát triển phần mềm (SDLC) có s�
     ```
 
 - **Mô tả chi tiết**: 
-    - Requirement Analyzer (as an agent) sẽ sử dụng các sub-agents để thu thập thông tin từ codebase, đối chiếu với yêu cầu từ user, làm rõ các yêu cầu mơ hồ, và tạo ra một tài liệu requirement/user story chi tiết. Agent đọc skill llm-wiki để lưu trữ tài liệu vào wiki/ đúng cách.
+    - Requirement Analyzer (as an agent) sẽ sử dụng các sub-agents để thu thập thông tin từ codebase/wiki documents, đối chiếu với yêu cầu từ user, làm rõ các yêu cầu mơ hồ, và tạo ra một tài liệu requirement/user story chi tiết. Agent đọc skill llm-wiki để lưu trữ tài liệu vào wiki/ đúng cách.
     - requirement-analyzer (as a skill) sẽ hướng dẫn các sub-agents cách gather & clarify thông tin, đảm bảo rằng tất cả các yêu cầu được hiểu rõ và đầy đủ trước khi chuyển sang bước tiếp theo. Skill này cũng tham chiếu/nhắc đến skill llm-wiki để agent (sử dụng skill) lưu trữ tài liệu vào wiki/ đúng cách.
 
 #### User Designer
@@ -128,11 +128,11 @@ Workflow này mô tả một quy trình phát triển phần mềm (SDLC) có s�
     - `wiki/SYSTEM.md` (kiến trúc tổng thể, tech stack, directory structure, boundaries)
     - `wiki/DESIGN.md` (UI style, design tokens, component standards — khi feature có UI)
 - **Output**:
-    - Technical Design (`design.md`) — API contracts, data models, acceptance criteria
+    - Technical Design (`design.md`) — API contracts, data models, E2E & integration test cases, acceptance criteria
     - Mockup (`mockup/*.md`) tuân thủ `DESIGN.md` / Plan (`plan.md`)
 - **Thứ tự thực hiện**:
     1. Đọc `requirement.md` & `wiki/SYSTEM.md` (đảm bảo thiết kế khớp kiến trúc)
-    2. Tạo `design.md` (API contracts, data models)
+    2. Tạo `design.md` (API contracts, data models, E2E/Integration test cases mô tả UI interaction flow & data/state transitions)
     3. Đọc `wiki/DESIGN.md` → Tạo `mockup/` (user review loop)
     4. Cập nhật `design.md` approved UI summary & tạo `plan.md`
 - **Vòng lặp với User**:

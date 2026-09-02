@@ -113,6 +113,29 @@ status: approved
 - Screen: `mockup/create-task.md` — Approved after user review cycle
 - Screen: `mockup/task-list.md` — Approved after user review cycle
 
+## E2E & Integration Test Cases
+
+### TC-E2E-001: <UI Flow / User Interaction Test Case Title>
+- **Goal / Scope**: <e.g., Verify end-to-end task creation flow from UI to backend>
+- **Preconditions**: <e.g., User is authenticated and on Dashboard page>
+- **Flow & Interactions**:
+  1. User navigates to `/tasks/new` and fills out the task name and priority.
+  2. User clicks "Submit". UI displays a loading spinner and disables the button.
+  3. API receives request, validates payload, and creates database record.
+  4. UI receives HTTP 201 response, shows success notification/toast, and redirects to `/tasks`.
+  5. The newly created task appears at the top of the task list table.
+- **Expected Outcome / Assertions**: State is updated in UI, HTTP 201 is returned, DB entity persisted.
+
+### TC-INT-001: <State Transition & Data Flow Test Case Title>
+- **Goal / Scope**: <e.g., Verify task lifecycle state transitions and data propagation>
+- **Initial State**: Task entity in database with `status: pending`.
+- **Trigger / Event**: Trigger worker process / call status update API with transition action `start_processing`.
+- **Data & State Flow**:
+  1. Service transitions state `pending` -> `in_progress` and updates `updated_at`.
+  2. Side effect: Event notification dispatched to message queue.
+  3. Subsequent call to complete task transitions `in_progress` -> `completed`.
+- **Expected Outcome / Assertions**: State machine enforces valid transitions; invalid transitions (e.g., `pending` -> `completed` directly) return 422 Unprocessable Entity.
+
 ## Acceptance Criteria (from Requirement Success Criteria)
 - [ ] <Criterion 1 — verifiable condition>
 - [ ] <Criterion 2 — verifiable condition>
