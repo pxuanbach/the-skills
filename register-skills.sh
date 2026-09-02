@@ -1,6 +1,6 @@
 #!/bin/bash
 # register-skills.sh - Register all skills from this repo to global agents
-# Usage: ./register-skills.sh [--target pi|claude|all]
+# Usage: ./register-skills.sh [--target pi|claude|antigravity|codex|opencode|all]
 # Default: all targets
 
 set -e
@@ -16,7 +16,7 @@ while [[ $# -gt 0 ]]; do
             ;;
         *)
             echo "Unknown option: $1"
-            echo "Usage: $0 [--target pi|claude|all]"
+            echo "Usage: $0 [--target pi|claude|antigravity|codex|opencode|all]"
             exit 1
             ;;
     esac
@@ -30,10 +30,13 @@ SKILLS_SOURCE="${SCRIPT_DIR}/skills"
 declare -A TARGETS
 TARGETS["pi"]="$HOME/.pi/agent/skills"
 TARGETS["claude"]="$HOME/.claude/skills"
+TARGETS["antigravity"]="$HOME/.gemini/config/skills"
+TARGETS["codex"]="$HOME/.codex/skills"
+TARGETS["opencode"]="${XDG_CONFIG_HOME:-$HOME/.config}/opencode/skills"
 
 # Filter targets
 if [[ "$TARGET" == "all" ]]; then
-    ACTIVE_TARGETS=("pi" "claude")
+    ACTIVE_TARGETS=("pi" "claude" "antigravity" "codex" "opencode")
 else
     ACTIVE_TARGETS=("$TARGET")
 fi

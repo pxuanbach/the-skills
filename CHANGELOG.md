@@ -2,6 +2,12 @@
 
 All notable changes to this skill are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.3.2] — 2026-09-02
+
+### Added
+- Added **OpenCode** support (`~/.config/opencode/skills`) to installer (`install.ps1`, `install.sh`) and skill registration scripts (`register-skills.ps1`, `register-skills.sh`).
+- Updated fallback skill lists across installers to include all repository skills (`antigravity-cli`, `init-agents`).
+
 ## [1.3.1] — 2026-08-24
 
 ### Added

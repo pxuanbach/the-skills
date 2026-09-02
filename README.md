@@ -103,6 +103,8 @@ curl -fsSL https://raw.githubusercontent.com/pxuanbach/the-skills/main/install.s
 | **Pi Agent** | `~/.pi/agent/skills` |
 | **Claude Code** | `~/.claude/skills` |
 | **Antigravity / Gemini CLI** | `~/.gemini/config/skills` |
+| **OpenAI Codex CLI** | `~/.codex/skills` |
+| **OpenCode** | `~/.config/opencode/skills` |
 
 ---
 

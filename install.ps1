@@ -2,7 +2,7 @@
 # Usage:
 #   irm https://raw.githubusercontent.com/pxuanbach/the-skills/main/install.ps1 | iex
 # Or:
-#   .\install.ps1 [-Targets <pi,claude,antigravity,all>] [-Skills <wiki-manager,constructor,all>]
+#   .\install.ps1 [-Targets <pi,claude,antigravity,codex,opencode,all>] [-Skills <wiki-manager,constructor,all>]
 
 param(
     [string[]]$Targets,
@@ -16,7 +16,9 @@ $Branch = "main"
 
 # Predefined fallback list if GitHub API is unavailable
 $FallbackSkills = @(
+    "antigravity-cli",
     "constructor",
+    "init-agents",
     "quality-reviewer",
     "requirement-analyzer",
     "research-workflow",
@@ -28,11 +30,18 @@ $FallbackSkills = @(
 )
 
 # Target Agent definitions
+$OpenCodeSkillsPath = if ($env:XDG_CONFIG_HOME) {
+    Join-Path $env:XDG_CONFIG_HOME "opencode\skills"
+} else {
+    Join-Path $env:USERPROFILE ".config\opencode\skills"
+}
+
 $AgentTargets = [ordered]@{
     "pi"          = @{ Name = "Pi Agent"; Path = Join-Path $env:USERPROFILE ".pi\agent\skills" }
     "claude"      = @{ Name = "Claude Code"; Path = Join-Path $env:USERPROFILE ".claude\skills" }
     "antigravity" = @{ Name = "Antigravity / Gemini CLI"; Path = Join-Path $env:USERPROFILE ".gemini\config\skills" }
     "codex"       = @{ Name = "OpenAI Codex CLI"; Path = Join-Path $env:USERPROFILE ".codex\skills" }
+    "opencode"    = @{ Name = "OpenCode"; Path = $OpenCodeSkillsPath }
 }
 
 function Show-Header {

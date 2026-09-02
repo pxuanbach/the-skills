@@ -1,9 +1,9 @@
 # register-skills.ps1 - Register all skills from this repo to global agents
-# Usage: .\register-skills.ps1 [-Target <pi|claude|all>]
+# Usage: .\register-skills.ps1 [-Target <pi|claude|antigravity|codex|opencode|all>]
 # Default: all targets
 
 param(
-    [ValidateSet("pi", "claude", "all")]
+    [ValidateSet("pi", "claude", "antigravity", "codex", "opencode", "all")]
     [string]$Target = "all"
 )
 
@@ -17,20 +17,23 @@ if (-not $ScriptDir) {
 $SkillsSource = Join-Path $ScriptDir "skills"
 
 # Target directories
-$Targets = @{
-    "pi"     = @{
-        Path   = Join-Path $env:USERPROFILE ".pi\agent\skills"
-        Name   = "Pi Agent"
-    }
-    "claude" = @{
-        Path   = Join-Path $env:USERPROFILE ".claude\skills"
-        Name   = "Claude Code"
-    }
+$OpenCodeSkillsPath = if ($env:XDG_CONFIG_HOME) {
+    Join-Path $env:XDG_CONFIG_HOME "opencode\skills"
+} else {
+    Join-Path $env:USERPROFILE ".config\opencode\skills"
+}
+
+$Targets = [ordered]@{
+    "pi"          = @{ Name = "Pi Agent"; Path = Join-Path $env:USERPROFILE ".pi\agent\skills" }
+    "claude"      = @{ Name = "Claude Code"; Path = Join-Path $env:USERPROFILE ".claude\skills" }
+    "antigravity" = @{ Name = "Antigravity / Gemini CLI"; Path = Join-Path $env:USERPROFILE ".gemini\config\skills" }
+    "codex"       = @{ Name = "OpenAI Codex CLI"; Path = Join-Path $env:USERPROFILE ".codex\skills" }
+    "opencode"    = @{ Name = "OpenCode"; Path = $OpenCodeSkillsPath }
 }
 
 # Filter targets based on parameter
 if ($Target -eq "all") {
-    $ActiveTargets = @("pi", "claude")
+    $ActiveTargets = $Targets.Keys
 } else {
     $ActiveTargets = @($Target)
 }
