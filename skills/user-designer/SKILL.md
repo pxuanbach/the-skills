@@ -135,7 +135,23 @@ Use this command to transform approved design specifications, test cases, and UI
 2. Extract API contracts, schema models, component interactions, E2E & integration test cases, and acceptance criteria.
 
 #### Step 2: Draft Implementation Plan (`plan.md`)
-Write `wiki/<NNN>-<feature>/plan.md` using the standard template:
+
+1. **Task Breakdown Guidelines**:
+   - **Implementation Tasks (`id: I-xxx`, `type: implementation`)**:
+     - Deconstruct the feature into modular architectural layers: Database & Models -> Core Business Logic/Services -> API Controllers/Routes -> UI Components & Pages.
+     - Provide actionable, sequential steps with concrete target files and functions for each task.
+   - **Testing Tasks (`id: T-xxx`, `type: testing`)**:
+     - **Direct Mapping from `design.md`**: Every test scenario designed in `## E2E & Integration Test Cases` of `design.md` must have at least one dedicated testing task in `plan.md`.
+     - **Test Level Classification**:
+       - *Unit Tests*: Test isolated business logic, helper utilities, data validation schemas, and individual UI component render/interaction states.
+       - *Integration Tests*: Test API endpoint contracts, request/response validation, database transactions, and data/state transition flows (`TC-INT-xxx`).
+       - *E2E Tests*: Test complete user interaction journeys on UI (`TC-E2E-xxx`), form submissions, loader indicators, toast/feedback messages, and screen navigation flows.
+     - **Testing Task Details**: Explicitly specify target test runner/framework (e.g. `pytest`, `vitest`, `playwright`), target test file path (e.g. `tests/e2e/test_task_flow.spec.ts`), and expected assertions.
+   - **Implementation Process Flow (`mermaid`)**:
+     - Construct a clear Mermaid flowchart (`graph TD`) illustrating execution dependencies.
+     - Sequence testing tasks logically alongside or following corresponding implementation tasks to ensure continuous verification before completion.
+
+2. Write `wiki/<NNN>-<feature>/plan.md` using the standard template:
 
 ```markdown
 ---
@@ -155,15 +171,17 @@ derived_from:
 
 ```mermaid
 graph TD
-    A[Start] --> B[Task 1: Setup & Models]
-    B --> C[Task 2: Core Business Logic]
-    C --> D[Task 3: API & UI Integration]
-    D --> E[Task 4: Testing & Verification]
+    A[Start] --> B[Task 1: Setup & Data Models]
+    B --> C[Task 2: Core Business Logic & API Endpoints]
+    C --> D[Task 3: Integration Tests for State Transitions]
+    D --> E[Task 4: UI Components & Client State]
+    E --> F[Task 5: E2E Tests for UI Interaction Flows]
+    F --> G[Done]
 ```
 
 ## Tasks
 
-### Task 1: <Task Name>
+### Task 1: <Setup & Models>
 
 - **id**: I-001
 - **type**: implementation
@@ -173,15 +191,45 @@ graph TD
   1. <Step 1>
   2. <Step 2>
 
-### Task 2: <Task Name>
+### Task 2: <Business Logic & API Endpoints>
 
-- **id**: T-002
-- **type**: testing
+- **id**: I-002
+- **type**: implementation
 - **description**: <description of task 2>
 - **status**: pending
 - **steps**:
   1. <Step 1>
   2. <Step 2>
+
+### Task 3: <Integration Tests for State Flow (TC-INT-001)>
+
+- **id**: T-003
+- **type**: testing
+- **description**: Implement integration tests for task lifecycle state transitions mapped from TC-INT-001
+- **status**: pending
+- **steps**:
+  1. Write integration tests in `tests/integration/test_task_state.py` verifying status transitions (`pending` -> `in_progress` -> `completed`)
+  2. Assert database state updates and event notification dispatching
+
+### Task 4: <UI Components & Interaction>
+
+- **id**: I-004
+- **type**: implementation
+- **description**: <description of UI task>
+- **status**: pending
+- **steps**:
+  1. <Step 1>
+  2. <Step 2>
+
+### Task 5: <E2E Tests for UI Interaction Flow (TC-E2E-001)>
+
+- **id**: T-005
+- **type**: testing
+- **description**: Implement E2E tests validating the full task creation and listing interaction flow mapped from TC-E2E-001
+- **status**: pending
+- **steps**:
+  1. Write E2E test in `tests/e2e/test_task_flow.spec.ts` testing form submission, loading spinner, toast display, and table update
+  2. Run test runner and verify clean assertions
 
 ## UI Mockup (if applicable)
 - Relative link: `mockup/screen-name.md` OR `N/A (Backend/CLI requirement)`

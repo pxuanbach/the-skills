@@ -168,15 +168,17 @@ derived_from:
 
 ```mermaid
 graph TD
-    A[Start] --> B[Task 1: Setup]
-    B --> C[Task 2: Core Logic]
-    C --> D[Task 3: Testing]
-    D --> E[Done]
+    A[Start] --> B[Task 1: Setup & Data Models]
+    B --> C[Task 2: Core Logic & API Endpoints]
+    C --> D[Task 3: Integration Tests for State Transitions]
+    D --> E[Task 4: UI Components & Client State]
+    E --> F[Task 5: E2E Tests for UI Interaction Flows]
+    F --> G[Done]
 ```
 
 ## Tasks
 
-### Task 1: <Task Title>
+### Task 1: <Setup & Data Models>
 
 - **id**: I-001
 - **type**: implementation
@@ -187,15 +189,45 @@ graph TD
   2. <Step 2>
   3. <Step 3>
 
-### Task 2: <Task Title>
+### Task 2: <Core Logic & API Endpoints>
 
-- **id**: T-002
-- **type**: testing
+- **id**: I-002
+- **type**: implementation
 - **description**: <description of task 2>
 - **status**: pending
 - **steps**:
   1. <Step 1>
   2. <Step 2>
+
+### Task 3: <Integration Tests for State Flow (TC-INT-001)>
+
+- **id**: T-003
+- **type**: testing
+- **description**: Implement integration tests verifying state transitions mapped from TC-INT-001
+- **status**: pending
+- **steps**:
+  1. Write integration tests in `tests/integration/test_state.py` verifying status transitions
+  2. Assert database state updates and event emissions
+
+### Task 4: <UI Components & Client State>
+
+- **id**: I-004
+- **type**: implementation
+- **description**: <description of UI task>
+- **status**: pending
+- **steps**:
+  1. <Step 1>
+  2. <Step 2>
+
+### Task 5: <E2E Tests for UI Interaction Flow (TC-E2E-001)>
+
+- **id**: T-005
+- **type**: testing
+- **description**: Implement E2E tests validating the full user interaction flow mapped from TC-E2E-001
+- **status**: pending
+- **steps**:
+  1. Write E2E test in `tests/e2e/test_flow.spec.ts` testing form submission, loading state, toast display, and list updates
+  2. Run test runner and verify clean assertions
 
 ## UI Mockup Link (if applicable)
 - Relative path: `mockup/screen-name.md`
