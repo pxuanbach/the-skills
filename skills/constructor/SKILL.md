@@ -5,7 +5,7 @@ description: Implement tasks and execute testing according to the Implementation
 ---
 # Constructor Skill
 
-The **Constructor** skill guides AI agents in reading approved implementation plans (`plan.md`) and UI mockups (`mockup/*.md`), executing defined tasks step-by-step, discovering & loading appropriate programming language/framework skills, executing tests, and producing testing evidence (`evidence.md`) within the LLM Wiki.
+Implement tasks from `plan.md`, run tests, and write testing evidence to `wiki/<NNN>-<feature>/evidence.md`.
 
 ## SDLC Workflow Position
 
@@ -26,126 +26,111 @@ The **Constructor** skill guides AI agents in reading approved implementation pl
        └──► [4b. security-reviewer] ──(loop)──┴─► [User Confirmation]
 ```
 
-> **Current Position**: `constructor` (Step 3 — Implements tasks, executes tests, and produces test evidence `evidence.md`)
-
-## Operational Workflow
-
-When assigned to build a feature or execute an implementation plan, follow these 6 steps sequentially:
+## Workflow
 
 ```
-[Implementation Plan (plan.md) & Mockups (mockup/*.md)]
-                         ↓
-1. Read Plan & Context Discovery (wiki-manager skill)
-                         ↓
-2. Todo List Initialization (Task Tracking)
-                         ↓
-3. Tech Stack & Skill Auto-Discovery (Languages, Frameworks, Testing)
-                         ↓
-4. Incremental Implementation & Test Execution
-                         ↓
-5. Persist Evidence to LLM Wiki (wiki/<feature>/evidence.md & wiki_tool.py sync)
-                         ↓
-6. Validation (validate_evidence.py)
-                         ↓
-7. Next Skill Guidance (Handoff to quality-reviewer / security-reviewer)
+[plan.md & mockup/*.md]
+           ↓
+1. Read Plan & Context (wiki-manager skill)
+           ↓
+2. Track Tasks (Todo list)
+           ↓
+3. Load Tech Stack Skills
+           ↓
+4. Implement Tasks & Run Tests
+           ↓
+5. Write Evidence (wiki/<feature>/evidence.md)
+           ↓
+6. Validate Evidence (validate_evidence.py)
+           ↓
+7. Next Step (Handoff to reviewers)
 ```
 
 ---
 
-### Step 1: Read Plan &amp; Context Discovery
+### Step 1: Read Plan and Context
 
-1. Use the `wiki-manager` skill to locate and read `wiki/<NNN>-<feature>/design.md` & `wiki/<NNN>-<feature>/plan.md` and any associated mockups in `wiki/<NNN>-<feature>/mockup/`.
-2. Extract all tasks defined in `plan.md`:
-  - Implementation tasks (ID format: `I-xxx`)
-  - Testing tasks (ID format: `T-xxx`)
-3. Review `derived_from` requirements (`req-xxx`) if background context is needed.
-
----
-
-### Step 2: Todo List Initialization
-
-1. Maintain an active Todo list in memory or context representing all tasks from `plan.md`.
-2. Mark tasks with status tracking: `pending` -&gt; `in_progress` -&gt; `completed`.
-3. Work strictly on one task at a time, keeping changes modular and verifiable.
+1. Read `wiki/<NNN>-<feature>/design.md`, `wiki/<NNN>-<feature>/plan.md`, and any files in `wiki/<NNN>-<feature>/mockup/`.
+2. Extract tasks:
+   - Implementation tasks (`I-xxx`)
+   - Testing tasks (`T-xxx`)
+3. Read `derived_from` requirements (`req-xxx`) if background context is needed.
 
 ---
 
-### Step 3: Tech Stack &amp; Skill Auto-Discovery
+### Step 2: Track Tasks
 
-Before writing code or running tests:
-
-1. Inspect project configurations (`package.json`, `pyproject.toml`, `requirements.txt`, `Cargo.toml`, `go.mod`, etc.) to identify languages, frameworks, and test runners.
-2. Check available skills (e.g. React, Next.js, Python, FastAPI, Vitest, Pytest) and load applicable skills into context.
-3. Consult loaded skill guidelines to adhere to project-specific coding standards and patterns.
-
-**Parallel subagent acceleration (when implementation tasks are independent)**:
-
-- If multiple implementation tasks (`I-xxx`) can run in parallel without blocking each other, spawn one subagent per independent task group.
-- Each subagent handles: code implementation, test writing, and evidence collection for its assigned task group.
-- The main agent coordinates results, merges evidence, and ensures no file conflicts (e.g., different subagents writing to different modules/files).
-- If tasks share a common module or require shared state (e.g., a new model imported by multiple tasks), complete that shared piece first in the main agent before spawning parallel subagents.
-
-> **Rule of thumb**: Spawn parallel subagents only when tasks have no inter-dependencies. If Task A's output feeds into Task B, run them sequentially in the main agent.
+1. Maintain a task list tracking status: `pending` -> `in_progress` -> `completed`.
+2. Work on one task at a time.
 
 ---
 
-### Step 4: Incremental Task Implementation &amp; Testing
+### Step 3: Load Tech Stack Skills
 
-For each task in the Todo list:
+1. Inspect project configs (`package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`) to identify languages, frameworks, and test runners.
+2. Load available skills matching the stack (e.g. React, Python, FastAPI, Vitest, Pytest).
+3. Follow the loaded skill conventions.
+
+**Parallel subagents for independent tasks**:
+- When tasks (`I-xxx`) touch separate modules with no shared state, spawn one subagent per task group.
+- Complete shared models or common utilities in the main agent before spawning subagents.
+- Merge evidence and verify no file collisions occur.
+
+---
+
+### Step 4: Implement Tasks and Run Tests
+
+For each task:
 
 1. **Implementation Tasks (`I-xxx`)**:
-  - Write clean, well-structured, production-ready code.
-  - Comment code in English explaining *why* complex decisions were made.
-  - Do not leave unfinished stubs, dummy fallbacks, or commented-out code.
+   - Write working code. No stubs or commented blocks.
+   - Comment in English only to explain non-obvious logic.
 2. **Testing Tasks (`T-xxx`)**:
-  - Write unit, integration, or end-to-end test cases corresponding to task requirements.
-  - Run tests directly using project test runners (e.g. `pytest`, `npm test`).
-  - Capture exact raw terminal output and exit codes for evidence.
+   - Write unit, integration, or E2E tests matching the task criteria.
+   - Run tests with project test runners (`pytest`, `npm test`).
+   - Save terminal output and exit codes for evidence.
 
 ---
 
-### Step 5: Persist Evidence to LLM Wiki
+### Step 5: Write Evidence to LLM Wiki
 
-Format testing and execution evidence using the template in [references/evidence_template.md](references/evidence_template.md):
+Follow the template in `references/evidence_template.md`:
 
-1. Save the evidence document to `wiki/<NNN>-<feature>/evidence.md`.
-2. Ensure frontmatter metadata includes `id` (`evidence-xxx`), `title`, `derived_from` (`plan-xxx`), `status` (`completed`), and `tasks_completed` list (`[I-001, I-002, T-003]`).
-3. Include raw terminal test logs, execution summaries, and clickable links to created/modified files.
-4. Sync the LLM Wiki index:
-  ```bash
+1. Save to `wiki/<NNN>-<feature>/evidence.md`.
+2. Set frontmatter: `id` (`evidence-xxx`), `title`, `derived_from` (`plan-xxx`), `status` (`completed`), and `tasks_completed` list (`[I-001, I-002, T-003]`).
+3. Include raw terminal test logs, execution summaries, and links to changed files.
+4. Sync the wiki registry:
+   ```bash
    python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py sync
-  ```
+   ```
 
 ---
 
-### Step 6: Validate Evidence Specification
+### Step 6: Validate Evidence
 
-Run the evidence validator script to verify structure, metadata, and log completeness:
-
+Run the validator:
 ```bash
 python <SKILLS_DIR>/constructor/scripts/validate_evidence.py wiki/<NNN>-<feature>/evidence.md
 ```
 
 ---
 
-### Step 7: Next Skill Guidance (Handoff)
+### Step 7: Next Step
 
-After completing all tasks, passing tests, and generating `evidence.md`:
-1. Summarize implemented files and automated test results to the user.
-2. **Explicitly guide the user on the next step**:
-   - *"All implementation tasks and automated tests are completed with evidence logged in `wiki/<NNN>-<feature>/evidence.md`. Next, run the reviewer skills:*
-     - *Run `/quality-reviewer` (or type `quality-reviewer`) to review code quality, architecture integrity, and clean-code standards.*
-     - *Run `/security-reviewer` (or type `security-reviewer`) to perform a 10-category vulnerability and static security audit."*
+Summarize modified files and test results to the user.
+Tell the user to run:
+- `/quality-reviewer` to review code quality and architecture.
+- `/security-reviewer` to run security and vulnerability scans.
 
 ---
 
-## Reviewer Integration &amp; Iteration Loops
+## Reviewer Feedback Loop
 
-When the optional **Quality Reviewer** or **Security Reviewer** provides feedback or requests changes:
+When Quality Reviewer or Security Reviewer requests changes:
 
-1. Review feedback items carefully against [references/implementation_guidelines.md](references/implementation_guidelines.md).
-2. Refactor source code to fix reported issues or vulnerabilities.
-3. Re-run tests to confirm fixes do not introduce regressions.
-4. Update `wiki/<NNN>-<feature>/evidence.md` with revised execution logs.
-5. Re-run `validate_evidence.py` and notify reviewer for re-evaluation (up to max N review iterations).
+1. Read findings against `references/implementation_guidelines.md`.
+2. Fix reported issues.
+3. Re-run tests to verify fixes and prevent regressions.
+4. Update `wiki/<NNN>-<feature>/evidence.md` with new test logs.
+5. Re-run `validate_evidence.py` and notify the reviewer.
 

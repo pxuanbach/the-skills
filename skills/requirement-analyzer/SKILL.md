@@ -5,10 +5,9 @@ description: Gather, clarify, structure, and formalize software requirements and
 ---
 # Requirement Analyzer Skill
 
-The **Requirement Analyzer** skill guides AI agents in structuring, clarifying, and formalizing feature requests — from vague, high-level ideas to already well-defined specifications — into precise, standardized, and testable requirement specifications within the LLM Wiki.
+Gather, clarify, and format feature requests into `wiki/<NNN>-<feature-slug>/requirement.md`.
 
-> [!IMPORTANT]
-> **Wiki Persistence is Mandatory**: Even if a requirement is provided with full clarity and detail by the user, you must still use this skill to structure, validate, and persist it to `wiki/<feature>/requirement.md` if the wiki does not yet have it. Never bypass requirement formalization and go straight to implementation without wiki documentation.
+If `wiki/<feature>/requirement.md` does not exist, create it before moving to design or implementation.
 
 ## SDLC Workflow Position
 
@@ -29,18 +28,14 @@ The **Requirement Analyzer** skill guides AI agents in structuring, clarifying, 
        └──► [4b. security-reviewer] ──(loop)──┴─► [User Confirmation]
 ```
 
-> **Current Position**: `requirement-analyzer` (Step 1 — Gathers, clarifies, and formalizes requirements into `wiki/<feature>/requirement.md`)
-
-## Operational Workflow
-
-When receiving a feature request or project request, follow these steps sequentially:
+## Workflow
 
 ```
-[Feature Request (Raw, Ambiguous, or Clear)] 
+[Feature Request]
        ↓
 1. Context Discovery (Codebase & Wiki Check)
        ↓
-2. Ambiguity & Completeness Check (Clarify only if needed)
+2. Clarification Check (Ask only if needed)
        ↓
 3. Document Structuring (Standard Template)
        ↓
@@ -48,50 +43,44 @@ When receiving a feature request or project request, follow these steps sequenti
        ↓
 5. Validation (validate_requirement.py)
        ↓
-6. Next Skill Guidance (Handoff to user-designer)
+6. Next Step (Handoff to user-designer)
 ```
 
 ---
 
-### Step 1: Context & Codebase Discovery
+### Step 1: Context and Codebase Discovery
 
-Before asking questions or drafting, perform background research using parallel subagents for speed and breadth:
+Research background context before drafting questions or specs:
 
 1. **Check Wiki First**:
-  - Read `wiki/SYSTEM.md` and `wiki/registry.yaml` (using the `wiki-manager` skill) to understand current architecture, existing feature modules, and check if this requirement already exists or needs updating.
-2. **Spawn subagent A — Local Codebase Inspection**:
-  - Inspect relevant wiki documents, local files, existing patterns, constraints, tests, and likely integration points.
-  - Search for similar functionality in the codebase to avoid duplication.
-  - Identify existing models, API routes, configuration files, and shared utilities related to the request.
-  - Return a structured summary: `files_found`, `patterns_identified`, `integration_points`, `gaps`.
-3. **Spawn subagent B — External & Ecosystem Context**:
-  - Explore external knowledge from official docs, related blog to improve/enrich the answer.
-  - Search for official documentation, recent releases, community patterns, blog, or best practices from external sources.
-  - Return a structured summary: `external_sources`, `ecosystem_patterns`, `relevant_versions`, `recommendations`.
-
-> **When to skip subagent B**: If the request is purely local (e.g., refactoring existing code, updating a known feature), skip external research and rely on subagent A + wiki files only.
+   - Read `wiki/SYSTEM.md` and `wiki/registry.yaml` to confirm architecture, existing modules, and dependencies.
+2. **Local Codebase Inspection (Subagent A)**:
+   - Inspect related files, models, routes, tests, and configuration.
+   - Search for similar logic in the codebase to prevent duplication.
+   - Return: `files_found`, `patterns_identified`, `integration_points`, `gaps`.
+3. **External Context (Subagent B, optional)**:
+   - Search official docs, release notes, or framework best practices when external libraries are involved.
+   - Skip this subagent for local refactors or self-contained features.
+   - Return: `external_sources`, `ecosystem_patterns`, `recommendations`.
 
 ---
 
-### Step 2: Ambiguity & Completeness Check
+### Step 2: Clarification Check
 
-Ask targeted questions that could not be resolved during the discovery step (Step 1).
+Ask only questions unresolved by Step 1:
 
-- **Case A: Request is already clear and complete**:
-  - If the prompt and Step 1 discovery provide sufficient clarity, **do NOT ask redundant questions**.
-  - Proceed directly to **Step 3 (Document Structuring)** to standardize and format the specification.
-- **Case B: Request has unresolved ambiguities or missing details**:
-  - Only ask concise, targeted questions that could not be resolved from codebase inspection or context gathering in Step 1.
-  - Group related questions logically and offer reasonable default choices based on codebase conventions when asking.
+- **Case A: Request is clear and complete**:
+  - Skip questions. Move directly to Step 3.
+- **Case B: Request contains ambiguities**:
+  - Ask targeted questions. Group related items and propose defaults based on codebase conventions.
 
-> [!NOTE]
-> Regardless of whether Case A or Case B applies, **Steps 3, 4, and 5 must always be executed** if the requirement is not yet recorded in `wiki/<feature>/requirement.md`.
+Always complete Steps 3 to 5 if `wiki/<feature>/requirement.md` does not exist yet.
 
 ---
 
 ### Step 3: Document Structuring
 
-Format the requirement using the standard template:
+Format the specification with this template:
 
 ```markdown
 ---
@@ -106,76 +95,72 @@ derived_to:
 # Requirement: <Title>
 
 ## Scope
-<scope of requirement, e.g. frontend/backend, API endpoint, DB schema>
+<Frontend, backend, API endpoints, or database schema affected>
 
 ## Description
 
-Goals: <goal description>
+Goals: <Goal description>
 
-Target Users: <list of target users>
+Target Users: <User personas>
 
-<detailed description of the requirement>
+<Detailed description of the requirement>
 
 ## User Stories
 
 ### US-001
-<description of user story 1>
+<Description of user story 1>
 
 ### US-002
-<description of user story 2>
+<Description of user story 2>
 
 ## Functional Requirements
 
 ### FR-001
-<description of functional requirement 1>
+<Functional requirement 1>
 
 ### FR-002
-<description of functional requirement 2>
+<Functional requirement 2>
 
 ## Non-Functional Requirements
 
 ### NFR-001
-<description of non-functional requirement 1>
+<Performance, latency, security, or reliability constraints>
 
 ## Testing Scenarios
-<list of testing scenarios to validate the requirement>
+<Validation scenarios and expected outcomes>
 
 ## Success Criteria
-<a list of criteria to determine if the requirement is successfully implemented>
+<List of business and user-facing criteria to confirm completion>
 
 ## User Feedbacks (Optional)
-<list of feedbacks from users to clarify the requirement>
+<Clarifications and notes from user interactions>
 ```
 
 ---
 
 ### Step 4: Persist to LLM Wiki
 
-1. Determine feature folder number `NNN` (e.g., `001-task-management`).
-2. Write the file to `wiki/<NNN>-<feature-slug>/requirement.md`.
-3. Invoke the `wiki-manager` skill synchronization tool to index the artifact in `wiki/registry.yaml`:
-  ```bash
+1. Assign the feature folder number `NNN` (e.g. `001-task-management`).
+2. Write to `wiki/<NNN>-<feature-slug>/requirement.md`.
+3. Sync the registry:
+   ```bash
    python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py sync
-  ```
+   ```
 
 ---
 
 ### Step 5: Validate Specification
 
-Run the requirement validator script to confirm that all required sections and frontmatter metadata are present:
-
+Run the validator:
 ```bash
 python <SKILLS_DIR>/requirement-analyzer/scripts/validate_requirement.py wiki/<NNN>-<feature-slug>/requirement.md
 ```
 
 ---
 
-### Step 6: Next Skill Guidance (Handoff)
+### Step 6: Next Step
 
-After validating and presenting the finalized requirement to the user:
-
-1. Ask the user for confirmation/approval of `requirement.md` (or confirm directly if formulated from a pre-approved clear spec).
-2. **Explicitly guide the user on the next step**:
-  - If approved: *"The requirements are formalized in `wiki/<NNN>-<feature-slug>/requirement.md`. Next, run the `/user-designer` skill with the `DESIGN` command (or type `user-designer DESIGN`) to produce the Technical Design (`design.md`) and UI mockups (`mockup/*.md`)."*
-  - If revisions are requested: Iterate on `requirement.md` with the user until approved.
+Present the finalized requirement to the user:
+- If approved, tell the user to run `/user-designer DESIGN` to produce the technical design and mockups.
+- If revisions are needed, update `requirement.md` until approved.
 

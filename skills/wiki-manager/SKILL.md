@@ -6,7 +6,7 @@ description: Manage, organize, query, store, and update project documentation an
 
 # Wiki Manager Skill
 
-The **Wiki Manager** is the central documentation and knowledge repository for the SDLC workflow. It organizes all requirements, designs, mockups, implementation plans, and testing evidence into a structured markdown wiki indexed by `wiki/registry.yaml`. A chronological `log.md` tracks all changes for auditability.
+Store, index, and query project specifications in `wiki/`. Track module states in `wiki/registry.yaml` and append events to `wiki/log.md`.
 
 ## SDLC Workflow Position
 
@@ -27,26 +27,24 @@ The **Wiki Manager** is the central documentation and knowledge repository for t
        └──► [4b. security-reviewer] ──(loop)──┴─► [User Confirmation]
 ```
 
-> **Current Position**: `wiki-manager` (Step 0 & Central Documentation Hub used across all SDLC phases)
+## Directory Structure
 
-## Wiki Architecture & Directory Structure
-
-All wiki documents reside in the `wiki/` directory at the project root:
+All wiki documents live in `wiki/` at the project root:
 
 ```
 wiki/
-├── registry.yaml             # Central index of feature modules, artifacts, status, and descriptions
-├── DESIGN.md                 # UI style, design tokens, UI/UX guidelines, component standards (UI source of truth)
-├── SYSTEM.md                 # Core project intent, high-level architecture, tech stack, directory structure, app boundaries
-├── log.md                    # Chronological append-only record of all SDLC events
+├── registry.yaml             # Index of feature modules, artifacts, status, and descriptions
+├── DESIGN.md                 # UI style, design tokens, and component standards (UI source of truth)
+├── SYSTEM.md                 # Architecture, tech stack, directory layout, and app boundaries
+├── log.md                    # Append-only record of SDLC events
 ├── 001-task-management/      # Feature module directory (NNN-feature-name)
-│   ├── requirement.md        # Requirement & user stories (Requirement Analyzer)
-│   ├── design.md             # Technical design & approved decisions (User Designer)
-│   ├── mockup/               # UI/UX ASCII & semantic markdown wireframes
+│   ├── requirement.md        # Requirements and user stories (Requirement Analyzer)
+│   ├── design.md             # Technical design and decisions (User Designer)
+│   ├── mockup/               # UI ASCII and markdown wireframes
 │   │   ├── task-list.md
 │   │   └── create-task.md
-│   ├── plan.md               # Implementation plan & tasks (User Designer)
-│   ├── evidence.md           # Testing logs & verification evidence (Constructor)
+│   ├── plan.md               # Task breakdown (User Designer)
+│   ├── evidence.md           # Test logs and execution proofs (Constructor)
 │   ├── quality-review.md     # Quality review report (Quality Reviewer)
 │   └── security-review.md    # Security review report (Security Reviewer)
 └── 002-feature-name/
@@ -61,109 +59,95 @@ wiki/
 
 ---
 
-## Agent Guidelines & Operations
-
-Whenever an agent (Requirement Analyzer, User Designer, Constructor, Quality Reviewer, Security Reviewer) performs an SDLC step, follow these operational workflows:
+## Operations
 
 ### 1. Initialize Wiki (`INIT`)
-Before creating feature artifacts, check if `wiki/registry.yaml` exists. If not, the Agent MUST execute the interactive initialization workflow:
+Check if `wiki/registry.yaml` exists. If not, initialize the wiki:
 
 #### Step 1: Collect Project Information
-The Agent prompts the user for three core inputs:
-1. **Project Description & Intent**: Summary of the project, target audience, core problem solved, and key user flows.
+Ask the user for three inputs:
+1. **Project Intent**: Summary, target audience, core problem, and primary user flows.
 2. **`DESIGN.md` Specifications**:
-   - UI style & aesthetic direction.
-   - Design tokens (color palette, typography, spacing, border radius, shadows).
-   - Component guidelines and interactive UI/UX patterns.
-   - *Role*: Serves as the single source of truth so that whenever an Agent implements or modifies UI components, it strictly adheres to these project design standards.
+   - Visual style.
+   - Design tokens (colors, typography, spacing, border radiuses, shadows).
+   - Component rules and interactive patterns.
+   - Role: Single source of truth for all UI components.
 3. **`SYSTEM.md` Specifications**:
-   - Core project intent & high-level architecture (services, communication, topology).
-   - Tech stack (languages, frameworks, DB, tools).
-   - Directory structure (including the explicit purpose and use of each directory).
-   - Monorepo application boundaries and modular isolation rules (if applicable).
+   - Architecture and service topology.
+   - Tech stack (runtime, framework, database, tooling).
+   - Directory structure and the purpose of each folder.
+   - App boundaries and modular isolation rules.
 
 #### Step 2: Auto-Generation Option
-- For `DESIGN.md` and `SYSTEM.md`, ask the user if they want to provide custom content or have the Agent **auto-generate standard-compliant files** based on the Project Description.
-- If **auto-generate** is selected:
-  - Agent synthesizes the Project Description to establish appropriate, high-quality standards.
-  - Generates `wiki/SYSTEM.md` with concrete architecture, tech stack selections, detailed directory mapping, and app boundaries.
-  - Generates `wiki/DESIGN.md` with complete UI tokens, component rules, styling conventions, and accessibility rules matching the tech stack.
+Offer to auto-generate standard-compliant `DESIGN.md` and `SYSTEM.md` from the Project Intent:
+- Generate `wiki/SYSTEM.md` with concrete architecture, tech stack selections, and folder boundaries.
+- Generate `wiki/DESIGN.md` with tokens, component rules, and accessibility standards matching the stack.
 
 #### Step 3: Write Files & Initialize Registry
-1. Create `wiki/` directory.
-2. Create `wiki/registry.yaml` initialized with project name, system/design doc links, and empty modules array.
-3. Write `wiki/SYSTEM.md` and `wiki/DESIGN.md` (user-provided or auto-generated).
-4. Create `wiki/log.md` with an initial initialization entry.
-5. Alternatively, run the helper script and populate the content:
+1. Create the `wiki/` directory.
+2. Create `wiki/registry.yaml` with project metadata and an empty modules list.
+3. Write `wiki/SYSTEM.md` and `wiki/DESIGN.md`.
+4. Create `wiki/log.md` with an initial entry.
+5. Or run the helper tool:
    ```bash
    python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py init
    ```
 
-#### Step 4: Next Skill Guidance (Handoff)
-After completing wiki initialization:
-1. Confirm that `wiki/SYSTEM.md`, `wiki/DESIGN.md`, and `wiki/registry.yaml` are created.
-2. **Explicitly guide the user on the next step**:
-   - *"Wiki initialization complete. Next, run the `/requirement-analyzer` skill (or type `requirement-analyzer`) to begin gathering, clarifying, and formalizing requirements for your first feature module."*
+#### Step 4: Next Step
+Confirm `wiki/SYSTEM.md`, `wiki/DESIGN.md`, and `wiki/registry.yaml` exist. Tell the user to run `/requirement-analyzer` to define the first feature.
 
-### 2. Query / Read Wiki Knowledge (`READ_QUERY`)
-Before starting any new requirement analysis or implementation task:
-1. Read `wiki/registry.yaml` to discover existing feature modules and document IDs.
-2. Read `wiki/SYSTEM.md` and `wiki/DESIGN.md` for architectural context.
-3. Read the feature module directory (e.g., `wiki/001-task-management/requirement.md` and `plan.md`) to understand active requirements and dependencies.
+### 2. Query Wiki Knowledge (`READ_QUERY`)
+Before starting any requirement, design, or coding task:
+1. Read `wiki/registry.yaml` to find existing modules and IDs.
+2. Read `wiki/SYSTEM.md` and `wiki/DESIGN.md` for project context.
+3. Read the relevant module directory (e.g. `wiki/001-task-management/requirement.md`).
 
-### 3. Store / Update Requirements (`WRITE_REQUIREMENT`)
+### 3. Store Requirements (`WRITE_REQUIREMENT`)
 **Agent**: Requirement Analyzer
-- Module location: `wiki/<NNN>-<feature-slug>/requirement.md`
-- Requirements MUST include YAML frontmatter (`id`, `title`, `status`, `derived_to`).
-- Follow the schema in `references/schemas.md#requirement-schema` and template in `references/templates.md#requirement-template`.
-- Update `wiki/registry.yaml` under `modules.<module_id>.artifacts`.
-- **Append entry to `wiki/log.md`** recording this artifact creation.
-
-### 4. Store / Update Technical Design (`WRITE_DESIGN`)
-**Agent**: User Designer
-- Design location: `wiki/<NNN>-<feature-slug>/design.md`
-- Design MUST link to parent requirements via `derived_from: [req-001]`.
-- Design document serves as the final approved technical specification — it is created AFTER requirement approval and BEFORE mockup/plan drafting.
-- Contains: API contracts, data models, architecture decisions, approved UI summary, and acceptance criteria.
-- Follow schema in `references/schemas.md#design-schema` and template in `references/templates.md#design-template`.
-- Update `wiki/registry.yaml` under `modules.<module_id>.artifacts`.
-- **Append entry to `wiki/log.md`** recording this artifact creation.
-
-### 5. Store / Update Plans & Mockups (`WRITE_DESIGN_PLAN`)
-**Agent**: User Designer
-- Plan location: `wiki/<NNN>-<feature-slug>/plan.md`
-- Mockup location: `wiki/<NNN>-<feature-slug>/mockup/<screen-slug>.md`
-- Plans MUST link to parent requirements via `derived_from: [req-001]`.
-- Task list items in `plan.md` MUST specify `id`, `type`, `description`, `status`, and `steps`.
+- File: `wiki/<NNN>-<feature-slug>/requirement.md`
+- Include YAML frontmatter (`id`, `title`, `status`, `derived_to`).
 - Follow schemas in `references/schemas.md` and templates in `references/templates.md`.
-- **Append entry to `wiki/log.md`** recording this artifact creation.
+- Update `wiki/registry.yaml` under `modules.<module_id>.artifacts`.
+- Append an entry to `wiki/log.md`.
 
-### 6. Store / Update Testing Evidence (`WRITE_EVIDENCE`)
+### 4. Store Technical Design (`WRITE_DESIGN`)
+**Agent**: User Designer
+- File: `wiki/<NNN>-<feature-slug>/design.md`
+- Link to parent requirement via `derived_from: [req-001]`.
+- Contains: API contracts, data models, architecture decisions, approved UI summary, and acceptance criteria.
+- Follow schemas in `references/schemas.md` and templates in `references/templates.md`.
+- Update `wiki/registry.yaml` under `modules.<module_id>.artifacts`.
+- Append an entry to `wiki/log.md`.
+
+### 5. Store Plans and Mockups (`WRITE_DESIGN_PLAN`)
+**Agent**: User Designer
+- Files: `wiki/<NNN>-<feature-slug>/plan.md` and `wiki/<NNN>-<feature-slug>/mockup/<screen-slug>.md`
+- Link to parent requirement via `derived_from: [req-001]`.
+- Detail tasks in `plan.md` with `id`, `type`, `description`, `status`, and `steps`.
+- Append an entry to `wiki/log.md`.
+
+### 6. Store Testing Evidence (`WRITE_EVIDENCE`)
 **Agent**: Constructor
-- Evidence location: `wiki/<NNN>-<feature-slug>/evidence.md`
-- After implementation and test execution, capture test output logs, command execution proofs, and assertion results.
-- Link evidence directly to task IDs from `plan.md`.
-- **Append entry to `wiki/log.md`** recording this artifact creation.
+- File: `wiki/<NNN>-<feature-slug>/evidence.md`
+- Record command execution proofs, raw test logs, and assertion counts.
+- Map evidence to task IDs from `plan.md`.
+- Append an entry to `wiki/log.md`.
 
-### 7. Store / Update Review Reports (`WRITE_REVIEW`)
+### 7. Store Review Reports (`WRITE_REVIEW`)
 **Agent**: Quality Reviewer or Security Reviewer
-- Location: `wiki/<NNN>-<feature-slug>/quality-review.md` or `wiki/<NNN>-<feature-slug>/security-review.md`
-- Status: `APPROVED`/`CHANGES_REQUESTED` (quality) or `PASS`/`FAIL` (security)
-- **Append entry to `wiki/log.md`** recording review outcome.
+- File: `wiki/<NNN>-<feature-slug>/quality-review.md` or `wiki/<NNN>-<feature-slug>/security-review.md`
+- Set status: `APPROVED` or `CHANGES_REQUESTED` (quality), `PASS` or `FAIL` (security).
+- Append an entry to `wiki/log.md`.
 
-### 8. Validate & Lint Wiki (`VALIDATE_LINT`)
-To ensure cross-link integrity and schema compliance across all feature modules:
+### 8. Lint Wiki (`VALIDATE_LINT`)
+Check cross-link integrity and frontmatter compliance:
 ```bash
 python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py lint
 ```
-The script checks for:
-- Missing required frontmatter fields (`id`, `title`, `status`).
-- Broken cross-links (`derived_from` / `derived_to`).
-- Desynchronized items in `wiki/registry.yaml`.
 
 ---
 
-## Reference Guides
+## References
 
-- See [references/schemas.md](references/schemas.md) for strict YAML frontmatter metadata rules.
-- See [references/templates.md](references/templates.md) for complete Markdown & ASCII wireframe templates.
+- [references/schemas.md](references/schemas.md): YAML frontmatter schemas.
+- [references/templates.md](references/templates.md): Markdown templates.

@@ -6,7 +6,7 @@ description: Review source code, implementation plans, and test evidence for qua
 
 # Quality Reviewer Skill
 
-The **Quality Reviewer** skill guides AI agents in conducting comprehensive code and documentation reviews on artifacts produced by Constructor. It evaluates design, functionality, complexity, test validity, naming, comments, style, consistency, and overall system health before final user confirmation.
+Audit source code and test logs in `evidence.md` against the 12-point quality checklist. Loop with Constructor until all criteria pass.
 
 ## SDLC Workflow Position
 
@@ -27,93 +27,85 @@ The **Quality Reviewer** skill guides AI agents in conducting comprehensive code
        └──► [4b. security-reviewer] ──────────────────────(loop)──┴─► [User Confirmation]
 ```
 
-> **Current Position**: `quality-reviewer` (Step 4 — Optional quality review and feedback loop on code, design, and tests)
-
-## Operational Workflow
-
-When reviewing completed tasks or test evidence from Constructor, follow these 5 steps sequentially:
+## Workflow
 
 ```
 [Constructor Outputs: Source Code & evidence.md]
                           ↓
-1. Artifact & Context Discovery (wiki-manager skill)
+1. Discovery (Find changed files in evidence.md)
                           ↓
-2. 12-Point Quality Inspection (quality_checklist.md)
+2. 12-Point Inspection (references/quality_checklist.md)
                           ↓
-3. Review Decision & Report Generation (quality-review.md)
+3. Report Decision (wiki/<feature>/quality-review.md)
                           ↓
-4. Constructor Feedback Loop (Max N iterations)
+4. Constructor Feedback Loop (Up to max iterations)
                           ↓
-5. Validation (validate_quality_review.py)
+5. Validate Report (validate_quality_review.py)
                           ↓
-6. Next Skill Guidance (Handoff based on review outcome)
+6. Next Step
 ```
 
 ---
 
-### Step 1: Artifact & Context Discovery
-1. Read `wiki/<NNN>-<feature>/plan.md` and `wiki/<NNN>-<feature>/evidence.md` using the `wiki-manager` skill.
-2. Identify all changed or created source files listed in `evidence.md`.
-3. Inspect full source files (not just diff snippets) to understand broader context and system impact.
+### Step 1: Discovery
+1. Read `wiki/<NNN>-<feature>/plan.md` and `wiki/<NNN>-<feature>/evidence.md`.
+2. List all modified or created source files.
+3. Inspect full files, not just git diffs.
 
 ---
 
 ### Step 2: 12-Point Quality Inspection
-Evaluate the changes using the checklist in [references/quality_checklist.md](references/quality_checklist.md):
+Evaluate changes against `references/quality_checklist.md`:
 
-1. **Design & Integration Points**: Clean component interactions? Data contracts, schemas, and multi-step API chains (e.g. Auth → Session/Token → Navigation/Redirect → Subsequent API) verified?
-2. **Functionality & Routing Logic**: Fulfills developer/user intent? Route transitions, redirect status codes, route guards (Auth/Role), and state persistence handled?
-3. **Error Handling & Resilience**: Graceful error handling at all integration points? Fallback on multi-step failures? No silent `catch {}` blocks or unhandled rejections?
-4. **Edge Cases & Data Boundaries**: Boundary values (null/empty/unicode), concurrency, race conditions, double-submissions, and token expiration evaluated?
-5. **Complexity**: Free of over-engineering? Solves the present problem rather than speculative future features?
-6. **Tests & Flow Verification**: Adequate unit AND integration/workflow tests covering multi-endpoint interactions, redirect cascades, and error paths?
-7. **Naming**: Clear, descriptive, and concise names for functions, variables, and modules?
-8. **Comments**: Comments written in clear English? Explain *WHY* decisions were made, not *WHAT* code does? Obsolete TODOs cleaned up?
-9. **Style**: Adheres strictly to language and project style guides?
-10. **Consistency**: Follows existing codebase conventions unless overriding obsolete practices?
-11. **Documentation**: Updated READMEs/docs, API specs, and route definitions if affected? Cleaned up deleted/deprecated feature docs?
-12. **Every Line & System Context**: Inspected every assigned line of code and evaluated overall system health?
+1. **Design & Integration Points**: Clean interfaces, schema validation, and multi-step API chains.
+2. **Functionality & Routing Logic**: Route transitions, redirect codes, and route guards.
+3. **Error Handling**: Failure fallbacks, error responses, and no silent try/catch blocks.
+4. **Edge Cases & Data Boundaries**: Null/empty boundaries, concurrency, and token lifecycles.
+5. **Complexity**: No speculative features or over-engineering. Solves the stated problem.
+6. **Tests**: Unit and integration coverage for primary paths and failure states.
+7. **Naming**: Clear, concise variable, function, and module names.
+8. **Comments**: English comments explaining why a choice was made, not what the syntax does.
+9. **Style**: Adheres to language and project conventions.
+10. **Consistency**: Matches patterns in the existing codebase.
+11. **Documentation**: Updates to READMEs, API contracts, or schemas when affected.
+12. **Line-by-line Context**: Inspect every line of changed code in system context.
 
 ---
 
-### Step 3: Review Decision & Report Generation
-Using the template in [references/review_report_template.md](references/review_report_template.md), create `wiki/<NNN>-<feature>/quality-review.md`:
+### Step 3: Report Generation
+Write `wiki/<NNN>-<feature>/quality-review.md` using `references/review_report_template.md`:
 
-- **Status Options**:
-  - `APPROVED`: Code meets all 12 quality criteria. Ready for security review or user confirmation.
-  - `CHANGES_REQUESTED`: Concrete actionable findings must be addressed by Constructor.
-- Frontmatter metadata required: `id` (`qreview-xxx`), `title`, `derived_from` (`evidence-xxx`), `status` (`APPROVED` or `CHANGES_REQUESTED`), `iteration` (1 to N).
-- **Max iterations**: Read from `wiki/registry.yaml` → `max_review_iterations` (defaults to `3` if not set).
+- **Status**:
+  - `APPROVED`: Meets all 12 criteria.
+  - `CHANGES_REQUESTED`: Issues must be fixed by Constructor.
+- Frontmatter: set `id` (`qreview-xxx`), `title`, `derived_from` (`evidence-xxx`), `status`, and `iteration` (1 to N).
+- Max iterations: Read `max_review_iterations` from `wiki/registry.yaml` (default: 3).
 
 ---
 
 ### Step 4: Constructor Feedback Loop
 If status is `CHANGES_REQUESTED`:
-1. Send explicit, actionable feedback to Constructor citing file paths, line numbers, and required changes.
-2. Allow Constructor to refactor code, re-run tests, and update `evidence.md`.
-3. Re-evaluate updated files up to `max_review_iterations` (read from `wiki/registry.yaml` — defaults to `3` if not set).
-4. If Constructor resolves all findings, update status to `APPROVED`.
+1. Send feedback citing file paths, line numbers, and concrete fixes.
+2. Constructor refactors code, runs tests, and updates `evidence.md`.
+3. Re-evaluate up to `max_review_iterations`.
+4. When all issues are resolved, set status to `APPROVED`.
 
 ---
 
-### Step 5: Validate Quality Review Document
-Run the validator script to verify report structure and frontmatter:
+### Step 5: Validate Quality Review
+Run the validator:
 ```bash
 python <SKILLS_DIR>/quality-reviewer/scripts/validate_quality_review.py wiki/<NNN>-<feature>/quality-review.md
 ```
-Then sync the LLM Wiki index:
+Sync the registry:
 ```bash
 python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py sync
 ```
 
 ---
 
-### Step 6: Next Skill Guidance (Handoff)
-
-Based on the review outcome in `quality-review.md`, **explicitly guide the user on the next action**:
-- **If `CHANGES_REQUESTED`**:
-  - *"Quality review identified issues that require resolution. Next, invoke `/constructor` (or type `constructor`) with the feedback in `wiki/<NNN>-<feature>/quality-review.md` to address findings and re-run tests."*
-- **If `APPROVED`**:
-  - Check if `security-review.md` exists:
-    - If `security-review.md` is **not yet done**: *"Quality review is APPROVED. Next, run the `/security-reviewer` skill (or type `security-reviewer`) to perform the security and static vulnerability audit."*
-    - If `security-review.md` is **already PASSED**: *"Both Quality and Security reviews are APPROVED/PASSED! The feature is ready for final confirmation and deployment."*
+### Step 6: Next Step
+- If `CHANGES_REQUESTED`: Tell Constructor to address the findings in `quality-review.md`.
+- If `APPROVED`:
+  - If `security-review.md` is missing, tell the user to run `/security-reviewer`.
+  - If `security-review.md` is already passed, tell the user the feature is ready for final confirmation.

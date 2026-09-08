@@ -6,7 +6,7 @@ description: Review source code, API routes, data handling, authentication, auth
 
 # Security Reviewer Skill
 
-The **Security Reviewer** skill guides AI agents in performing security audits and static vulnerability analyses on code produced by Constructor. It identifies security vulnerabilities across 10 critical categories, applies false positive filtering, and issues formal security review decisions (`PASS` or `FAIL`).
+Audit source code and dependencies for vulnerabilities across 10 security categories. Filter false positives and record decisions in `wiki/<NNN>-<feature>/security-review.md`.
 
 ## SDLC Workflow Position
 
@@ -27,104 +27,93 @@ The **Security Reviewer** skill guides AI agents in performing security audits a
        └──► [4b. security-reviewer] <=== (YOU ARE HERE) ──(loop)──┴─► [User Confirmation]
 ```
 
-> **Current Position**: `security-reviewer` (Step 4 — Optional security audit and vulnerability scanning with pass/fail decision)
-
-## Operational Workflow
-
-When conducting a security review, follow these 5 steps sequentially:
+## Workflow
 
 ```
-[Constructor Codebase Diffs & evidence.md]
-                       ↓
-1. Scope & Target Discovery (wiki-manager skill)
-                       ↓
-2. 10-Category Vulnerability Analysis (vulnerability_catalog.md)
-                       ↓
-3. False Positive & Impact Filtering (false_positive_rules.md)
-                       ↓
-4. Report Generation & Decision (security-review.md)
-                       ↓
-5. Validation (validate_security_review.py)
-                       ↓
-6. Next Skill Guidance (Handoff based on security decision)
+[Constructor Diffs & evidence.md]
+               ↓
+1. Discovery (Modified files & routes)
+               ↓
+2. 10-Category Audit (references/vulnerability_catalog.md)
+               ↓
+3. Filter Low-Impact Items (references/false_positive_rules.md)
+               ↓
+4. Report Decision (wiki/<feature>/security-review.md)
+               ↓
+5. Validate Report (validate_security_review.py)
+               ↓
+6. Next Step
 ```
 
 ---
 
-### Step 1: Scope & Target Discovery
-1. Read `wiki/<NNN>-<feature>/plan.md` and `wiki/<NNN>-<feature>/evidence.md` using the `wiki-manager` skill.
-2. Identify all modified files, API routes, database schemas, authentication boundaries, and third-party dependencies.
-3. Pay special attention to untrusted input handling, SQL/Command generation, authentication checks, data serialization, and secret storage.
+### Step 1: Discovery
+1. Read `wiki/<NNN>-<feature>/plan.md` and `wiki/<NNN>-<feature>/evidence.md`.
+2. Find modified files, API routes, database models, and external dependencies.
+3. Check input handling, SQL generation, authentication checks, data serialization, and secret storage.
 
 ---
 
 ### Step 2: 10-Category Vulnerability Analysis
-Scan code for vulnerabilities listed in [references/vulnerability_catalog.md](references/vulnerability_catalog.md):
+Scan code for issues in `references/vulnerability_catalog.md`:
 
 1. **Injection Attacks**: SQLi, Command Injection, LDAP, XPath, NoSQL, XXE.
-2. **Authentication & Authorization**: Broken auth, privilege escalation, IDOR, authorization bypass, session management flaws.
-3. **Data Exposure**: Hardcoded credentials/tokens, sensitive logging (passwords, PII, API keys), unencrypted data transmission.
-4. **Cryptographic Issues**: Weak hashing/ciphers (MD5, SHA1, DES), hardcoded secret keys, insecure random number generation.
-5. **Input Validation**: Missing boundary validation, dangerous string formatting, unvalidated buffer bounds.
-6. **Business Logic Flaws**: Race conditions, Time-of-Check to Time-of-Use (TOCTOU), rate/state manipulation.
-7. **Configuration Security**: Insecure default settings, missing security headers, overly permissive CORS policies (`*`).
-8. **Supply Chain Security**: Vulnerable or outdated dependencies, typosquatting risks.
-9. **Remote Code Execution**: Dangerous deserialization (Python `pickle`, Java deserialization, `eval()`, `exec()`).
-10. **Cross-Site Scripting (XSS)**: Reflected, stored, or DOM-based XSS in frontend templates/responses.
+2. **Authentication & Authorization**: Broken auth, privilege escalation, IDOR, session flaws.
+3. **Data Exposure**: Hardcoded keys/tokens, secret logging, unencrypted transmission.
+4. **Cryptographic Issues**: Weak hashing (MD5, SHA1), static keys, predictable random numbers.
+5. **Input Validation**: Missing boundaries, unsafe string formatting, buffer overflows.
+6. **Business Logic Flaws**: Race conditions, TOCTOU flaws, state manipulation.
+7. **Configuration Security**: Insecure defaults, missing security headers, open CORS (`*`).
+8. **Supply Chain**: Outdated packages, typosquatting risks.
+9. **Remote Code Execution**: Unsafe deserialization (`pickle`, Java), `eval()`, `exec()`.
+10. **Cross-Site Scripting (XSS)**: Reflected, stored, or DOM-based XSS.
 
-**Parallel subagent acceleration (for large codebases)**:
-- For features with substantial code volume, spawn **~2 parallel subagents** to scan different code areas simultaneously.
-- **Assign each subagent a distinct scan scope** to avoid duplicate effort:
-  - **Subagent A** — Scan: injection, auth/authz, data exposure, cryptographic issues.
-  - **Subagent B** — Scan: input validation, business logic, configuration security, supply chain, RCE, XSS.
-- Each subagent returns a categorized findings list with: `category`, `file`, `line`, `description`, `severity`.
-- After subagents return, merge findings, apply false positive filtering (Step 3), and consolidate into the final report.
-- If the codebase is small or the feature touches only a few files, skip subagent spawning and scan sequentially in the main agent.
+**Parallel subagents for large features**:
+- Split scan scope across 2 subagents when inspecting extensive codebases:
+  - Subagent A: injection, auth, data exposure, cryptography.
+  - Subagent B: input validation, business logic, configuration, supply chain, RCE, XSS.
+- Each subagent returns: `category`, `file`, `line`, `description`, `severity`.
+- Merge findings and filter false positives in the main agent.
 
 ---
 
 ### Step 3: False Positive & Impact Filtering
-Apply filtering guidelines from [references/false_positive_rules.md](references/false_positive_rules.md) to eliminate low-impact or irrelevant findings:
+Apply rules from `references/false_positive_rules.md`:
 
-- **Exclude Low-Impact Findings**:
-  - Pure Denial of Service (DoS) or CPU/memory exhaustion concerns without execution impact.
-  - Generic rate limiting recommendations.
-  - Theoretical input validation issues without exploitable vectors or proven impact.
-  - Open redirect vulnerabilities unless tied to OAuth token leakage.
+- Ignore DoS or CPU exhaustion without execution impact.
+- Ignore generic rate-limiting recommendations.
+- Ignore theoretical validation issues without exploit paths.
+- Ignore open redirects unless chained to token theft.
 
-Focus exclusively on actionable, high-impact security vulnerabilities that compromise system integrity or data privacy.
-
----
-
-### Step 4: Report Generation & Security Decision
-Using the template in [references/security_report_template.md](references/security_report_template.md), create `wiki/<NNN>-<feature>/security-review.md`:
-
-- **Status Decision**:
-  - `PASS`: Zero high/medium severity true-positive vulnerabilities detected.
-  - `FAIL`: Actionable vulnerabilities found; Constructor must patch them.
-- Frontmatter metadata required: `id` (`sreview-xxx`), `title`, `derived_from` (`evidence-xxx`), `status` (`PASS` or `FAIL`), `iteration` (1 to N).
-- **Max iterations**: Read from `wiki/registry.yaml` → `max_review_iterations` (defaults to `3` if not set). Loop with Constructor up to that limit.
+Report only vulnerabilities with concrete exploit paths.
 
 ---
 
-### Step 5: Validate Security Review Document
-Run the validator script to verify report structure and frontmatter:
+### Step 4: Report Generation & Decision
+Write `wiki/<NNN>-<feature>/security-review.md` using `references/security_report_template.md`:
+
+- **Status**:
+  - `PASS`: Zero high/medium true-positive vulnerabilities.
+  - `FAIL`: Actionable vulnerabilities exist. Constructor must patch them.
+- Frontmatter: set `id` (`sreview-xxx`), `title`, `derived_from` (`evidence-xxx`), `status`, and `iteration` (1 to N).
+- Max iterations: Read `max_review_iterations` from `wiki/registry.yaml` (default: 3).
+
+---
+
+### Step 5: Validate Security Review
+Run the validator:
 ```bash
 python <SKILLS_DIR>/security-reviewer/scripts/validate_security_review.py wiki/<NNN>-<feature>/security-review.md
 ```
-Then sync the LLM Wiki index:
+Sync the registry:
 ```bash
 python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py sync
 ```
 
 ---
 
-### Step 6: Next Skill Guidance (Handoff)
-
-Based on the security decision in `security-review.md`, **explicitly guide the user on the next action**:
-- **If `FAIL`**:
-  - *"Security audit detected actionable vulnerabilities. Next, invoke `/constructor` (or type `constructor`) with the findings in `wiki/<NNN>-<feature>/security-review.md` to patch vulnerabilities and provide verified evidence."*
-- **If `PASS`**:
-  - Check if `quality-review.md` exists:
-    - If `quality-review.md` is **not yet done**: *"Security audit is PASSED (0 high/medium vulnerabilities). Next, run the `/quality-reviewer` skill (or type `quality-reviewer`) to review code quality and architecture."*
-    - If `quality-review.md` is **already APPROVED**: *"Both Quality and Security reviews are APPROVED/PASSED! The feature is verified and ready for final user confirmation and release."*
+### Step 6: Next Step
+- If `FAIL`: Tell Constructor to patch vulnerabilities reported in `security-review.md`.
+- If `PASS`:
+  - If `quality-review.md` is missing, tell the user to run `/quality-reviewer`.
+  - If `quality-review.md` is already approved, tell the user the feature is verified and ready for release.
