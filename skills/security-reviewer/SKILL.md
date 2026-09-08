@@ -1,6 +1,7 @@
 ---
 name: security-reviewer
-description: Review source code, API routes, data handling, authentication, authorization, dependencies, and architecture for security vulnerabilities, compliance, and secret leaks. Use this skill whenever conducting security audits, scanning code for injection vulnerabilities, checking authentication flaws, applying false positive filtering, or issuing security pass/fail decisions.
+version: "1.0.0"
+description: Review source code, API routes, data handling, authentication, authorization, dependencies, and architecture for security vulnerabilities, compliance, and secret leaks. Use this skill whenever conducting security audits, scanning code for injection vulnerabilities, checking authentication flaws, applying false positive filtering, or issuing security pass/fail decisions. Do NOT use for general code style/linting, architectural design, or initial code implementation.
 ---
 
 # Security Reviewer Skill

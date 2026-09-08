@@ -126,12 +126,50 @@ created_at: 2026-08-18
 
 ```yaml
 ---
-id: ev-001
+id: evidence-001
 title: Testing Evidence Title
 derived_from:
   - plan-001
-status: passed # passed | failed | partial
+status: completed # completed | partial | failed
+tasks_completed:
+  - I-001
+  - I-002
+  - T-003
 tested_at: 2026-08-18T23:00:00Z
 environment: local
+---
+```
+
+---
+
+## 8. Quality Review Frontmatter Schema (`quality-review.md`)
+
+```yaml
+---
+id: qreview-001
+title: Quality Review Report for <Feature Name>
+derived_from:
+  - evidence-001
+status: APPROVED # APPROVED | CHANGES_REQUESTED
+iteration: 1
+created_at: 2026-08-18
+updated_at: 2026-08-18
+---
+```
+
+---
+
+## 9. Security Review Frontmatter Schema (`security-review.md`)
+
+```yaml
+---
+id: sreview-001
+title: Security Review Report for <Feature Name>
+derived_from:
+  - evidence-001
+status: PASS # PASS | FAIL
+iteration: 1
+created_at: 2026-08-18
+updated_at: 2026-08-18
 ---
 ```

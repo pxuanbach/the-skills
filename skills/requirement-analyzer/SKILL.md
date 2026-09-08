@@ -1,6 +1,7 @@
 ---
 name: requirement-analyzer
-description: Gather, clarify, structure, and formalize software requirements and user stories in the SDLC workflow. Use this skill whenever receiving any feature request or requirement specification (whether raw, ambiguous, or already well-defined). Always use this skill to structure, validate, and persist or update requirements into the LLM Wiki (wiki/<feature>/requirement.md) whenever the wiki does not yet contain them, before moving to design or implementation.
+version: "1.0.0"
+description: Gather, clarify, structure, and formalize software requirements and user stories in the SDLC workflow. Use this skill whenever receiving any feature request or requirement specification (whether raw, ambiguous, or already well-defined). Always use this skill to structure, validate, and persist or update requirements into the LLM Wiki (wiki/<feature>/requirement.md) whenever the wiki does not yet contain them, before moving to design or implementation. Do NOT use for creating technical designs, writing source code, or conducting quality/security reviews.
 ---
 # Requirement Analyzer Skill
 
@@ -74,7 +75,7 @@ Before asking questions or drafting, perform background research using parallel 
 
 ### Step 2: Ambiguity & Completeness Check
 
-Hỏi những câu hỏi chưa thể giải quyết từ bước gather (Step 1).
+Ask targeted questions that could not be resolved during the discovery step (Step 1).
 
 - **Case A: Request is already clear and complete**:
   - If the prompt and Step 1 discovery provide sufficient clarity, **do NOT ask redundant questions**.

@@ -1,6 +1,7 @@
 ---
 name: quality-reviewer
-description: Review source code, implementation plans, and test evidence for quality, design integrity, complexity, test coverage, naming, English comments, style, consistency, documentation, and system health. Use this skill whenever conducting code reviews, auditing PRs/diffs, requesting changes from Constructor, or issuing a quality approval decision.
+version: "1.0.0"
+description: Review source code, implementation plans, and test evidence for quality, design integrity, complexity, test coverage, naming, English comments, style, consistency, documentation, and system health. Use this skill whenever conducting code reviews, auditing PRs/diffs, requesting changes from Constructor, or issuing a quality approval decision. Do NOT use for security vulnerability audits, secret detection, or initial code authoring.
 ---
 
 # Quality Reviewer Skill

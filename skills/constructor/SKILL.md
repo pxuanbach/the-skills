@@ -1,6 +1,7 @@
 ---
 name: constructor
-description: Implement tasks and execute testing according to the Implementation Process in plan.md. Use this skill whenever executing tasks from an implementation plan, creating todo lists, writing source code, running unit/integration tests, gathering test logs, loading framework/language skills, and generating evidence.md in the LLM Wiki (wiki/<feature>/evidence.md).
+version: "1.0.0"
+description: Implement tasks and execute testing according to the Implementation Process in plan.md. Use this skill whenever executing tasks from an implementation plan, creating todo lists, writing source code, running unit/integration tests, gathering test logs, loading framework/language skills, and generating evidence.md in the LLM Wiki (wiki/<feature>/evidence.md). Do NOT use for collecting requirements, drafting technical designs or mockups, or conducting independent quality/security audits.
 ---
 # Constructor Skill
 
@@ -53,7 +54,7 @@ When assigned to build a feature or execute an implementation plan, follow these
 
 ### Step 1: Read Plan &amp; Context Discovery
 
-1. Use the `wiki-manager` skill to locate and read `wiki/<NNN>-<feature>/design.m` & `wiki/<NNN>-<feature>/plan.md` and any associated mockups in `wiki/<NNN>-<feature>/mockup/`.
+1. Use the `wiki-manager` skill to locate and read `wiki/<NNN>-<feature>/design.md` & `wiki/<NNN>-<feature>/plan.md` and any associated mockups in `wiki/<NNN>-<feature>/mockup/`.
 2. Extract all tasks defined in `plan.md`:
   - Implementation tasks (ID format: `I-xxx`)
   - Testing tasks (ID format: `T-xxx`)

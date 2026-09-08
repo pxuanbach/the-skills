@@ -281,39 +281,53 @@ derived_from:
 
 ```markdown
 ---
-id: ev-001
-title: Testing Evidence for Plan 001
+id: evidence-001
+title: Execution and Testing Evidence for <Feature Name>
 derived_from:
   - plan-001
-status: passed
+status: completed
+tasks_completed:
+  - I-001
+  - I-002
+  - T-003
 tested_at: 2026-08-18T23:00:00Z
 environment: local
 ---
 
-# Testing Evidence: <Title>
+# Evidence: <Feature Name> Execution & Testing
 
-## Executed Tasks Trace
+## Execution Summary
+<Provide a high-level summary of implemented tasks, system capabilities added, and testing outcomes.>
 
-| Task ID | Type | Target Component | Result | Notes |
-|---------|------|------------------|--------|-------|
-| I-001   | Implementation | Core Engine | Completed | Build succeeded |
-| T-002   | Testing | Unit Tests | Passed | 12/12 tests passed |
+## Task Execution Log
 
-## Automated Test Execution Logs
+### Task I-001: <Task Title>
+- **Status**: Completed
+- **Changes**: <Summary of code written, models updated, routes added>
+- **Files Modified/Created**:
+  - `path/to/file1.py`
+  - `path/to/file2.py`
+
+### Task I-002: <Task Title>
+- **Status**: Completed
+- **Changes**: <Summary of business logic and handlers implemented>
+
+### Task T-003: <Testing Task Title>
+- **Status**: Completed
+- **Test Suite**: `tests/test_feature.py`
+- **Result**: Passed (<N> assertions verified)
+
+## Test Verification & Logs
 
 ```bash
 $ pytest tests/test_feature.py
 ============================== 12 passed in 1.45s ==============================
 ```
 
-## Manual Verification & Proof
-
-- **Step 1**: Triggered endpoint `/api/v1/task` with payload `{ "name": "test" }`.
-- **Response**: HTTP 200 OK - `{ "id": 1, "status": "created" }`.
-
-## Quality & Security Audit Notes
-- **Quality Reviewer**: Code architecture approved. No over-engineering detected.
-- **Security Reviewer**: Sanitization verified. Zero SQLi / XSS vulnerabilities.
+## Artifacts & Changed Files
+- `path/to/file1.py`
+- `path/to/file2.py`
+- `tests/test_feature.py`
 ```
 
 ---
@@ -504,4 +518,103 @@ When generating or reviewing UI code, verify:
 - [ ] Includes all interaction states (hover, focus, disabled, loading).
 - [ ] Accessible color contrast ratio (WCAG 2.1 AA compliant).
 - [ ] Responsive across defined breakpoints without horizontal overflow.
+```
+
+---
+
+## 9. Quality Review Report Template (`quality-review.md`)
+
+```markdown
+---
+id: qreview-001
+title: Quality Review Report for <Feature Name>
+derived_from:
+  - evidence-001
+status: APPROVED # Options: APPROVED | CHANGES_REQUESTED
+iteration: 1
+---
+
+# Quality Review Report: <Feature Name>
+
+## Review Summary
+- **Overall Status**: APPROVED / CHANGES_REQUESTED
+- **Iteration**: 1 of 3
+- **Evaluated Files**:
+  - `path/to/file1.py`
+  - `path/to/file2.py`
+
+## 12-Point Checklist Evaluation
+
+| # | Checklist Criteria | Assessment | Notes |
+|---|-------------------|------------|-------|
+| 1 | Design & Integration Points | PASSED | Clean architecture, data contracts & API chaining verified |
+| 2 | Functionality & Routing Logic | PASSED | Fulfills intent, route guards & navigation handled |
+| 3 | Error Handling & Resilience | PASSED | Graceful failure paths, no silent unhandled errors |
+| 4 | Edge Cases & Data Boundaries | PASSED | Checked boundaries, concurrency & race conditions |
+| 5 | Complexity & Over-engineering | PASSED | Simple, maintainable implementation |
+| 6 | Test Coverage & Flow Verification | PASSED | Unit & integration/workflow tests pass |
+| 7 | Naming Conventions | PASSED | Clear and descriptive identifiers |
+| 8 | English Comments & Clarity | PASSED | Clear comments explaining 'WHY' |
+| 9 | Style Guide Adherence | PASSED | Follows language & project style |
+| 10 | Codebase Consistency | PASSED | Consistent with existing conventions |
+| 11 | Documentation Updates | PASSED | API/route docs and READMEs updated |
+| 12 | Every Line & System Context | PASSED | Full line-by-line review & system health |
+
+## Detailed Findings & Action Items
+
+### Required Changes (if status = CHANGES_REQUESTED)
+1. **[File Path:Line]**: Issue description and requested fix.
+
+### Strengths & Commendations
+- Highlights of exceptionally clean code or design choices.
+```
+
+---
+
+## 10. Security Review Report Template (`security-review.md`)
+
+```markdown
+---
+id: sreview-001
+title: Security Review Report for <Feature Name>
+derived_from:
+  - evidence-001
+status: PASS # Options: PASS | FAIL
+iteration: 1
+---
+
+# Security Review Report: <Feature Name>
+
+## Executive Security Summary
+- **Final Decision**: PASS / FAIL
+- **Iteration**: 1 of 3
+- **Audited Components**: API endpoints, DB queries, Auth middleware, Dependencies
+- **Total Vulnerabilities Found**: 0 High, 0 Medium, 0 Low
+
+## 10 Vulnerability Categories Scan Results
+
+| # | Vulnerability Category | Status | Findings / Notes |
+|---|-----------------------|--------|------------------|
+| 1 | Injection Attacks (SQLi, Command, XXE) | PASS | Parameterized queries used |
+| 2 | Authentication & Authorization | PASS | Ownership check present on routes |
+| 3 | Sensitive Data Exposure & Secrets | PASS | No hardcoded secrets or logging |
+| 4 | Cryptographic Weaknesses | PASS | Standard secure hashing used |
+| 5 | Input Validation & Boundaries | PASS | Pydantic schema validation active |
+| 6 | Business Logic & Race Conditions | PASS | Atomic transactions enforced |
+| 7 | Security Configurations & CORS | PASS | Configs secured |
+| 8 | Supply Chain & Dependencies | PASS | No vulnerable packages |
+| 9 | Remote Code Execution (RCE) | PASS | No dynamic code execution |
+| 10| Cross-Site Scripting (XSS) | PASS | Output sanitization verified |
+
+## False Positive & Low-Impact Filter Log
+- **Filtered Items**:
+  - `[Ignored]`: DoS concern on bulk search endpoint (Infrastructure-level control).
+
+## Actionable Security Findings (if status = FAIL)
+
+### High / Medium Severity Vulnerabilities
+1. **[Vulnerability Category]**: <Description>
+   - **Location**: `file_path.py:L42`
+   - **Impact**: <Potential impact>
+   - **Required Remediation**: <Specific fix for Constructor>
 ```

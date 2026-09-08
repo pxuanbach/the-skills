@@ -1,6 +1,7 @@
 ---
 name: user-designer
-description: "Create technical designs (design.md), E2E/integration test cases, UI/UX mockups (mockup/*.md), and implementation plans (plan.md) from requirement specifications. Supports two core sub-commands: 'DESIGN' (produces design.md & mockups for user review) and 'PLAN' (transforms approved design into plan.md tasks for constructor)."
+version: "1.0.0"
+description: Create technical designs (design.md), API contracts, data models, E2E/integration test cases, UI/UX mockups (mockup/*.md), and implementation plans (plan.md) from requirement specifications. Use this skill whenever transforming approved requirements into technical architecture and mockups (via DESIGN sub-command) or generating task breakdowns for implementation (via PLAN sub-command). Do NOT use for gathering raw user requirements, writing source code, or conducting code reviews.
 ---
 
 # User Designer Skill
@@ -90,8 +91,12 @@ Use this command to create the Technical Design (`design.md`) with E2E/Integrati
   1. Omit the `mockup/` directory.
   2. Mark `UI Summary: N/A (Backend / Non-UI feature)` in `design.md`.
 
-#### Step 4: Persist & Sync
-Sync the wiki registry:
+#### Step 4: Persist, Validate & Sync
+1. Validate the technical design document:
+```bash
+python <SKILLS_DIR>/user-designer/scripts/validate_design.py wiki/<NNN>-<feature>/design.md
+```
+2. Sync the wiki registry:
 ```bash
 python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py sync
 ```
