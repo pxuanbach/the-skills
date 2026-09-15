@@ -46,9 +46,9 @@ Workflow này mô tả một quy trình phát triển phần mềm (SDLC) có s�
     - **Lệnh INIT (Khởi tạo Wiki)**:
       - Agent phỏng vấn User để lấy:
         1. **Mô tả dự án**: Mục tiêu cốt lõi, bài toán giải quyết, đối tượng người dùng.
-        2. **`DESIGN.md`**: Phong cách UI, design tokens (màu sắc, typography, khoảng cách), UI/UX rules, component standards. Đóng vai trò **single source of truth** khi Agent code hoặc sửa UI components.
-        3. **`SYSTEM.md`**: Core project intent, kiến trúc tổng quan, Tech stack, cấu trúc thư mục (kèm mục đích từng thư mục), và monorepo app boundaries.
-      - **Auto-generation**: Nếu User chọn auto-generate, Agent sẽ từ Mô tả dự án tự động sinh ra các chuẩn mực hoàn chỉnh cho `DESIGN.md` và `SYSTEM.md`.
+        2. **`DESIGN.md`**: Phong cách UI, design tokens (màu sắc, typography, khoảng cách), UI/UX rules, component standards. Đóng vai trò **single source of truth** khi Agent code hoặc sửa UI components. <important>Designer/Constructor PHẢI đọc `DESIGN.md` trước khi tạo mockup hoặc code UI — không suy luận style từ trí nhớ.</important>
+        3. **`SYSTEM.md`**: Core project intent, kiến trúc tổng quan, Tech stack, cấu trúc thư mục (kèm mục đích từng thư mục), và monorepo app boundaries. <important>User Designer và Constructor PHẢI đọc `SYSTEM.md` để thiết kế/implement khớp kiến trúc đã chốt.</important>
+      - **Auto-generation**: <important>Nếu User chọn auto-generate, Agent sẽ từ Mô tả dự án tự động sinh ra các chuẩn mực hoàn chỉnh cho `DESIGN.md` và `SYSTEM.md`.</important>
 
 ### 2. Các Agents chính (hiện thực hóa dưới dạng skill/workflow)
 
@@ -111,7 +111,7 @@ Workflow này mô tả một quy trình phát triển phần mềm (SDLC) có s�
     ## Success Criteria
     <a list of criteria to determine if the requirement is successfully implemented>
     
-    **Note for agents**: "Success Criteria" defines what "success" means for the requirement from a **business/mission perspective** — e.g., "users can complete task X within Y seconds", "system handles Z concurrent users", "compliance with regulation Q is achieved". This is NOT implementation-level acceptance criteria — do NOT confuse with "Acceptance Criteria" in design.md.
+    **Note for agents**: <important>"Success Criteria" defines what "success" means for the requirement from a **business/mission perspective** — e.g., "users can complete task X within Y seconds", "system handles Z concurrent users", "compliance with regulation Q is achieved". This is NOT implementation-level acceptance criteria — do NOT confuse with "Acceptance Criteria" in design.md.</important>
 
     ## User Feedbacks (Optional)
     <list of feedbacks from users to clarify the requirement>
@@ -138,7 +138,7 @@ Workflow này mô tả một quy trình phát triển phần mềm (SDLC) có s�
 - **Vòng lặp với User**:
     - User review mockups → gửi request changes
     - User Designer xử lý yêu cầu thay đổi (loop)
-    - Sau khi user approve mockups → cập nhật design.md status = approved
+    - <important>Sau khi user approve mockups PHẢI cập nhật `design.md` status = approved trước khi tạo `plan.md` — không được tạo plan khi UI còn draft.</important>
 
 - **plan template**:
 
@@ -269,7 +269,7 @@ Workflow này mô tả một quy trình phát triển phần mềm (SDLC) có s�
     - <criteria 2>
     - <criteria 3>
 
-    **Note for agents**: "Acceptance Criteria" defines technical conditions that the **implementation must satisfy** to be considered correct — e.g., "API returns 200 with valid JSON", "database schema matches data model", "error handling returns proper error codes". This is NOT business-level success criteria — do NOT confuse with "Success Criteria" in requirement.md. Acceptance Criteria should be **testable/verifiable** conditions that Constructor can prove with evidence.
+    **Note for agents**: <important>"Acceptance Criteria" defines technical conditions that the **implementation must satisfy** to be considered correct — e.g., "API returns 200 with valid JSON", "database schema matches data model", "error handling returns proper error codes". This is NOT business-level success criteria — do NOT confuse with "Success Criteria" in requirement.md. Acceptance Criteria should be **testable/verifiable** conditions that Constructor can prove with evidence.</important>
 
     ## Technical Constraints
     - <constraint 1>
@@ -341,7 +341,7 @@ Workflow này mô tả một quy trình phát triển phần mềm (SDLC) có s�
     ```
 
 - **Mô tả chi tiết**: 
-    - User Designer (as an agent) đọc `requirement.md` cùng `wiki/SYSTEM.md` để nắm rõ kiến trúc hệ thống, tech stack và app boundaries. Sau đó tạo `design.md` (technical design) TRƯỚC làm single source of truth cho implementation (API contracts, data models). Khi feature có UI, agent đọc `wiki/DESIGN.md` (design tokens, component guidelines) để vẽ các bản mockup UI (`mockup/*.md`) cho user review. Sau khi user approve, agent cập nhật `design.md` và tạo `plan.md`. Agent dùng skill `wiki-manager` để lưu trữ tài liệu vào `wiki/` đúng cách.
+    - User Designer (as an agent) đọc `requirement.md` cùng `wiki/SYSTEM.md` để nắm rõ kiến trúc hệ thống, tech stack và app boundaries. Sau đó tạo `design.md` (technical design) TRƯỚC làm single source of truth cho implementation (API contracts, data models). Khi feature có UI, agent đọc `wiki/DESIGN.md` (design tokens, component guidelines) để vẽ các bản mockup UI (`mockup/*.md`) cho user review. <important>Sau khi user approve, agent cập nhật `design.md` (status=approved + approved UI summary) và tạo `plan.md`. Agent dùng skill `wiki-manager` để lưu trữ tài liệu vào `wiki/` đúng cách.</important>
     - user-designer (as a skill) sẽ hướng dẫn agent: (1) đọc `requirement.md` và `wiki/SYSTEM.md`, (2) tạo `design.md` với đầy đủ API contracts và data models, (3) đọc `wiki/DESIGN.md` để tạo mockup và loop với user để approve UI, (4) cập nhật `design.md` UI summary sau khi user approve, (5) tạo `plan.md` với task list rõ ràng. Skill này cũng tham chiếu/nhắc đến skill `wiki-manager` để agent lưu trữ tài liệu vào `wiki/` đúng cách.
 
 #### Constructor
@@ -349,8 +349,8 @@ Workflow này mô tả một quy trình phát triển phần mềm (SDLC) có s�
 - **Input**: `design.md` + `plan.md` từ User Designer
 - **Output**: Source code, evidence of testing -> `evidence.md`.
 - **Mô tả chi tiết**:
-    - Constructor (as an agent) đọc `design.md` để nắm API contracts và data models trước khi implement. Thực hiện các tasks được xác định trong Implementation Process của plan. Lập Todo list dựa trên danh sách tasks trong `plan.md`. Constructor cũng sẽ load các skill tương ứng với Programming Language/Framework/Library để sử dụng (nếu available). Sau khi hoàn thành các testing tasks, agent sẽ tạo ra evidence of testing và lưu trữ vào `evidence.md`. Agent đọc skill llm-wiki để lưu trữ tài liệu vào wiki/ đúng cách.
-    - constructor (as a skill) sẽ hướng dẫn agent cách implement tasks và testing, đảm bảo rằng tất cả các yêu cầu được đáp ứng. Lập Todo list dựa trên danh sách tasks trong `plan.md`. Skill chỉ dẫn agent load các skill tương ứng với Programming Language/Framework/Library để sử dụng (nếu available). Sau khi hoàn thành, skill hướng dẫn tạo ra evidence of testing và lưu trữ vào `evidence.md`. Skill này cũng tham chiếu/nhắc đến skill llm-wiki để agent (sử dụng skill) lưu trữ tài liệu vào wiki/ đúng cách.
+    - Constructor (as an agent) đọc `design.md` để nắm API contracts và data models trước khi implement. Thực hiện các tasks được xác định trong Implementation Process của plan. Lập Todo list dựa trên danh sách tasks trong `plan.md`. <important>Constructor PHẢI load các skill tương ứng với Programming Language/Framework/Library đang dùng (nếu available) trước khi viết code.</important> Sau khi hoàn thành các testing tasks, agent sẽ tạo ra evidence of testing và lưu trữ vào `evidence.md`. Agent đọc skill llm-wiki để lưu trữ tài liệu vào wiki/ đúng cách.
+    - constructor (as a skill) sẽ hướng dẫn agent cách implement tasks và testing, đảm bảo rằng tất cả các yêu cầu được đáp ứng. Lập Todo list dựa trên danh sách tasks trong `plan.md`. Skill chỉ dẫn agent load các skill tương ứng với Programming Language/Framework/Library để sử dụng (nếu available). <important>Sau khi hoàn thành, skill hướng dẫn tạo ra evidence of testing và lưu trữ vào `evidence.md` — evidence là đầu ra bắt buộc, không phải tuỳ chọn.</important> Skill này cũng tham chiếu/nhắc đến skill llm-wiki để agent (sử dụng skill) lưu trữ tài liệu vào wiki/ đúng cách.
 
 
 #### Quality Reviewer (Optional)
@@ -477,3 +477,21 @@ User -> [confirm] ✓
 | `max_review_iterations` | Số lần max Constructor-Reporter loop | `3` |
 
 Các reviewer đọc `max_review_iterations` từ `wiki/registry.yaml` để giới hạn số lần feedback loop.
+
+
+## Expected Result Checklist
+
+1. Tại bước requirement-analyze, có đảm bảo mọi requirement nhận vào đều được ghi vào wiki không? Hay mô hình phân tích và nhận định là tác vụ nhỏ thì không ghi vào?
+=> <important>Phải luôn ghi lại requirement mới vào wiki không quan tâm task size.</important>
+
+2. Tại bước requirement-analyze, các yêu cầu mới nhận vào có được phân tích và làm rõ vấn đề (đặt câu hỏi làm rõ vấn đề cho user) không? Hay chỉ tạo 1 bản requirement ghi lại những gì đã có và chấp nhận nội dung tối nghĩa, mập mờ?
+=> <important>Phải luôn có bước tự giải thích lại vấn đề để user đọc, và thêm phần câu hỏi làm rõ để user trả lời nếu không rõ phần nào đó trong requirement mới.</important>
+
+3. Tại bước user-designer, có hỗ trợ tạo mockup / prototype bằng HTML không? 
+=> <important>Nên có thêm lựa chọn `DESIGN html` thì agent sẽ hiểu là design với mockup / prototype là html.</important>
+
+4. Việc tạo mockup / prototype có đang tham chiếu đến DESIGN.md và SYSTEM.md và các tài liệu requirement cũ liên quan để nắm được kiến trúc dự án cơ bản không? 
+=> <important>Phải luôn được tham chiếu. Bản mockup / prototype có UI/UX liền mạch với sản phẩm hiện có. Cách tham chiếu thì dùng semantic search trên `registry.yaml` để tìm lại các thông tin liên quan.</important>
+
+5. Ở `registry.yaml`, thông tin id, description,... có được mô tả để tận dụng lại khả năng semantic search của Agent không?
+=> <important>Phải mô tả dạng text thông tin có ý nghĩa, đặc biệt là description là 1 câu ngắn mô tả lại module (tóm tắt nội dung của module) minimum 100 ký tự. Tránh dùng lại tên / title của module.</important>
