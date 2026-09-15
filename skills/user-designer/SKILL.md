@@ -1,16 +1,17 @@
 ---
 name: user-designer
 version: "1.0.0"
-description: Create technical designs (design.md), API contracts, data models, E2E/integration test cases, UI/UX mockups (mockup/*.md), and implementation plans (plan.md) from requirement specifications. Use this skill whenever transforming approved requirements into technical architecture and mockups (via DESIGN sub-command) or generating task breakdowns for implementation (via PLAN sub-command). Do NOT use for gathering raw user requirements, writing source code, or conducting code reviews.
+description: Create technical designs (design.md), API contracts, data models, E2E/integration test cases, UI/UX mockups (mockup/*.md via ASCII wireframes OR mockup/*.html for interactive HTML prototypes), and implementation plans (plan.md) from requirement specifications. Use this skill whenever transforming approved requirements into technical architecture and mockups (via `DESIGN` sub-command for ASCII wireframes or `DESIGN html` for interactive HTML prototypes) or generating task breakdowns for implementation (via `PLAN` sub-command). Do NOT use for gathering raw user requirements, writing source code, or conducting code reviews.
 ---
 
 # User Designer Skill
 
-Convert approved requirements into technical designs (`design.md`), UI wireframes (`mockup/*.md`), and implementation plans (`plan.md`).
+Convert approved requirements into technical designs (`design.md`), UI wireframes (`mockup/*.md` or `mockup/*.html`), and implementation plans (`plan.md`).
 
-This skill runs two sub-commands:
-1. **`DESIGN`**: Produces `design.md` (architecture, API/data contracts, test cases) and `mockup/*.md`. Halts for user review.
-2. **`PLAN`**: Breaks approved designs into tasks in `plan.md` for Constructor.
+This skill runs three sub-commands:
+1. **`DESIGN`** (default): Produces `design.md` (architecture, API/data contracts, test cases) and `mockup/*.md` (ASCII wireframes). Halts for user review.
+2. **`DESIGN html`**: Produces `design.md` and `mockup/*.html` (interactive single-file HTML prototypes that follow `wiki/DESIGN.md` tokens). Use when the user requests an HTML prototype, click-through, or visual demo. Halts for user review.
+3. **`PLAN`**: Breaks approved designs into tasks in `plan.md` for Constructor.
 
 ## SDLC Workflow Position
 
@@ -36,9 +37,9 @@ This skill runs two sub-commands:
 
 ---
 
-## Command 1: `DESIGN` (`/user-designer DESIGN`)
+## Command 1a: `DESIGN` (`/user-designer DESIGN`) — ASCII wireframe mode
 
-Create the technical design (`design.md`) and UI mockups (`mockup/*.md`).
+Create the technical design (`design.md`) and ASCII UI mockups (`mockup/*.md`).
 
 ### Prerequisite Check
 Ensure `wiki/<NNN>-<feature>/requirement.md` exists and is approved. If missing, tell the user to run `/requirement-analyzer` first.
@@ -52,7 +53,7 @@ Ensure `wiki/<NNN>-<feature>/requirement.md` exists and is approved. If missing,
               ↓
 2. Create Technical Design (design.md: Architecture, API, Data Models, Test Cases)
               ↓
-3. Evaluate UI Need ──→ [UI Involved?] ──Yes──> Create Mockup (DESIGN.md → mockup/*.md)
+3. Evaluate UI Need ──→ [UI Involved?] ──Yes──> Create Mockup (DESIGN.md + SYSTEM.md + semantic search → mockup/*.md)
               │                                    │
               └───No (Backend/API/CLI) ────────────┤
                                                    ↓
@@ -80,11 +81,22 @@ Ensure `wiki/<NNN>-<feature>/requirement.md` exists and is approved. If missing,
 3. Frontmatter: set `derived_from: [req-xxx]`, `status: approved` (or `draft`).
 
 #### Step 3: Create UI Mockups (Optional)
-- If UI is involved:
-  1. Read `wiki/DESIGN.md` for project tokens, components, and styling rules.
-  2. Write `wiki/<NNN>-<feature>/mockup/<screen-slug>.md` using ASCII wireframes per `references/ascii_wireframe_guide.md`.
-  3. Include: screen name, wireframe block, components, interactions, and related requirements.
-- If Backend / API / CLI only:
+
+- **If UI is involved:**
+  1. **Read context (mandatory before drawing)**:
+     - `wiki/DESIGN.md` — design tokens, components, styling rules.
+     - `wiki/SYSTEM.md` — tech stack, app boundaries, navigation patterns (e.g., shared layout, auth guards, role-based nav).
+  2. **Find related prior work via semantic search on `registry.yaml`**:
+     - Read `wiki/registry.yaml#modules[].description` for every module.
+     - Identify modules whose descriptions overlap with the current feature (similar entity names, overlapping user flows, shared screens).
+     - Open those modules' `mockup/*.md` (or `mockup/*.html`) files and reuse patterns: consistent header layout, button placement, table column order, empty-state copy, error toasts.
+     - If no related modules exist, proceed standalone and document this in the mockup.
+  3. **Render the wireframe**:
+     - ASCII mode (this command): write `wiki/<NNN>-<feature>/mockup/<screen-slug>.md` per `references/ascii_wireframe_guide.md`.
+     - HTML mode (`DESIGN html` command): write `mockup/<screen-slug>.html` per `references/html_prototype_guide.md`.
+  4. **Include in each mockup**: screen name, wireframe block, components, interactions, related requirements, and any prior module whose pattern was reused (cite module id).
+
+- **If Backend / API / CLI only:**
   1. Omit the `mockup/` folder.
   2. Mark `UI Summary: N/A (Backend / Non-UI feature)` in `design.md`.
 
@@ -100,6 +112,49 @@ Ensure `wiki/<NNN>-<feature>/requirement.md` exists and is approved. If missing,
 
 #### Step 5: User Review
 Present `design.md` and mockups to the user. Apply requested changes. Once approved, tell the user to run `/user-designer PLAN`.
+
+---
+
+## Command 1b: `DESIGN html` (`/user-designer DESIGN html`) — Interactive HTML prototype mode
+
+Use this variant when the user explicitly requests an interactive HTML
+prototype, click-through demo, or visual mockup. Triggers include:
+"tạo prototype bằng HTML", "làm bản HTML click-through", "DESIGN html",
+"interactive mockup".
+
+### Outputs
+- `wiki/<NNN>-<feature>/design.md` — same as Command 1a.
+- `wiki/<NNN>-<feature>/mockup/<screen-slug>.html` — one self-contained
+  HTML file per screen.
+- Optional companion `wiki/<NNN>-<feature>/mockup/<screen-slug>.md`
+  summarizing the component inventory for non-rendered review.
+
+### HTML Prototype Rules
+- **Self-contained**: single HTML file, embed CSS + minimal JS inline.
+  No external CDN, no remote fonts, no remote images (data: URIs allowed).
+- **Token-driven**: every color, font size, spacing value, radius, and
+  shadow comes from `wiki/DESIGN.md` design tokens. No arbitrary hex.
+- **State-aware**: at minimum, render default state, hover state, focus
+  state, disabled state, loading state, and empty state for key
+  components.
+- **Accessible**: semantic HTML, ARIA labels for icon buttons, keyboard
+  navigable, color contrast WCAG 2.1 AA.
+- **Cross-references**: header/footer/nav must match the patterns reused
+  from related modules (per Step 3 semantic search above).
+- **Navigation**: include `<a>` links between screens of the same feature
+  so the user can click through the flow.
+
+### Workflow
+Same as Command 1a, except Step 3 renders HTML per
+`references/html_prototype_guide.md`. Validation step additionally runs:
+```bash
+python <SKILLS_DIR>/user-designer/scripts/validate_html_mockup.py \
+  wiki/<NNN>-<feature>/mockup/
+```
+
+### Reference
+- `references/html_prototype_guide.md` — full rendering rules, component
+  library mappings, accessibility checklist, multi-screen linking.
 
 ---
 

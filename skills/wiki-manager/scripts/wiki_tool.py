@@ -189,11 +189,48 @@ def sync_wiki(wiki_dir="wiki"):
             if os.path.exists(mockup_dir) and os.path.isdir(mockup_dir):
                 arts["mockups"] = [f"{item}/mockup/{m}" for m in sorted(os.listdir(mockup_dir)) if m.endswith(".md")]
 
-            # Extract description from requirement.md title as fallback
+            # Extract description: prefer the Description section body of
+            # requirement.md (Goal + paragraph); fallback to frontmatter
+            # title. Append Goals line if description < 100 chars to
+            # satisfy the semantic-search minimum enforced in lint.
             req_path = os.path.join(item_path, "requirement.md")
             if os.path.exists(req_path):
+                with open(req_path, "r", encoding="utf-8") as f:
+                    req_body = f.read()
                 meta, _ = parse_frontmatter(req_path)
-                mod_info["description"] = meta.get("title", "")
+                title_fallback = meta.get("title", "") if isinstance(meta.get("title", ""), str) else ""
+
+                desc = ""
+                # 1. Try "## Description" section body
+                desc_match = re.search(
+                    r"##\s+Description\s*\n+(.+?)(?=\n##|\Z)", req_body, re.DOTALL
+                )
+                if desc_match:
+                    desc = " ".join(desc_match.group(1).split())
+
+                # 2. Fallback to frontmatter title
+                if not desc:
+                    desc = title_fallback
+
+                # 3. Append Goals line if still < 100 chars
+                if len(desc) < 100:
+                    goal_match = re.search(
+                        r"\*\*Goals\*\*:\s*(.+?)(?:\n|$)", req_body
+                    )
+                    if goal_match:
+                        goal_text = goal_match.group(1).strip()
+                        desc = f"{desc}. Goal: {goal_text}" if desc else goal_text
+
+                # 4. Append Target Users line if still < 100 chars
+                if len(desc) < 100:
+                    tu_match = re.search(
+                        r"\*\*Target Users\*\*:\s*(.+?)(?:\n|$)", req_body
+                    )
+                    if tu_match:
+                        tu_text = tu_match.group(1).strip()
+                        desc = f"{desc}. Target users: {tu_text}"
+
+                mod_info["description"] = desc
 
             modules.append(mod_info)
 
@@ -228,18 +265,56 @@ def lint_wiki(wiki_dir="wiki"):
                 full_p = os.path.join(root, f)
                 rel_p = os.path.relpath(full_p, wiki_dir)
                 meta, _ = parse_frontmatter(full_p)
-                
+
                 if not meta:
                     print(f"[WARN] {rel_p}: Missing or invalid YAML frontmatter")
                     warnings += 1
                     continue
-                
+
                 if "id" not in meta:
                     print(f"[ERROR] {rel_p}: Missing 'id' in frontmatter")
                     errors += 1
                 if "title" not in meta:
                     print(f"[ERROR] {rel_p}: Missing 'title' in frontmatter")
                     errors += 1
+
+    # Registry description validation (semantic-search friendliness)
+    registry_path = os.path.join(wiki_dir, "registry.yaml")
+    if os.path.exists(registry_path):
+        with open(registry_path, "r", encoding="utf-8") as rf:
+            reg_content = rf.read()
+        # Parse each module block
+        for block in re.finditer(
+            r'-\s+id:\s*"([^"]+)"\s*\n\s+name:\s*"([^"]+)"\s*\n\s+description:\s*"([^"]*)"',
+            reg_content,
+        ):
+            mod_id = block.group(1)
+            mod_name = block.group(2)
+            mod_desc = block.group(3).strip()
+            if not mod_desc:
+                print(f"[WARN] registry.yaml[{mod_id}]: description is empty")
+                warnings += 1
+            elif len(mod_desc) < 100:
+                print(
+                    f"[WARN] registry.yaml[{mod_id}]: description is {len(mod_desc)} chars "
+                    f"(min 100). Agents cannot semantic-search effectively with a short description."
+                )
+                warnings += 1
+            # Compare normalized to name / title
+            req_path = os.path.join(wiki_dir, mod_id, "requirement.md")
+            if os.path.exists(req_path):
+                req_meta, _ = parse_frontmatter(req_path)
+                req_title = (req_meta.get("title", "") or "").strip() if isinstance(req_meta.get("title", ""), str) else ""
+                norm = lambda s: re.sub(r"\s+", " ", s.strip().lower())
+                if mod_desc and (
+                    norm(mod_desc) == norm(mod_name) or norm(mod_desc) == norm(req_title)
+                ):
+                    print(
+                        f"[WARN] registry.yaml[{mod_id}]: description repeats name/title "
+                        f"({mod_name!r}/{req_title!r}). Semantic search will not help — "
+                        f"rewrite to describe purpose."
+                    )
+                    warnings += 1
 
     print(f"\nLint complete: {errors} error(s), {warnings} warning(s)")
     if errors > 0:

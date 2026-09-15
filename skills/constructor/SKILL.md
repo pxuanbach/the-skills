@@ -26,6 +26,31 @@ Implement tasks from `plan.md`, run tests, and write testing evidence to `wiki/<
        └──► [4b. security-reviewer] ──(loop)──┴─► [User Confirmation]
 ```
 
+## Prerequisite Check (MANDATORY — DO NOT SKIP)
+
+Before implementing ANY task — including single-line tweaks, typo fixes,
+config edits, or copy changes — verify all of the following:
+
+1. **Requirement exists**: `wiki/<NNN>-<feature>/requirement.md` is present
+   AND its frontmatter `status` is `approved`.
+2. **Plan exists**: `wiki/<NNN>-<feature>/plan.md` is present.
+3. **Evidence target**: you know which `evidence.md` file will receive
+   the test logs and changed-file list.
+
+If any check fails:
+
+- **Missing requirement.md** → HALT and tell the user:
+  > "No `wiki/<NNN>-<feature>/requirement.md` found. Run
+  > `/requirement-analyzer` first to capture the change in the LLM Wiki.
+  > The SDLC workflow requires every change — including small tweaks —
+  > to be recorded in the wiki before any code is written."
+- **status != approved** → HALT and tell the user the requirement is
+  still in `draft` and must be approved first.
+- **Missing plan.md** → HALT and tell the user to run
+  `/user-designer PLAN` to produce the implementation plan.
+
+Only proceed to the Workflow below once all three checks pass.
+
 ## Workflow
 
 ```

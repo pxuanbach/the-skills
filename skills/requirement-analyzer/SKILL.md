@@ -1,13 +1,36 @@
 ---
 name: requirement-analyzer
 version: "1.0.0"
-description: Gather, clarify, structure, and formalize software requirements and user stories in the SDLC workflow. Use this skill whenever receiving any feature request or requirement specification (whether raw, ambiguous, or already well-defined). Always use this skill to structure, validate, and persist or update requirements into the LLM Wiki (wiki/<feature>/requirement.md) whenever the wiki does not yet contain them, before moving to design or implementation. Do NOT use for creating technical designs, writing source code, or conducting quality/security reviews.
+description: |
+  MANDATORY gate: structure, validate, and persist every incoming feature request or change into wiki/<feature>/requirement.md, regardless of perceived task size — including 1-line tweaks, typo fixes, copy edits, and config tweaks. NEVER write source code, edit UI, or change design without a requirement.md entry existing or being created in the same turn. Use this skill whenever the user reports a bug, requests a feature, refactor, or behavior change. Do NOT use for creating technical designs, writing source code, or conducting quality/security reviews.
 ---
 # Requirement Analyzer Skill
 
 Gather, clarify, and format feature requests into `wiki/<NNN>-<feature-slug>/requirement.md`.
 
-If `wiki/<feature>/requirement.md` does not exist, create it before moving to design or implementation.
+## Anti-Skip Rule (READ THIS FIRST)
+
+**Every** incoming request — no matter how small — MUST be persisted to
+`wiki/<NNN>-<feature-slug>/requirement.md` before any other agent writes
+code. Examples that MUST still produce a requirement entry:
+
+- "Đổi màu primary button sang xanh lá"
+- "Sửa typo trên trang login"
+- "Thêm field `notes` vào form tạo task"
+- "Disable nút X khi Y rỗng"
+- "Tăng timeout API lên 30s"
+
+If the request is purely conversational / informational (no code or
+config change), skip persistence. Otherwise, persist first, then act.
+
+> Rationale: the LLM Wiki is the only durable record of why the codebase
+> looks the way it does. Skipping small changes means future agents lose
+> context and re-litigate decisions. A 30-second write protects hours of
+> future work.
+
+If `wiki/<feature>/requirement.md` does not exist, create it before any
+other action (design, implementation, review, or commit) — regardless of
+whether design or implementation will follow.
 
 ## SDLC Workflow Position
 
@@ -67,12 +90,27 @@ Research background context before drafting questions or specs:
 
 ### Step 2: Clarification Check
 
-Ask only questions unresolved by Step 1:
+This step has TWO mandatory outputs — never skip either:
+
+#### 2a. Restate the Problem (ALWAYS)
+
+Even if the request is clear and complete, rewrite the problem in 2–4
+sentences using the agent's own words, then show it to the user for
+confirmation before drafting the spec. Example:
+
+> "If I understand correctly, you want users to be able to create tasks
+> with name + priority, list them with status filters, and mark them
+> complete with one click. The change is scoped to the FastAPI backend
+> and a minimal React UI. Did I get that right?"
+
+If the user corrects anything, loop back to Step 1 and re-do Step 2a.
+
+#### 2b. Targeted Clarification (Only if needed)
 
 - **Case A: Request is clear and complete**:
-  - Skip questions. Move directly to Step 3.
+  - Restate + proceed. No open questions needed.
 - **Case B: Request contains ambiguities**:
-  - Ask targeted questions. Group related items and propose defaults based on codebase conventions.
+  - Group open questions and propose defaults based on codebase conventions.
 
 Always complete Steps 3 to 5 if `wiki/<feature>/requirement.md` does not exist yet.
 
