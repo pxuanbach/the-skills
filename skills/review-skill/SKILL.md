@@ -4,7 +4,7 @@ description: |
   Review and validate Agent Skills for consistency, completeness, and quality.
   Use when the user asks to review a skill, check skill quality, validate skill structure, or audit an existing skill in the repository.
   Do NOT use for general application code reviews or software QA testing.
-version: 1.1.0
+version: 1.3.0
 ---
 
 # Review Skill
@@ -48,6 +48,7 @@ Identify the components of the skill under review:
 **Metadata & Routing Quality**
 - `name` field is present, valid format (kebab-case/gerund), and matches the directory name (`snake_case`).
 - `description` starts with an action verb (front-loaded keywords) and clearly explains **what it does**.
+- `description` length stays within routing budget (≤1024 chars YAML, ~50 words target; downstream API callers may cap at ~200 chars).
 - `description` explicitly defines **when to use** (triggers).
 - `description` includes an anti-trigger clause (**when NOT to use** / `Do NOT use for...`) to avoid over-triggering.
 - `version` follows Semantic Versioning (`semver`).
@@ -63,6 +64,7 @@ Identify the components of the skill under review:
 - Explains the *why* (rationale) behind strict rules to help the model generalize.
 - Output formats are clearly specified with concrete examples.
 - Error conditions and edge cases are addressed.
+- Flags ALL-CAPS imperatives (`ALWAYS`, `NEVER`) without rationale — those rules belong in `AGENTS.md`, not in a Skill body.
 
 **Script & Tool Hygiene**
 - Scripts in `scripts/` are properly documented with usage guidelines and input parameters.
@@ -70,9 +72,13 @@ Identify the components of the skill under review:
 - All configuration values are passed as input arguments or environment variables.
 
 **Testability & Verification (Eval Readiness)**
-- Instructions are verifiable (the agent can objectively confirm whether it succeeded).
-- Includes concrete examples or reference test cases (Input → Expected Output / Tool calls).
-- Failure modes are anticipated with fallback guidance.
+
+Map every check to one of the four failure modes below; a skill that fails any one stays at the draft tier.
+
+- **Trigger Failure.** Positive (must fire) and negative (must stay quiet) test cases both exist; description hits ≥90% trigger accuracy in isolation.
+- **Execution Failure.** Golden dataset of representative inputs produces correct outputs and matching tool trajectories; JSON eval cases committed alongside the skill.
+- **Regression.** Adding the skill causes zero measurable drops in the existing library suite; verify by running the suite before and after install.
+- **Token Budget.** Co-loaded with 5 to 15 frequently-active skills, the skill's body does not degrade unrelated turns (target body ≤5,000 tokens; describe what was measured).
 
 ### 3. Evidence Collection
 Document each finding with:
@@ -119,7 +125,29 @@ Brief summary of the skill's purpose and overall assessment.
 
 ## 4. Actionable Recommendations
 Prioritized checklist of changes required before publishing or deployment.
-```
+
+## Skill Smells (Anti-Patterns)
+
+If the skill under review shows any of these patterns, flag it. Sourced from the Agent Skills cheatsheet.
+
+- **Over 5,000 words in `SKILL.md`.** Probably two skills, or reference material that belongs in `references/`.
+- **Two domain teams could plausibly own it.** Not yet decomposed. Split along team boundaries.
+- **You can't write three test cases for it.** Description is too vague; the skill does too many things.
+- **It does not reference any other resource.** May be a long instruction that belongs in the system prompt.
+- **It keeps growing "edge cases" sections.** Each edge case probably wants its own skill.
+- **Description starts with "a helpful skill for...".** Rewrite — the description should name the trigger, the inputs, and the output.
+
+## Deployment Readiness
+
+A skill is shippable only when every box clears. This is a separate gate from review: review checks the artifact, this section checks the rollout path.
+
+- [ ] Frontmatter lints cleanly (no schema warnings)
+- [ ] Description reviewed by someone other than the author (second-pass bias check)
+- [ ] Scripts have unit tests passing in CI
+- [ ] Eval suite passes in CI with a documented min-pass threshold
+- [ ] Security scan clean (no secrets, no untrusted third-party deps)
+- [ ] Cross-tool install paths tested if shipping publicly (at least 2 of: Claude Code, Codex CLI, Antigravity, OpenCode)
+- [ ] Org-level admin provisioning updated where applicable (allowed-tools, scope, skill overrides)
 
 ## Repo Skill Conventions
 
@@ -142,11 +170,18 @@ skills/
 
 - [ ] Frontmatter has `name`, `description`, `version`
 - [ ] Description includes **What**, **When to use**, and **When NOT to use** (Anti-trigger)
-- [ ] Description front-loads action verbs and avoids generic filler
+- [ ] Description length stays within routing budget (≤1024 chars YAML, ~50 words target)
+- [ ] Description front-loads action verbs and avoids generic filler (never starts with "a helpful skill for...")
 - [ ] SKILL.md body is concise (<5,000 words) and follows progressive disclosure
 - [ ] Deterministic logic is offloaded to `scripts/` with usage docs and parameterization
 - [ ] Templates/schemas are located in `assets/`, deep context in `references/`
 - [ ] Instructions provide rationale rather than unsubstantiated capitalized mandates
+- [ ] No ALL-CAPS imperatives without rationale (those belong in `AGENTS.md`, not the skill body)
 - [ ] No hardcoded paths, secrets, or vendor-locked tool names
 - [ ] Output formats are explicitly defined with examples
-- [ ] Clear verification criteria or sample eval cases are present
+- [ ] Trigger coverage: positive AND negative test cases exist (target ≥90% trigger accuracy)
+- [ ] Execution coverage: golden dataset + JSON eval cases produce expected outputs and trajectories
+- [ ] Regression coverage: existing library suite shows no drops when this skill is added
+- [ ] Token-budget coverage: skill body ≤5,000 tokens; verified under co-loaded conditions
+- [ ] Deployment Readiness section (see above) all cleared
+- [ ] None of the Skill Smells (see dedicated section above)
