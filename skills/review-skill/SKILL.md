@@ -4,7 +4,8 @@ description: |
   Review and validate Agent Skills for consistency, completeness, and quality.
   Use when the user asks to review a skill, check skill quality, validate skill structure, or audit an existing skill in the repository.
   Do NOT use for general application code reviews or software QA testing.
-version: 1.3.0
+version: 1.4.0
+license: MIT
 ---
 
 # Review Skill
@@ -34,6 +35,15 @@ All instructions throughout the skill must be mutually consistent. Terminology m
 A skill is procedural memory loaded on demand. `SKILL.md` must remain lightweight and concise (<5,000 words). Heavy reference data belongs in `references/`, templates and schemas belong in `assets/`, and deterministic compute belongs in `scripts/`.
 
 ## Review Workflow
+
+### 0. Mechanical Linter (run first)
+Run the structural linter before any manual review:
+
+```
+python skills/review-skill/scripts/validate_skill.py <skill_dir>
+```
+
+If it reports errors, include the linter output in the review report under **Mechanical Checks**. Fixes to the skill must pass the linter before the review is considered complete.
 
 ### 1. Scope Definition
 Identify the components of the skill under review:
@@ -168,6 +178,7 @@ skills/
 
 ## Review Checklist
 
+- [ ] Mechanical linter passes: `python skills/review-skill/scripts/validate_skill.py <skill-dir>` exits 0
 - [ ] Frontmatter has `name`, `description`, `version`
 - [ ] Description includes **What**, **When to use**, and **When NOT to use** (Anti-trigger)
 - [ ] Description length stays within routing budget (≤1024 chars YAML, ~50 words target)

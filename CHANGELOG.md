@@ -2,6 +2,24 @@
 
 All notable changes to this skill are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.4.0] — 2026-09-19
+
+### Changed
+- **`review-skill` — structural linter, Skill Smells, Deployment Readiness, Eval split, description length check, ALL-CAPS rule, license field.**
+  - Added `scripts/validate_skill.py`: stdlib-only Python linter for the mechanical checks (frontmatter schema, semver, kebab-case name, description length, body word count, credential assignment detection, absolute path detection, ALL-CAPS rationale check, script docstring presence). Matches repo's hand-rolled YAML parser convention.
+  - Added Step 0 "Mechanical Linter" to Review Workflow: agent must run `validate_skill.py` before manual review.
+  - Added "Skill Smells" section with 6 anti-patterns from Agent Skills cheatsheet (Day3).
+  - Added "Deployment Readiness" gate section (7 aspirational deployment checks).
+  - Split "Testability & Verification" into 4 failure modes: Trigger, Execution, Regression, Token Budget.
+  - Added description length constraint (≤1024 chars YAML, ~50 words target) to Metadata dimension.
+  - Added ALL-CAPS imperative rationale check to Instruction Clarity dimension.
+  - Added `license: MIT` to frontmatter.
+  - Added `--json` flag to `validate_skill.py` for machine-readable output.
+  - Bumped `version: 1.3.0 → 1.4.0`.
+
+### Fixed
+- `validate_skill.py`: fixed secret detection (was too aggressive, flagged plain-text words like "Token" in prose); fixed `--json` flag parsing; now skips matches inside backtick code spans for ALL-CAPS check.
+
 ## [1.4.2] — 2026-09-14
 
 ### Changed
