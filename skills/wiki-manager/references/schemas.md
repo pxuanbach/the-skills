@@ -16,12 +16,9 @@ max_review_iterations: 3  # Global cap for Quality & Security reviewer loops (ca
 modules:
   - id: "001-task-management"
     name: "Task Management"
-    # description: meaningful 1-sentence summary of WHAT this module
-    # does and WHY it exists. Minimum 100 characters. Must NOT repeat
-    # the module name/title. Used by agents for semantic search to find
-    # related prior work — so phrase it like you'd describe the module
-    # to a teammate who has never seen it.
-    description: "Backend CRUD service that lets authenticated users create, list, update, and complete tasks via a REST API; persists records to PostgreSQL via SQLAlchemy and exposes a minimal React UI for daily triage of pending and completed work."
+    # description: a single sentence (< 5 words) describing the module.
+    # Must NOT repeat the module name. Must be a brief descriptive sentence.
+    description: "REST API enabling users to create, list, update, and delete tasks."
     status: "in_progress" # draft | in_progress | completed
     artifacts:
       requirement: "001-task-management/requirement.md"
@@ -35,10 +32,10 @@ modules:
 
 **Description validation rules** (enforced by `wiki_tool.py sync` and `lint`):
 
-- Minimum 100 characters (excluding leading/trailing whitespace).
+- Must be a single sentence that describes the module.
+- Must be at least 5 words (≥ 5 words).
+- Must NOT be identical (case-insensitive, whitespace-normalized) to `name`.
 - Must NOT be empty.
-- Must NOT be identical (case-insensitive, whitespace-normalized) to `name` or `title` from `requirement.md` frontmatter.
-- Should describe the module's purpose, not just restate its scope. Phrase it as you'd describe the module to a teammate who has never seen it — agents rely on it for semantic search across modules.
 
 ---
 

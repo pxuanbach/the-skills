@@ -291,30 +291,25 @@ def lint_wiki(wiki_dir="wiki"):
             mod_id = block.group(1)
             mod_name = block.group(2)
             mod_desc = block.group(3).strip()
+            # Rule 1: must not be empty
             if not mod_desc:
-                print(f"[WARN] registry.yaml[{mod_id}]: description is empty")
-                warnings += 1
-            elif len(mod_desc) < 100:
+                print(f"[ERROR] registry.yaml[{mod_id}]: description is empty")
+                errors += 1
+
+            # Rule 2: must be at least 5 words
+            word_count = len(mod_desc.split())
+            if mod_desc and word_count < 5:
+                print(f"[ERROR] registry.yaml[{mod_id}]: description has {word_count} words (minimum 5).")
+                errors += 1
+
+            # Rule 3: must NOT be identical to name (case-insensitive)
+            norm = lambda s: re.sub(r"\s+", " ", s.strip().lower())
+            if mod_desc and norm(mod_desc) == norm(mod_name):
                 print(
-                    f"[WARN] registry.yaml[{mod_id}]: description is {len(mod_desc)} chars "
-                    f"(min 100). Agents cannot semantic-search effectively with a short description."
+                    f"[ERROR] registry.yaml[{mod_id}]: description is identical to name "
+                    f"({mod_name!r}). Description must describe the module, not repeat its name."
                 )
-                warnings += 1
-            # Compare normalized to name / title
-            req_path = os.path.join(wiki_dir, mod_id, "requirement.md")
-            if os.path.exists(req_path):
-                req_meta, _ = parse_frontmatter(req_path)
-                req_title = (req_meta.get("title", "") or "").strip() if isinstance(req_meta.get("title", ""), str) else ""
-                norm = lambda s: re.sub(r"\s+", " ", s.strip().lower())
-                if mod_desc and (
-                    norm(mod_desc) == norm(mod_name) or norm(mod_desc) == norm(req_title)
-                ):
-                    print(
-                        f"[WARN] registry.yaml[{mod_id}]: description repeats name/title "
-                        f"({mod_name!r}/{req_title!r}). Semantic search will not help — "
-                        f"rewrite to describe purpose."
-                    )
-                    warnings += 1
+                errors += 1
 
     print(f"\nLint complete: {errors} error(s), {warnings} warning(s)")
     if errors > 0:
