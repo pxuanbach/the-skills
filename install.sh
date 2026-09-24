@@ -3,7 +3,7 @@
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/pxuanbach/the-skills/main/install.sh | bash
 # Or:
-#   ./install.sh [--targets pi,claude,antigravity,codex,opencode,skill-manager,all] [--skills wiki-manager,constructor,all]
+#   ./install.sh [--targets pi,claude,antigravity,codex,opencode,common,all] [--skills wiki-manager,constructor,all]
 
 set -e
 
@@ -54,7 +54,7 @@ get_target_path() {
     antigravity) echo "$HOME/.gemini/config/skills" ;;
     codex) echo "$HOME/.codex/skills" ;;
     opencode) echo "${XDG_CONFIG_HOME:-$HOME/.config}/opencode/skills" ;;
-    skill-manager) echo "$HOME/.skills-manager/skills" ;;
+    common) echo "$HOME/.agents/skills" ;;
     *) echo "" ;;
   esac
 }
@@ -66,7 +66,7 @@ get_target_name() {
     antigravity) echo "Antigravity / Gemini CLI" ;;
     codex) echo "OpenAI Codex CLI" ;;
     opencode) echo "OpenCode" ;;
-    skill-manager) echo "Skill Manager" ;;
+    common) echo "Common" ;;
     *) echo "$1" ;;
   esac
 }
@@ -119,7 +119,7 @@ echo -e "${CYAN}==========================================================${NC}\
 CHOSEN_TARGETS=()
 if [ -n "$CLI_TARGETS" ]; then
   if [ "$CLI_TARGETS" = "all" ]; then
-    CHOSEN_TARGETS=("pi" "claude" "antigravity" "codex" "opencode" "skill-manager")
+    CHOSEN_TARGETS=("pi" "claude" "antigravity" "codex" "opencode" "common")
   else
     IFS=',' read -ra ADDR <<< "$CLI_TARGETS"
     for i in "${ADDR[@]}"; do CHOSEN_TARGETS+=("$(echo "$i" | tr -d ' ')"); done
@@ -131,14 +131,14 @@ else
   echo "  [3] Antigravity / Gemini CLI (~/.gemini/config/skills)"
   echo "  [4] OpenAI Codex CLI (~/.codex/skills)"
   echo "  [5] OpenCode (~/.config/opencode/skills)"
-  echo "  [6] Skill Manager (~/.skills-manager/skills)"
+  echo "  [6] Common (~/.agents/skills)"
   echo "  [A] All Agents"
   echo ""
   read -p "Enter selections separated by comma (e.g. 1,2) [default: A]: " target_input < /dev/tty || target_input="A"
   target_input="${target_input:-A}"
 
   if [[ "$target_input" =~ ^[Aa]$ ]]; then
-    CHOSEN_TARGETS=("pi" "claude" "antigravity" "codex" "opencode" "skill-manager")
+    CHOSEN_TARGETS=("pi" "claude" "antigravity" "codex" "opencode" "common")
   else
     IFS=',' read -ra ADDR <<< "$target_input"
     for choice in "${ADDR[@]}"; do
@@ -148,7 +148,7 @@ else
         3) CHOSEN_TARGETS+=("antigravity") ;;
         4) CHOSEN_TARGETS+=("codex") ;;
         5) CHOSEN_TARGETS+=("opencode") ;;
-        6) CHOSEN_TARGETS+=("skill-manager") ;;
+        6) CHOSEN_TARGETS+=("common") ;;
       esac
     done
   fi

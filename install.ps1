@@ -2,7 +2,7 @@
 # Usage:
 #   irm https://raw.githubusercontent.com/pxuanbach/the-skills/main/install.ps1 | iex
 # Or:
-#   .\install.ps1 [-Targets <pi,claude,antigravity,codex,opencode,skill-manager,all>] [-Skills <wiki-manager,constructor,all>]
+#   .\install.ps1 [-Targets <pi,claude,antigravity,codex,opencode,common,all>] [-Skills <wiki-manager,constructor,all>]
 
 param(
     [string[]]$Targets,
@@ -42,7 +42,7 @@ $AgentTargets = [ordered]@{
     "antigravity" = @{ Name = "Antigravity / Gemini CLI"; Path = Join-Path $env:USERPROFILE ".gemini\config\skills" }
     "codex"       = @{ Name = "OpenAI Codex CLI"; Path = Join-Path $env:USERPROFILE ".codex\skills" }
     "opencode"    = @{ Name = "OpenCode"; Path = $OpenCodeSkillsPath }
-    "skill-manager" = @{ Name = "Skill Manager"; Path = Join-Path $env:USERPROFILE ".skills-manager\skills" }
+    "common" = @{ Name = "Common"; Path = Join-Path $env:USERPROFILE ".agents\skills" }
 }
 
 function Show-Header {
