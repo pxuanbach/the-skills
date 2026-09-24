@@ -54,7 +54,7 @@ get_target_path() {
     antigravity) echo "$HOME/.gemini/config/skills" ;;
     codex) echo "$HOME/.codex/skills" ;;
     opencode) echo "${XDG_CONFIG_HOME:-$HOME/.config}/opencode/skills" ;;
-    skill-manager) echo "$HOME/.skills-manager" ;;
+    skill-manager) echo "$HOME/.skills-manager/skills" ;;
     *) echo "" ;;
   esac
 }
@@ -131,7 +131,7 @@ else
   echo "  [3] Antigravity / Gemini CLI (~/.gemini/config/skills)"
   echo "  [4] OpenAI Codex CLI (~/.codex/skills)"
   echo "  [5] OpenCode (~/.config/opencode/skills)"
-  echo "  [6] Skill Manager (~/.skills-manager)"
+  echo "  [6] Skill Manager (~/.skills-manager/skills)"
   echo "  [A] All Agents"
   echo ""
   read -p "Enter selections separated by comma (e.g. 1,2) [default: A]: " target_input < /dev/tty || target_input="A"

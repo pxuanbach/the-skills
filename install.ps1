@@ -42,7 +42,7 @@ $AgentTargets = [ordered]@{
     "antigravity" = @{ Name = "Antigravity / Gemini CLI"; Path = Join-Path $env:USERPROFILE ".gemini\config\skills" }
     "codex"       = @{ Name = "OpenAI Codex CLI"; Path = Join-Path $env:USERPROFILE ".codex\skills" }
     "opencode"    = @{ Name = "OpenCode"; Path = $OpenCodeSkillsPath }
-    "skill-manager" = @{ Name = "Skill Manager"; Path = Join-Path $env:USERPROFILE ".skills-manager" }
+    "skill-manager" = @{ Name = "Skill Manager"; Path = Join-Path $env:USERPROFILE ".skills-manager\skills" }
 }
 
 function Show-Header {
