@@ -1,7 +1,8 @@
 ---
 name: user-designer
 version: "1.0.0"
-description: Create technical designs (design.md), API contracts, data models, E2E/integration test cases, UI/UX mockups (mockup/*.md via ASCII wireframes OR mockup/*.html for interactive HTML prototypes), and implementation plans (plan.md) from requirement specifications. Use this skill whenever transforming approved requirements into technical architecture and mockups (via `DESIGN` sub-command for ASCII wireframes or `DESIGN html` for interactive HTML prototypes) or generating task breakdowns for implementation (via `PLAN` sub-command). Do NOT use for gathering raw user requirements, writing source code, or conducting code reviews.
+description: |
+  Invoked via `/user-designer DESIGN` or `/user-designer PLAN`. Transforms approved requirements into technical architecture (design.md), UI/UX mockups (ASCII or HTML), API contracts, data models, and implementation task breakdowns (plan.md). Does not gather requirements, write implementation code, or conduct reviews — only produces the technical specification layer between requirements and construction.
 ---
 
 # User Designer Skill

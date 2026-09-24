@@ -1,7 +1,8 @@
 ---
 name: wiki-manager
 version: "1.0.0"
-description: Manage, organize, query, store, and update project documentation and artifacts in the LLM Wiki (wiki/). Use this skill whenever initializing a wiki, storing or updating requirements (requirement.md), technical designs (design.md), mockups (mockup/*.md), implementation plans (plan.md), testing evidence (evidence.md), project UI/UX design standards (DESIGN.md), system architecture (SYSTEM.md), appending log entries (log.md), or reading project knowledge across the SDLC workflow. Do NOT use for gathering raw requirements, producing implementation code, creating UI mockups, or performing code reviews.
+description: |
+  Invoked via `/wiki-manager`. Initializes, queries, and maintains the LLM Wiki (wiki/) — the central documentation hub for the SDLC pipeline. Manages wiki/registry.yaml, wiki/SYSTEM.md, wiki/DESIGN.md, wiki/log.md, and feature module directories. Does not gather requirements, write implementation code, or conduct reviews — only maintains the persistent knowledge base that other SDLC skills read from and write to.
 ---
 
 # Wiki Manager Skill

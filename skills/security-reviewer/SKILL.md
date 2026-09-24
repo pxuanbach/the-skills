@@ -1,7 +1,8 @@
 ---
 name: security-reviewer
 version: "1.0.0"
-description: Review source code, API routes, data handling, authentication, authorization, dependencies, and architecture for security vulnerabilities, compliance, and secret leaks. Use this skill whenever conducting security audits, scanning code for injection vulnerabilities, checking authentication flaws, applying false positive filtering, or issuing security pass/fail decisions. Do NOT use for general code style/linting, architectural design, or initial code implementation.
+description: |
+  Invoked via `/security-reviewer`. Scans implementation code and dependencies across 10 vulnerability categories (injection, auth, data exposure, crypto, etc.) and issues a security pass/fail decision in wiki/<feature>/security-review.md. Filters false positives using a curated ruleset. Does not fix vulnerabilities, write code, or evaluate code style — only audits and reports security findings.
 ---
 
 # Security Reviewer Skill

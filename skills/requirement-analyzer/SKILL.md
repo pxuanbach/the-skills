@@ -2,7 +2,7 @@
 name: requirement-analyzer
 version: "1.0.0"
 description: |
-  MANDATORY gate: structure, validate, and persist every incoming feature request or change into wiki/<feature>/requirement.md, regardless of perceived task size — including 1-line tweaks, typo fixes, copy edits, and config tweaks. NEVER write source code, edit UI, or change design without a requirement.md entry existing or being created in the same turn. Use this skill whenever the user reports a bug, requests a feature, refactor, or behavior change. Do NOT use for creating technical designs, writing source code, or conducting quality/security reviews.
+  Invoked via `/requirement-analyzer`. Structures and persists feature requests, bug reports, and behavior changes into wiki/<feature>/requirement.md. Produces requirement documents with user stories, functional requirements, and success criteria. This skill does not write source code, design UI, or run reviews — it only documents the "what" before any implementation begins.
 ---
 # Requirement Analyzer Skill
 

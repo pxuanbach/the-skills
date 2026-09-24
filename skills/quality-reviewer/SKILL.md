@@ -1,7 +1,8 @@
 ---
 name: quality-reviewer
 version: "1.0.0"
-description: Review source code, implementation plans, and test evidence for quality, design integrity, complexity, test coverage, naming, English comments, style, consistency, documentation, and system health. Use this skill whenever conducting code reviews, auditing PRs/diffs, requesting changes from Constructor, or issuing a quality approval decision. Do NOT use for security vulnerability audits, secret detection, or initial code authoring.
+description: |
+  Invoked via `/quality-reviewer`. Audits implementation code against a 12-point quality checklist: design integrity, complexity, error handling, naming, comments, style, test coverage, and documentation. Issues a quality approval (APPROVED/CHANGES_REQUESTED) in wiki/<feature>/quality-review.md. Does not review security vulnerabilities, conduct penetration testing, or write code — only evaluates the quality of what Constructor built.
 ---
 
 # Quality Reviewer Skill

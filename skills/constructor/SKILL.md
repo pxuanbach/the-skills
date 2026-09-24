@@ -1,7 +1,8 @@
 ---
 name: constructor
 version: "1.0.0"
-description: Implement tasks and execute testing according to the Implementation Process in plan.md. Use this skill whenever executing tasks from an implementation plan, creating todo lists, writing source code, running unit/integration tests, gathering test logs, loading framework/language skills, and generating evidence.md in the LLM Wiki (wiki/<feature>/evidence.md). Do NOT use for collecting requirements, drafting technical designs or mockups, or conducting independent quality/security audits.
+description: |
+  Invoked via `/constructor`. Reads plan.md and executes implementation tasks, writes source code, runs unit/integration tests, and records testing evidence to wiki/<feature>/evidence.md. Follows the implementation plan exactly; does not deviate into requirements gathering, design work, or independent review — only builds what plan.md specifies and logs the proof.
 ---
 # Constructor Skill
 
