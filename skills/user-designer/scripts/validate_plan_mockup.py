@@ -77,6 +77,15 @@ def validate_plan(plan_path):
     if not tasks:
         errors.append("No valid tasks found (expected task items with id: I-xxx or T-xxx)")
 
+    # 4. Every design.md test case (TC-E2E-xxx / TC-INT-xxx) must be referenced by the plan
+    design_path = os.path.join(os.path.dirname(plan_path), "design.md")
+    if os.path.exists(design_path):
+        with open(design_path, "r", encoding="utf-8") as f:
+            design_tcs = set(re.findall(r"TC-[A-Z]+-\d+", f.read()))
+        unmapped = sorted(tc for tc in design_tcs if tc not in body)
+        for tc in unmapped:
+            errors.append(f"Test case {tc} from design.md is not mapped to any task in plan.md")
+
     if errors:
         print(f"[FAIL] Plan validation failed for '{plan_path}':")
         for err in errors:
@@ -85,7 +94,7 @@ def validate_plan(plan_path):
 
     print(f"[SUCCESS] Plan file '{plan_path}' is valid ({len(tasks)} task(s) verified).")
 
-    # 4. Check optional mockups if mockup directory exists in same folder
+    # 5. Check optional mockups if mockup directory exists in same folder
     parent_dir = os.path.dirname(plan_path)
     mockup_dir = os.path.join(parent_dir, "mockup")
     if os.path.exists(mockup_dir) and os.path.isdir(mockup_dir):

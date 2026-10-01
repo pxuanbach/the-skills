@@ -1,6 +1,7 @@
 ---
 name: constructor
-version: "1.0.0"
+version: 1.1.0
+license: MIT
 description: |
   Invoked via `/constructor`. Reads plan.md and executes implementation tasks, writes source code, runs unit/integration tests, and records testing evidence to wiki/<feature>/evidence.md. Follows the implementation plan exactly; does not deviate into requirements gathering, design work, or independent review — only builds what plan.md specifies and logs the proof.
 ---
@@ -34,8 +35,9 @@ config edits, or copy changes — verify all of the following:
 
 1. **Requirement exists**: `wiki/<NNN>-<feature>/requirement.md` is present
    AND its frontmatter `status` is `approved`.
-2. **Plan exists**: `wiki/<NNN>-<feature>/plan.md` is present.
-3. **Evidence target**: you know which `evidence.md` file will receive
+2. **Design approved**: `python <SKILLS_DIR>/user-designer/scripts/validate_design.py wiki/<NNN>-<feature>/design.md --require-approved` passes.
+3. **Plan exists**: `wiki/<NNN>-<feature>/plan.md` is present.
+4. **Evidence target**: you know which `evidence.md` file will receive
    the test logs and changed-file list.
 
 If any check fails:
@@ -47,10 +49,11 @@ If any check fails:
   > to be recorded in the wiki before any code is written."
 - **status != approved** → HALT and tell the user the requirement is
   still in `draft` and must be approved first.
+- **Design not approved** → HALT and tell the user to get `design.md` approved via `/user-designer DESIGN`.
 - **Missing plan.md** → HALT and tell the user to run
   `/user-designer PLAN` to produce the implementation plan.
 
-Only proceed to the Workflow below once all three checks pass.
+Only proceed to the Workflow below once all four checks pass.
 
 ## Workflow
 
@@ -76,11 +79,13 @@ Only proceed to the Workflow below once all three checks pass.
 
 ### Step 1: Read Plan and Context
 
-1. Read `wiki/<NNN>-<feature>/design.md`, `wiki/<NNN>-<feature>/plan.md`, and any files in `wiki/<NNN>-<feature>/mockup/`.
-2. Extract tasks:
+1. Read `wiki/SYSTEM.md` (architecture, directory structure, boundaries) — implement to match it.
+2. If the plan has UI tasks, read `wiki/DESIGN.md` (tokens, component standards) before writing UI code. Do not infer style from memory.
+3. Read `wiki/<NNN>-<feature>/design.md`, `wiki/<NNN>-<feature>/plan.md`, and any files in `wiki/<NNN>-<feature>/mockup/`.
+4. Extract tasks:
    - Implementation tasks (`I-xxx`)
    - Testing tasks (`T-xxx`)
-3. Read `derived_from` requirements (`req-xxx`) if background context is needed.
+5. Read `derived_from` requirements (`req-xxx`) if background context is needed.
 
 ---
 
@@ -128,6 +133,7 @@ Follow the template in `references/evidence_template.md`:
 4. Sync the wiki registry:
    ```bash
    python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py sync
+   python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py log "Constructor" "Completed `evidence-xxx` — <summary>"
    ```
 
 ---
@@ -158,5 +164,6 @@ When Quality Reviewer or Security Reviewer requests changes:
 2. Fix reported issues.
 3. Re-run tests to verify fixes and prevent regressions.
 4. Update `wiki/<NNN>-<feature>/evidence.md` with new test logs.
-5. Re-run `validate_evidence.py` and notify the reviewer.
+5. Re-run `validate_evidence.py`, log the iteration (`wiki_tool.py log "Constructor" "Fixed review findings — iteration N"`), and notify the reviewer.
+6. Stop after `max_review_iterations` (from `wiki/registry.yaml`, default 3) and ask the user how to proceed instead of looping further.
 

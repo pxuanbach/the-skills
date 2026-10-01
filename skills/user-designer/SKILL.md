@@ -1,6 +1,7 @@
 ---
 name: user-designer
-version: "1.0.0"
+version: 1.1.0
+license: MIT
 description: |
   Invoked via `/user-designer DESIGN` or `/user-designer PLAN`. Transforms approved requirements into technical architecture (design.md), UI/UX mockups (ASCII or HTML), API contracts, data models, and implementation task breakdowns (plan.md). Does not gather requirements, write implementation code, or conduct reviews — only produces the technical specification layer between requirements and construction.
 ---
@@ -79,7 +80,8 @@ Ensure `wiki/<NNN>-<feature>/requirement.md` exists and is approved. If missing,
      - *State Transitions & Data Flow*: Lifecycle state changes, event emission, DB updates, and side effects.
    - **UI Summary**: List of screens linking to `mockup/` (or `N/A (Backend / Non-UI feature)`).
    - **Acceptance Criteria**: Verifiable criteria mapped from requirement Success Criteria.
-3. Frontmatter: set `derived_from: [req-xxx]`, `status: approved` (or `draft`).
+3. Frontmatter: set `derived_from: [req-xxx]`, `status: draft`. It becomes `approved` only in Step 5 after the user approves.
+4. Add a short note under Acceptance Criteria: they are technical, testable conditions the implementation must satisfy — not the business-level Success Criteria of `requirement.md`.
 
 #### Step 3: Create UI Mockups (Optional)
 
@@ -87,9 +89,10 @@ Ensure `wiki/<NNN>-<feature>/requirement.md` exists and is approved. If missing,
   1. **Read context (mandatory before drawing)**:
      - `wiki/DESIGN.md` — design tokens, components, styling rules.
      - `wiki/SYSTEM.md` — tech stack, app boundaries, navigation patterns (e.g., shared layout, auth guards, role-based nav).
-  2. **Find related prior work via semantic search on `registry.yaml`**:
+  2. **Find related prior work via semantic search on `registry.yaml`** (mandatory, never skip):
      - Read `wiki/registry.yaml#modules[].description` for every module.
      - Identify modules whose descriptions overlap with the current feature (similar entity names, overlapping user flows, shared screens).
+     - For each related module, also read its `requirement.md` and `design.md` (entities, flows, approved UI summary) so the new screens stay consistent with the existing product.
      - Open those modules' `mockup/*.md` (or `mockup/*.html`) files and reuse patterns: consistent header layout, button placement, table column order, empty-state copy, error toasts.
      - If no related modules exist, proceed standalone and document this in the mockup.
   3. **Render the wireframe**:
@@ -106,13 +109,16 @@ Ensure `wiki/<NNN>-<feature>/requirement.md` exists and is approved. If missing,
    ```bash
    python <SKILLS_DIR>/user-designer/scripts/validate_design.py wiki/<NNN>-<feature>/design.md
    ```
-2. Sync the wiki registry:
+2. Sync the wiki registry and log the event:
    ```bash
    python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py sync
+   python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py log "User Designer" "Created `design-xxx` (draft) — <title>"
    ```
 
-#### Step 5: User Review
-Present `design.md` and mockups to the user. Apply requested changes. Once approved, tell the user to run `/user-designer PLAN`.
+#### Step 5: User Review and Approval
+1. Present `design.md` and mockups to the user. Apply requested changes and repeat until the user approves.
+2. On approval, update `design.md`: set `status: approved` and fill `## Approved UI Summary` with links to the approved mockups (or `N/A (Backend / Non-UI feature)`). Do this BEFORE creating `plan.md` — never plan against a draft UI.
+3. Re-run `validate_design.py <design.md> --require-approved`, then tell the user to run `/user-designer PLAN`.
 
 ---
 
@@ -164,7 +170,11 @@ python <SKILLS_DIR>/user-designer/scripts/validate_html_mockup.py \
 Convert approved design specifications, test cases, and mockups into an implementation plan (`plan.md`).
 
 ### Prerequisite Check
-Verify `wiki/<NNN>-<feature>/design.md` exists. If missing, halt and tell the user to run `/user-designer DESIGN` first.
+Verify `wiki/<NNN>-<feature>/design.md` exists and is approved:
+```bash
+python <SKILLS_DIR>/user-designer/scripts/validate_design.py wiki/<NNN>-<feature>/design.md --require-approved
+```
+If the file is missing or the check fails (status is `draft`), halt and tell the user to finish `/user-designer DESIGN` and get approval first.
 
 ### Workflow
 
@@ -282,6 +292,7 @@ graph TD
 Sync `wiki/registry.yaml`:
 ```bash
 python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py sync
+python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py log "User Designer" "Created `plan-xxx` — <title>"
 ```
 
 #### Step 4: Validate Plan and Mockup

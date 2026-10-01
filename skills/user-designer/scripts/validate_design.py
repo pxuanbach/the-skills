@@ -3,7 +3,10 @@
 validate_design.py - Validator for User Designer technical design artifact (design.md).
 
 Usage:
-    python validate_design.py <path_to_design.md>
+    python validate_design.py <path_to_design.md> [--require-approved]
+
+--require-approved additionally fails unless status is APPROVED and a UI Summary section exists
+(used by `user-designer PLAN` and `constructor` as a gate).
 """
 
 import os
@@ -56,7 +59,7 @@ def parse_frontmatter(file_path):
 
     return meta, body
 
-def validate_design(design_path):
+def validate_design(design_path, require_approved=False):
     if not os.path.exists(design_path):
         print(f"[ERROR] Technical design file '{design_path}' does not exist.")
         return False
@@ -77,6 +80,16 @@ def validate_design(design_path):
             status = status[0] if status else ""
         if status.upper() not in VALID_STATUSES:
             errors.append(f"Invalid status '{status}'. Must be one of {VALID_STATUSES}")
+
+    # 1b. Approval gate
+    if require_approved and meta:
+        status = meta.get("status", "")
+        if isinstance(status, list):
+            status = status[0] if status else ""
+        if status.upper() != "APPROVED":
+            errors.append(f"design.md status is '{status}', must be 'approved' (user must approve design + mockups first)")
+        if not re.search(r"## (?:Approved )?UI Summary", body, re.IGNORECASE):
+            errors.append("Missing '## Approved UI Summary' / '## UI Summary' section (use 'N/A (Backend / Non-UI feature)' if no UI)")
 
     # 2. Section check
     for sec_pattern in REQUIRED_SECTIONS:
@@ -99,7 +112,7 @@ def main():
         sys.exit(1)
 
     design_path = sys.argv[1]
-    success = validate_design(design_path)
+    success = validate_design(design_path, require_approved="--require-approved" in sys.argv[2:])
     if not success:
         sys.exit(1)
 

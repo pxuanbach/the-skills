@@ -16,9 +16,9 @@ max_review_iterations: 3  # Global cap for Quality & Security reviewer loops (ca
 modules:
   - id: "001-task-management"
     name: "Task Management"
-    # description: a single sentence (< 5 words) describing the module.
-    # Must NOT repeat the module name. Must be a brief descriptive sentence.
-    description: "REST API enabling users to create, list, update, and delete tasks."
+    # description: a short summary sentence (>= 100 chars) of what the module does, written for
+    # semantic search. Must NOT repeat the module name or title.
+    description: "REST API and minimal web UI enabling users to create, list, filter, update, and delete personal tasks with priorities."
     status: "in_progress" # draft | in_progress | completed
     artifacts:
       requirement: "001-task-management/requirement.md"
@@ -32,8 +32,8 @@ modules:
 
 **Description validation rules** (enforced by `wiki_tool.py sync` and `lint`):
 
-- Must be a single sentence that describes the module.
-- Must be at least 5 words (≥ 5 words).
+- Must be a short summary that describes what the module does (content, not title).
+- Must be at least 100 characters (`MIN_DESC_CHARS` in `wiki_tool.py`).
 - Must NOT be identical (case-insensitive, whitespace-normalized) to `name`.
 - Must NOT be empty.
 

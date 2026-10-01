@@ -215,4 +215,4 @@ Forbidden in HTML prototypes:
 - ❌ Links to external sites.
 - ❌ `console.log` debugging statements left in production-ready mockups.
 
-If any of these appear, the `validate_html_mockup.py` (to be created in QA #3 follow-up) will flag them.
+If any of these appear, `scripts/validate_html_mockup.py` will flag them (run it on the `mockup/` folder).

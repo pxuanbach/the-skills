@@ -1,6 +1,7 @@
 ---
 name: requirement-analyzer
-version: "1.0.0"
+version: 1.1.0
+license: MIT
 description: |
   Invoked via `/requirement-analyzer`. Structures and persists feature requests, bug reports, and behavior changes into wiki/<feature>/requirement.md. Produces requirement documents with user stories, functional requirements, and success criteria. This skill does not write source code, design UI, or run reviews — it only documents the "what" before any implementation begins.
 ---
@@ -108,9 +109,11 @@ If the user corrects anything, loop back to Step 1 and re-do Step 2a.
 #### 2b. Targeted Clarification (Only if needed)
 
 - **Case A: Request is clear and complete**:
-  - Restate + proceed. No open questions needed.
+  - Restate + proceed. Record `None` under `## Open Questions`.
 - **Case B: Request contains ambiguities**:
-  - Group open questions and propose defaults based on codebase conventions.
+  - Group open questions, propose a default for each based on codebase conventions, and record them under `## Open Questions`.
+  - Show the questions to the user with the restated problem and wait for answers. Never accept vague wording just to finish the document.
+  - Keep `status: draft` while any question is `open`.
 
 Always complete Steps 3 to 5 if `wiki/<feature>/requirement.md` does not exist yet.
 
@@ -124,7 +127,7 @@ Format the specification with this template:
 ---
 id: req-001
 title: Title of Requirement 001
-status: approved
+status: draft # set to approved only after the user confirms
 derived_to:
   - story-001
   - story-002
@@ -137,9 +140,9 @@ derived_to:
 
 ## Description
 
-Goals: <Goal description>
+**Goals**: <Goal description>
 
-Target Users: <User personas>
+**Target Users**: <User personas>
 
 <Detailed description of the requirement>
 
@@ -164,11 +167,16 @@ Target Users: <User personas>
 ### NFR-001
 <Performance, latency, security, or reliability constraints>
 
+## Open Questions
+<Questions for the user, each with a proposed default and status (open | answered). Write "None" only if the restated problem was confirmed with no gaps.>
+
 ## Testing Scenarios
 <Validation scenarios and expected outcomes>
 
 ## Success Criteria
 <List of business and user-facing criteria to confirm completion>
+
+> **Note for agents**: "Success Criteria" defines what success means from a **business/mission perspective** (e.g. "users complete task X within Y seconds", "system handles Z concurrent users"). It is NOT implementation-level acceptance criteria — do not confuse it with "Acceptance Criteria" in `design.md`.
 
 ## User Feedbacks (Optional)
 <Clarifications and notes from user interactions>
@@ -178,11 +186,13 @@ Target Users: <User personas>
 
 ### Step 4: Persist to LLM Wiki
 
-1. Assign the feature folder number `NNN` (e.g. `001-task-management`).
+1. Create the feature folder with the next free number: `python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py new <feature-slug>` (prints e.g. `001-task-management`). Reuse the existing folder when the request changes an existing module.
 2. Write to `wiki/<NNN>-<feature-slug>/requirement.md`.
-3. Sync the registry:
+3. Give the module a `description` in `wiki/registry.yaml`: one summary sentence of at least 100 characters describing what the module does (not its title). `sync` keeps hand-written descriptions, so write it once after the first sync.
+4. Sync the registry:
    ```bash
    python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py sync
+   python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py log "Requirement Analyzer" "Created `req-xxx` — <title>"
    ```
 
 ---
@@ -199,6 +209,6 @@ python <SKILLS_DIR>/requirement-analyzer/scripts/validate_requirement.py wiki/<N
 ### Step 6: Next Step
 
 Present the finalized requirement to the user:
-- If approved, tell the user to run `/user-designer DESIGN` to produce the technical design and mockups.
-- If revisions are needed, update `requirement.md` until approved.
+- Only after the user explicitly confirms, set `status: approved`, then tell them to run `/user-designer DESIGN` to produce the technical design and mockups.
+- If revisions are needed, update `requirement.md` (status stays `draft`) until approved.
 

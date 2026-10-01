@@ -17,6 +17,7 @@ REQUIRED_SECTIONS = [
     "## User Stories",
     "## Functional Requirements",
     "## Non-Functional Requirements",
+    "## Open Questions",
     "## Testing Scenarios",
     "## Success Criteria"
 ]

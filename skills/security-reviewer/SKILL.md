@@ -1,6 +1,7 @@
 ---
 name: security-reviewer
-version: "1.0.0"
+version: 1.1.0
+license: MIT
 description: |
   Invoked via `/security-reviewer`. Scans implementation code and dependencies across 10 vulnerability categories (injection, auth, data exposure, crypto, etc.) and issues a security pass/fail decision in wiki/<feature>/security-review.md. Filters false positives using a curated ruleset. Does not fix vulnerabilities, write code, or evaluate code style — only audits and reports security findings.
 ---
@@ -106,15 +107,16 @@ Run the validator:
 ```bash
 python <SKILLS_DIR>/security-reviewer/scripts/validate_security_review.py wiki/<NNN>-<feature>/security-review.md
 ```
-Sync the registry:
+Sync the registry and log the decision:
 ```bash
 python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py sync
+python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py log "Security Reviewer" "<status> — iteration N"
 ```
 
 ---
 
 ### Step 6: Next Step
-- If `FAIL`: Tell Constructor to patch vulnerabilities reported in `security-review.md`.
+- If `FAIL`: Tell Constructor to patch vulnerabilities reported in `security-review.md`. If `iteration` already equals `max_review_iterations`, stop the loop and escalate the unresolved findings to the user for a decision (accept risk, extend iterations, or re-scope).
 - If `PASS`:
   - If `quality-review.md` is missing, tell the user to run `/quality-reviewer`.
-  - If `quality-review.md` is already approved, tell the user the feature is verified and ready for release.
+  - If `quality-review.md` is already approved, ask the user for final confirmation; once confirmed, run `wiki_tool.py status <module-id> completed`.
