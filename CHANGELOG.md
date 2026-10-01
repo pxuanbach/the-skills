@@ -2,6 +2,26 @@
 
 All notable changes to this skill are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.5.0] — 2026-10-01
+
+### Added
+- **`wiki-manager`**: `wiki_tool.py new <slug>` (next free `NNN-` folder), `status <id> <draft|in_progress|completed>`, `log "<Agent>" "<msg>"` (append to `wiki/log.md`). `COMPLETE`/`LOG`/`NEW_MODULE` operations documented in SKILL.md.
+- **`user-designer`**: `scripts/validate_html_mockup.py` (skeleton, hardcoded hex, external resources, a11y, required states); `validate_design.py --require-approved` gate; `validate_plan_mockup.py` now fails when a `TC-*` case in `design.md` is not mapped in `plan.md`.
+- **`requirement-analyzer`**: `## Open Questions` section (required by `validate_requirement.py`) and the Success-vs-Acceptance Criteria note.
+
+### Changed
+- All 6 RAD skills bumped `1.0.0 → 1.1.0`.
+- `requirement.md` and `design.md` templates default to `status: draft`; they become `approved` only after the user confirms.
+- `user-designer`: design approval step (status + Approved UI Summary) before `PLAN`; `PLAN` and `constructor` refuse an unapproved design; mockup step must also read `requirement.md`/`design.md` of semantically related modules.
+- `constructor`: reads `SYSTEM.md` (and `DESIGN.md` for UI tasks); stops after `max_review_iterations`.
+- `quality-reviewer` / `security-reviewer`: escalate to the user when `max_review_iterations` is exhausted; module marked `completed` after user confirmation; decisions logged.
+- Registry `description` minimum is now 100 characters (was 5 words); `lint` enforces it.
+
+### Fixed
+- `wiki_tool.py sync` no longer overwrites `project`, `max_review_iterations`, `version` or hand-written descriptions.
+- `wiki_tool.py` escapes YAML strings (a `"` in a description no longer corrupts `registry.yaml`) and registers `.html` mockups.
+- `Goals`/`Target Users` extraction accepts both bold and plain forms; skill template aligned with `templates.md`.
+
 ## [1.4.0] — 2026-09-19
 
 ### Changed

@@ -1,6 +1,7 @@
 ---
 name: quality-reviewer
-version: "1.0.0"
+version: 1.1.0
+license: MIT
 description: |
   Invoked via `/quality-reviewer`. Audits implementation code against a 12-point quality checklist: design integrity, complexity, error handling, naming, comments, style, test coverage, and documentation. Issues a quality approval (APPROVED/CHANGES_REQUESTED) in wiki/<feature>/quality-review.md. Does not review security vulnerabilities, conduct penetration testing, or write code — only evaluates the quality of what Constructor built.
 ---
@@ -98,15 +99,16 @@ Run the validator:
 ```bash
 python <SKILLS_DIR>/quality-reviewer/scripts/validate_quality_review.py wiki/<NNN>-<feature>/quality-review.md
 ```
-Sync the registry:
+Sync the registry and log the decision:
 ```bash
 python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py sync
+python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py log "Quality Reviewer" "<status> — iteration N"
 ```
 
 ---
 
 ### Step 6: Next Step
-- If `CHANGES_REQUESTED`: Tell Constructor to address the findings in `quality-review.md`.
+- If `CHANGES_REQUESTED`: Tell Constructor to address the findings in `quality-review.md`. If `iteration` already equals `max_review_iterations`, stop the loop and escalate the unresolved findings to the user for a decision (accept risk, extend iterations, or re-scope).
 - If `APPROVED`:
   - If `security-review.md` is missing, tell the user to run `/security-reviewer`.
-  - If `security-review.md` is already passed, tell the user the feature is ready for final confirmation.
+  - If `security-review.md` is already passed, ask the user for final confirmation; once confirmed, run `wiki_tool.py status <module-id> completed`.

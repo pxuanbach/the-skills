@@ -10,7 +10,7 @@ This document contains standardized Markdown templates for all artifacts stored 
 ---
 id: req-001
 title: Title of Requirement 001
-status: approved
+status: draft # draft -> approved only after the user confirms
 derived_to:
   - story-001
   - story-002
@@ -51,6 +51,9 @@ As a <user role>, I want to <action>, so that <benefit>.
 ### NFR-001: <Non-Functional Requirement 1>
 <performance, security, scalability, or reliability constraint>
 
+## Open Questions
+- Q1: <question> — proposed default: <default> — status: open
+
 ## Testing Scenarios
 1. <Scenario 1 description and expected outcome>
 2. <Scenario 2 description and expected outcome>
@@ -58,6 +61,8 @@ As a <user role>, I want to <action>, so that <benefit>.
 ## Success Criteria
 - [ ] <Criterion 1>
 - [ ] <Criterion 2>
+
+> **Note for agents**: "Success Criteria" defines what success means from a **business/mission perspective** (e.g. "users complete task X within Y seconds", "system handles Z concurrent users"). It is NOT implementation-level acceptance criteria — do not confuse it with "Acceptance Criteria" in `design.md`.
 
 ## User Feedbacks
 - **<Date>**: <Feedback summary or clarification from stakeholder>
@@ -73,7 +78,7 @@ id: design-001
 title: Technical Design for <Feature Name>
 derived_from:
   - req-001
-status: approved
+status: draft # draft -> approved only after the user approves design + mockups
 ---
 
 # Design: <Feature Name>
@@ -139,6 +144,8 @@ status: approved
 ## Acceptance Criteria (from Requirement Success Criteria)
 - [ ] <Criterion 1 — verifiable condition>
 - [ ] <Criterion 2 — verifiable condition>
+
+> **Note for agents**: "Acceptance Criteria" defines technical conditions the **implementation must satisfy** (e.g. "API returns 200 with valid JSON", "schema matches data model"). They must be testable so Constructor can prove them with evidence. It is NOT business-level "Success Criteria" from `requirement.md`.
 
 ## Related Documents
 - Requirement: `requirement.md`

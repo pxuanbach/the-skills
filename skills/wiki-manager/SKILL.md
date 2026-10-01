@@ -1,6 +1,7 @@
 ---
 name: wiki-manager
-version: "1.0.0"
+version: 1.1.0
+license: MIT
 description: |
   Invoked via `/wiki-manager`. Initializes, queries, and maintains the LLM Wiki (wiki/) — the central documentation hub for the SDLC pipeline. Manages wiki/registry.yaml, wiki/SYSTEM.md, wiki/DESIGN.md, wiki/log.md, and feature module directories. Does not gather requirements, write implementation code, or conduct reviews — only maintains the persistent knowledge base that other SDLC skills read from and write to.
 ---
@@ -109,6 +110,7 @@ Before starting any requirement, design, or coding task:
 - Include YAML frontmatter (`id`, `title`, `status`, `derived_to`).
 - Follow schemas in `references/schemas.md` and templates in `references/templates.md`.
 - Update `wiki/registry.yaml` under `modules.<module_id>.artifacts`.
+- Set `modules.<module_id>.description`: a summary sentence of at least 100 characters about what the module does (semantic-search text, never just the title). `lint` enforces this.
 - Append an entry to `wiki/log.md`.
 
 ### 4. Store Technical Design (`WRITE_DESIGN`)
@@ -140,7 +142,15 @@ Before starting any requirement, design, or coding task:
 - Set status: `APPROVED` or `CHANGES_REQUESTED` (quality), `PASS` or `FAIL` (security).
 - Append an entry to `wiki/log.md`.
 
-### 8. Lint Wiki (`VALIDATE_LINT`)
+### 8. Create Module, Log, Complete (`NEW_MODULE`, `LOG`, `COMPLETE`)
+```bash
+python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py new <feature-slug>          # next free NNN-<slug> folder
+python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py log "<Agent>" "<message>"   # append to wiki/log.md
+python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py status <module-id> completed  # after user final confirmation
+```
+- `sync` preserves the status, so `completed` is only set by `status` (run it once the user confirms the feature after both reviews pass).
+
+### 9. Lint Wiki (`VALIDATE_LINT`)
 Check cross-link integrity and frontmatter compliance:
 ```bash
 python <SKILLS_DIR>/wiki-manager/scripts/wiki_tool.py lint
