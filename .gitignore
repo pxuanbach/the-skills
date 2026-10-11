@@ -34,3 +34,4 @@ node_modules/
 *.tmp
 *.bak
 docs/paper_summary
+docs/paper_draft

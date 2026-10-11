@@ -1,0 +1,32 @@
+{
+  "_comment": "Scanner registry. Profiles reference scanners by id. `builtin` scanners are the stdlib-only scripts in scripts/ and are always available; the others are optional CLIs resolved on PATH by plan_scan.py.",
+  "scanners": {
+    "builtin-python": {
+      "role": "sast",
+      "builtin": true,
+      "script": "scripts/scan_python.py"
+    },
+    "builtin-js": {
+      "role": "sast",
+      "builtin": true,
+      "script": "scripts/scan_js.py"
+    },
+    "builtin-secrets": {
+      "role": "secrets",
+      "builtin": true,
+      "script": "scripts/scan_secrets.py"
+    },
+    "npm-audit": {
+      "role": "deps",
+      "binaries": ["npm"],
+      "requires_any_file": ["package-lock.json"],
+      "install": "Ships with Node.js"
+    },
+    "pip-audit": {
+      "role": "deps",
+      "binaries": ["pip-audit"],
+      "requires_any_file": ["requirements.txt"],
+      "install": "pip install pip-audit"
+    }
+  }
+}

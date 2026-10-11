@@ -18,6 +18,7 @@ iteration: 1
 - **Final Decision**: PASS / FAIL
 - **Iteration**: 1 of 3
 - **Audited Components**: API endpoints, DB queries, Auth middleware, Dependencies
+- **Scan Plan**: `scan-plan.json` — profiles: nextjs, fastapi; degraded categories: none
 - **Total Vulnerabilities Found**: 0 High, 0 Medium, 0 Low
 
 ## 10 Vulnerability Categories Scan Results
@@ -35,6 +36,15 @@ iteration: 1
 | 9 | Remote Code Execution (RCE) | PASS | No dynamic code execution |
 | 10| Cross-Site Scripting (XSS) | PASS | Output sanitization verified |
 
+## Automated Scan Triage
+
+Every high/medium finding from `findings.json` must appear here with a verdict (`confirmed` | `rejected` | `needs_validation`). A `confirmed` row needs `Verifier = upheld` (see `references/verification.md`).
+
+| ID | Rule | Severity | Location | Verdict | Verifier | Reason |
+|----|------|----------|----------|---------|----------|--------|
+| F-1a2b3c4d5e | PY-ROUTE-NOAUTH | high | `app/routers/items.py:12` | rejected | - | Router mounted with `dependencies=[Depends(get_current_user)]` in `main.py` |
+| F-9f8e7d6c5b | JS-ACTION-NOAUTH | high | `app/actions/item.ts:7` | confirmed | upheld | See finding 1 |
+
 ## False Positive & Low-Impact Filter Log
 - **Filtered Items**:
   - `[Ignored]`: DoS concern on bulk search endpoint (Infrastructure-level control).
@@ -42,8 +52,15 @@ iteration: 1
 ## Actionable Security Findings (if status = FAIL)
 
 ### High / Medium Severity Vulnerabilities
-1. **[Vulnerability Category]**: <Description>
-   - **Location**: `file_path.py:L42`
-   - **Impact**: <Potential impact>
-   - **Required Remediation**: <Specific fix for Constructor>
+Each finding needs all fields below (validator-enforced). Field rules: `references/verification.md`.
+
+1. **[Authentication & Authorization]**: Server Action deletes items without an ownership check
+   - **ID**: F-9f8e7d6c5b
+   - **Location**: `app/actions/item.ts:7`
+   - **Attacker**: Any logged-in user
+   - **Entry Point**: Server Action `deleteItem(id)` (callable directly as POST)
+   - **Boundary**: Ownership check missing — `db.item.delete({ where: { id } })` has no `userId` filter
+   - **Impact**: Delete any other user's items
+   - **Verification**: upheld — trace `app/actions/item.ts:7` → `lib/db.ts:31`
+   - **Required Remediation**: Add `userId: session.user.id` to the `where` clause and return 404 when no row matches
 ```

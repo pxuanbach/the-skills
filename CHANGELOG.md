@@ -2,6 +2,42 @@
 
 All notable changes to this skill are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.7.0] — 2026-10-11
+
+### Added
+- **`write-paper`** `1.0.0`: plan, draft, revise, and polish scientific papers (ML / CV / graphics conference style). Modes: Plan, Draft, Revise, Final push, Polish. Hard rule: never invent results, numbers, or citations (`[TODO]` placeholders instead).
+  - `references/pre-writing-questions.md` — pre-writing questions, Goal → Problem → Solution story, the nugget.
+  - `references/section-guides.md` — title, acronym, abstract skeleton, teaser, introduction, method/equations, experiments, related work, figures, conclusion, supplementary/video.
+  - `references/style-rules.md` — line-level lint (concision, voice, tense, consistency, citations).
+  - `references/latex-and-submission-checklist.md` — LaTeX, bibliography, layout, proofreading, supplementary checklist.
+  - `examples/sample-paper-brief.md` — sample Step 1 paper brief.
+  - Based on Michael J. Black's essay *Writing a good scientific paper* (paraphrased).
+
+### Fixed
+- **`security-reviewer`**: `JS-CMDI` now flags `exec(<variable>)` / `child_process.exec(<variable>)` (previously only string concatenation and template literals); `RegExp.exec()` is not flagged.
+
+### Added (tests)
+- **`security-reviewer`**: `scripts/test_scanners.py` and `examples/fixtures/{fastapi,nextjs}` — regression test asserting the expected rules fire.
+
+## [1.6.0] — 2026-10-01
+
+### Added
+- **`security-reviewer`**: code-first scanning, stdlib Python only (no external tools required).
+  - `scripts/plan_scan.py` — detects Next.js / FastAPI / generic projects (monorepo-aware, manifest + content sniffing), scopes files by `--diff <base-ref>` or `--files`, maps attack-surface hotspots and assigns every vulnerability category a coverage status. Writes `scan-plan.json`.
+  - `scripts/run_scan.py` — runs the scanners selected by the plan and writes `findings.json` (stable `F-<hash>` ids, verdict `untriaged`). Optional `npm audit` / `pip-audit` when installed; `--no-deps` skips them.
+  - `scripts/scan_python.py` — `ast`-based FastAPI/Python rules: routes without auth dependency (route / router / `include_router` / app level), SQLi, shell injection, eval, pickle/yaml, JWT verification, CORS, debug, TLS, weak hash/random, secrets in logs, HTML responses.
+  - `scripts/scan_js.py` — Next.js/JS/TS rules: Server Actions and route handlers without auth, raw SQL, shell, eval, XSS sinks, `NEXT_PUBLIC_` secrets, `jwt.decode`, CORS, TLS, open redirect, SSRF.
+  - `scripts/scan_secrets.py` — known key formats, secret assignments, tracked `.env` files; values masked in output.
+  - `references/profiles/{nextjs,fastapi,generic}.json`, `references/scanners.json`, `references/scan_profiles.md`, `references/scan_rules.md`. Per-repo overrides via `<target>/.security-reviewer.json`.
+- **`security-reviewer`**: finding claims and independent verification (adapted from cloudflare/security-audit-skill), documented in `references/verification.md`.
+  - Every high/medium `confirmed` / `needs_validation` finding states **Attacker**, **Entry Point**, **Boundary**, **Impact**; findings without a concrete attacker and impact are rejected.
+  - Step 2c: each high/medium finding to be confirmed goes to a fresh verifier sub-agent that tries to disprove it (`upheld` → confirmed, `disproved` → rejected, `unresolved` → needs_validation). Fallback without delegation: separate pass marked `upheld (self)`.
+- `notes/security-reviewer-scan-engine.md` — research on alibaba/open-code-review and cloudflare/security-audit-skill, and why the engine is built-in Python instead of Opengrep/Semgrep.
+
+### Changed
+- **`security-reviewer`** `1.1.0 → 1.2.0`: Step 1 runs `plan_scan.py` + `run_scan.py`; Step 2 starts with triage of `findings.json` (`confirmed` / `rejected` / `needs_validation`), then a manual audit scoped by hotspots and coverage status. Report template adds `## Automated Scan Triage`.
+- `validate_security_review.py` fails when a high/medium finding in `findings.json` has no verdict in the report, a `confirmed` row lacks `Verifier = upheld`, a `PASS` report contains a confirmed high/medium finding, a `FAIL` report lists no actionable finding, or an actionable finding misses a claim field or an `upheld` verification.
+
 ## [1.5.0] — 2026-10-01
 
 ### Added
