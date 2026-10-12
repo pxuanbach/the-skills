@@ -1,0 +1,18 @@
+{
+  "id": "generic",
+  "description": "Always applied at the repository root: secrets and dependency scanning for any stack.",
+  "detect": { "always": true },
+  "include": ["**/*"],
+  "exclude": ["**/.git/**", "**/node_modules/**", "**/.venv/**", "**/venv/**", "**/.next/**", "**/dist/**", "**/build/**"],
+  "scanners": {
+    "secrets": ["builtin-secrets"]
+  },
+  "settings": {},
+  "coverage": {
+    "data_exposure": "tool"
+  },
+  "hotspots": [
+    { "id": "env-file", "glob": "**/.env*", "category": "data_exposure", "why": "Committed env file; check for real secrets." },
+    { "id": "private-key", "glob": "**/*", "regex": "-----BEGIN [A-Z ]*PRIVATE KEY-----", "category": "data_exposure", "why": "Private key material in the repository." }
+  ]
+}

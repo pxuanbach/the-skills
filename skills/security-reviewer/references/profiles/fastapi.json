@@ -1,0 +1,40 @@
+{
+  "id": "fastapi",
+  "description": "FastAPI service (Python), typically with Pydantic and SQLAlchemy/SQLModel.",
+  "detect": {
+    "python_deps": ["fastapi"],
+    "content_sniff": { "glob": "**/*.py", "regex": "^\\s*(from fastapi\\b|import fastapi\\b)", "max_files": 300 }
+  },
+  "include": ["**/*.py", "**/requirements*.txt", "**/pyproject.toml", "**/.env*"],
+  "exclude": ["**/.venv/**", "**/venv/**", "**/__pycache__/**", "**/site-packages/**", "**/migrations/versions/**", "**/alembic/versions/**"],
+  "scanners": {
+    "sast": ["builtin-python"],
+    "deps": ["pip-audit"]
+  },
+  "settings": {
+    "auth_dependencies": ["get_current_user", "get_current_active_user", "require_user", "verify_token"],
+    "auth_pattern": "(?i)auth|current_user|current_active|jwt|bearer|token|permission|require_|verify_|api_key|login_required",
+    "public_routes": ["/health", "/healthz", "/login", "/token", "/docs", "/redoc", "/openapi.json"]
+  },
+  "coverage": {
+    "injection": "tool",
+    "authz": "tool+manual",
+    "data_exposure": "tool+manual",
+    "crypto": "tool",
+    "input_validation": "manual",
+    "business_logic": "manual",
+    "config": "tool",
+    "supply_chain": "tool",
+    "rce": "tool",
+    "xss": "tool"
+  },
+  "hotspots": [
+    { "id": "endpoint", "glob": "**/*.py", "regex": "@\\w+\\.(get|post|put|patch|delete|api_route|websocket)\\(", "category": "authz", "why": "HTTP endpoint; check auth dependency, ownership (IDOR), response_model." },
+    { "id": "router", "glob": "**/*.py", "regex": "\\bAPIRouter\\(", "category": "authz", "why": "Router-level dependencies=[...] may provide auth for all routes." },
+    { "id": "raw-sql", "glob": "**/*.py", "regex": "\\b(text|execute|exec_driver_sql)\\(\\s*f?['\"]", "category": "injection", "why": "Raw SQL; must be parameterized." },
+    { "id": "cors", "glob": "**/*.py", "regex": "CORSMiddleware", "category": "config", "why": "Check allow_origins together with allow_credentials." },
+    { "id": "jwt-decode", "glob": "**/*.py", "regex": "\\bjwt\\.decode\\(", "category": "authz", "why": "Check algorithms= and signature verification." },
+    { "id": "dangerous-call", "glob": "**/*.py", "regex": "\\b(pickle\\.loads?|yaml\\.load|eval|exec|subprocess\\.\\w+|os\\.system)\\(", "category": "rce", "why": "Code execution / deserialization sink." },
+    { "id": "settings", "glob": "**/{settings,config,core/config}.py", "category": "config", "why": "Secrets, DEBUG, docs exposure, cookie flags." }
+  ]
+}

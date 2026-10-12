@@ -1,0 +1,41 @@
+{
+  "id": "nextjs",
+  "description": "Next.js app (App Router and Pages Router), TypeScript/JavaScript.",
+  "detect": {
+    "any_files": ["next.config.js", "next.config.mjs", "next.config.ts", "next.config.cjs"],
+    "package_deps": ["next"]
+  },
+  "include": ["**/*.{ts,tsx,js,jsx,mjs,cjs}", "**/package.json", "**/.env*"],
+  "exclude": ["**/node_modules/**", "**/.next/**", "**/out/**", "**/dist/**", "**/build/**", "**/coverage/**", "**/*.min.js", "**/*.d.ts"],
+  "scanners": {
+    "sast": ["builtin-js"],
+    "deps": ["npm-audit"]
+  },
+  "settings": {
+    "auth_functions": ["auth", "getServerSession", "getSession", "currentUser", "validateRequest", "requireUser"],
+    "auth_pattern": "(?i)\\b\\w*(auth|session|currentuser|requireuser|verifytoken|getuser)\\w*\\s*\\(",
+    "public_routes": ["/api/health", "/api/auth/**"]
+  },
+  "coverage": {
+    "injection": "tool",
+    "authz": "tool+manual",
+    "data_exposure": "tool",
+    "crypto": "tool",
+    "input_validation": "manual",
+    "business_logic": "manual",
+    "config": "tool",
+    "supply_chain": "tool",
+    "rce": "tool",
+    "xss": "tool"
+  },
+  "hotspots": [
+    { "id": "route-handler", "glob": "**/app/**/route.{ts,js}", "category": "authz", "why": "Public HTTP endpoint; check auth, input validation, IDOR." },
+    { "id": "pages-api", "glob": "**/pages/api/**/*.{ts,js}", "category": "authz", "why": "Pages Router API endpoint; check auth and method handling." },
+    { "id": "server-action", "glob": "**/*.{ts,tsx,js,jsx}", "regex": "^\\s*['\"]use server['\"]", "category": "authz", "why": "Server Actions are POST endpoints callable directly; each export needs auth + validation." },
+    { "id": "middleware", "glob": "{middleware,src/middleware,proxy,src/proxy}.{ts,js}", "category": "authz", "why": "Auth gate; check matcher coverage and that it is not the only control." },
+    { "id": "dangerous-html", "glob": "**/*.{tsx,jsx}", "regex": "dangerouslySetInnerHTML", "category": "xss", "why": "Raw HTML sink; value must be sanitized." },
+    { "id": "public-secret-env", "glob": "**/*", "regex": "NEXT_PUBLIC_[A-Z0-9_]*(SECRET|TOKEN|PASSWORD|PRIVATE|API_KEY)", "category": "data_exposure", "why": "NEXT_PUBLIC_ vars are inlined into the client bundle." },
+    { "id": "server-fetch", "glob": "**/app/**/*.{ts,tsx,js,jsx}", "regex": "\\bfetch\\(\\s*[^'\"`\\s]", "category": "injection", "why": "Server-side fetch with a dynamic URL; check for SSRF." },
+    { "id": "next-config", "glob": "next.config.{js,mjs,ts,cjs}", "category": "config", "why": "Headers, images.remotePatterns, rewrites, serverActions.allowedOrigins." }
+  ]
+}

@@ -1,9 +1,9 @@
 ---
 name: security-reviewer
-version: 1.1.0
+version: 1.2.0
 license: MIT
 description: |
-  Invoked via `/security-reviewer`. Scans implementation code and dependencies across 10 vulnerability categories (injection, auth, data exposure, crypto, etc.) and issues a security pass/fail decision in wiki/<feature>/security-review.md. Filters false positives using a curated ruleset. Does not fix vulnerabilities, write code, or evaluate code style — only audits and reports security findings.
+  Invoked via `/security-reviewer`. Runs built-in Python scanners (FastAPI, Next.js, secrets) over implementation code and dependencies, triages their findings, audits the remaining risk across 10 vulnerability categories (injection, auth, data exposure, crypto, etc.), and issues a security pass/fail decision in wiki/<feature>/security-review.md. Does not fix vulnerabilities, write code, or evaluate code style — only audits and reports security findings.
 ---
 
 # Security Reviewer Skill
@@ -34,9 +34,9 @@ Audit source code and dependencies for vulnerabilities across 10 security catego
 ```
 [Constructor Diffs & evidence.md]
                ↓
-1. Discovery (Modified files & routes)
+1. Discovery & Automated Scan (plan_scan.py → run_scan.py → findings.json)
                ↓
-2. 10-Category Audit (references/vulnerability_catalog.md)
+2. Triage findings + 10-Category manual audit + independent verification
                ↓
 3. Filter Low-Impact Items (references/false_positive_rules.md)
                ↓
@@ -49,15 +49,36 @@ Audit source code and dependencies for vulnerabilities across 10 security catego
 
 ---
 
-### Step 1: Discovery
+### Step 1: Discovery & Automated Scan
+Code runs first, reading second: the scripts find stacks, attack surface and rule matches deterministically, and your reading in Step 2 is scoped by their output.
+
 1. Read `wiki/<NNN>-<feature>/plan.md` and `wiki/<NNN>-<feature>/evidence.md`.
-2. Find modified files, API routes, database models, and external dependencies.
-3. Check input handling, SQL generation, authentication checks, data serialization, and secret storage.
+2. Build the scan plan. Use `--diff <base-ref>` for the feature's changes, or omit it for a full scan:
+   ```bash
+   python <SKILLS_DIR>/security-reviewer/scripts/plan_scan.py <project-dir> --diff <base-ref> --out wiki/<NNN>-<feature>/scan-plan.json
+   ```
+3. Read the summary it prints. The plan is the source of truth for scope, not your own file search:
+   - **Projects**: detected stacks (`nextjs`, `fastapi`, `generic`) and their roots. Profiles and per-repo overrides are described in `references/scan_profiles.md`.
+   - **Hotspots**: attack-surface locations (route handlers, Server Actions, FastAPI endpoints, raw SQL, CORS, ...). Every hotspot must be reviewed in Step 2.
+   - **Coverage**: per category, `planned` (a built-in scanner covers it), `degraded` (scanner unavailable — review manually), or `manual`.
+   - **Unprofiled files**: changed files no framework profile covers — review them manually.
+4. Run the built-in scanners (stdlib Python, no installs). Add `--no-deps` to skip the optional `npm audit` / `pip-audit` registry lookup:
+   ```bash
+   python <SKILLS_DIR>/security-reviewer/scripts/run_scan.py wiki/<NNN>-<feature>/scan-plan.json
+   ```
+   This writes `wiki/<NNN>-<feature>/findings.json`. Rules per scanner are listed in `references/scan_rules.md`. Every finding starts as `untriaged`.
 
 ---
 
-### Step 2: 10-Category Vulnerability Analysis
-Scan code for issues in `references/vulnerability_catalog.md`:
+### Step 2: Triage & 10-Category Vulnerability Analysis
+**2a. Triage automated findings.** For each finding in `findings.json`, open the code at `file:line` and decide:
+- `confirmed` — the input is attacker-reachable and the impact is real. Fill the four claim fields (**Attacker**, **Entry Point**, **Boundary**, **Impact**) from `references/verification.md`; if Attacker or Impact cannot be made concrete, reject instead.
+- `rejected` — with a one-line reason (e.g. "auth enforced by middleware matcher `/api/:path*`", "value is a constant").
+- `needs_validation` — the deciding fact is outside the source (deployment config, proxy, IdP).
+
+Record every high/medium finding in the report's `## Automated Scan Triage` table; the validator fails on any that are missing.
+
+**2b. Manual audit.** Scan code for issues in `references/vulnerability_catalog.md`. Scope comes from `scan-plan.json`: review every hotspot, and read code yourself for each category whose coverage status is `degraded` or `manual`, or whose owner is `tool+manual` (authorization, IDOR and business logic cannot be decided by pattern matching).
 
 1. **Injection Attacks**: SQLi, Command Injection, LDAP, XPath, NoSQL, XXE.
 2. **Authentication & Authorization**: Broken auth, privilege escalation, IDOR, session flaws.
@@ -74,8 +95,10 @@ Scan code for issues in `references/vulnerability_catalog.md`:
 - Split scan scope across 2 subagents when inspecting extensive codebases:
   - Subagent A: injection, auth, data exposure, cryptography.
   - Subagent B: input validation, business logic, configuration, supply chain, RCE, XSS.
-- Each subagent returns: `category`, `file`, `line`, `description`, `severity`.
+- Each subagent returns: `category`, `file`, `line`, `severity`, `attacker`, `entry_point`, `boundary`, `impact`.
 - Merge findings and filter false positives in the main agent.
+
+**2c. Independent verification.** Every high/medium finding you want to mark `confirmed` (from 2a or 2b) goes to a fresh verifier sub-agent whose only job is to disprove it. A different agent from the one that found it confirms it, which removes confirmation bias. Use the prompt and verdict mapping in `references/verification.md`: `upheld` → `confirmed`, `disproved` → `rejected`, `unresolved` → `needs_validation`. Only `upheld` findings can make the status `FAIL`.
 
 ---
 
