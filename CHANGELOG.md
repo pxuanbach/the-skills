@@ -2,6 +2,11 @@
 
 All notable changes to this skill are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.8.0] — 2026-10-22
+
+### Added
+- **`review-skill` — optional "Content Consistency & Clarity" dimension.** Checks for LLM-confusing passages, internal contradictions, implausible step order, and redundant rules. Reported as an optional row in Dimension Assessments and as an optional checklist item. `version: 1.4.0 → 1.5.0`.
+
 ## [1.7.0] — 2026-10-11
 
 ### Added

@@ -4,7 +4,7 @@ description: |
   Review and validate Agent Skills for consistency, completeness, and quality.
   Use when the user asks to review a skill, check skill quality, validate skill structure, or audit an existing skill in the repository.
   Do NOT use for general application code reviews or software QA testing.
-version: 1.4.0
+version: 1.5.0
 license: MIT
 ---
 
@@ -52,6 +52,7 @@ Identify the components of the skill under review:
 - Instruction clarity, tone, and rationale
 - Supporting directories (`references/`, `scripts/`, `assets/`, `examples/` if present)
 - Eval readiness and testability
+- Content consistency and clarity (optional, see its dimension below)
 
 ### 2. Review Dimensions
 
@@ -90,6 +91,19 @@ Map every check to one of the four failure modes below; a skill that fails any o
 - **Regression.** Adding the skill causes zero measurable drops in the existing library suite; verify by running the suite before and after install.
 - **Token Budget.** Co-loaded with 5 to 15 frequently-active skills, the skill's body does not degrade unrelated turns (target body ≤5,000 tokens; describe what was measured).
 
+**Content Consistency & Clarity (Optional)**
+
+This dimension is optional and runs after the mandatory ones, on request or after a recent edit. It depends on the domain and workflow the skill encodes, so it is a judgment pass, not a mechanical rule. Quote the conflicting text in every finding.
+
+- **LLM confusion.** Read the skill as the executing model would. Flag passages that can be read two ways, give conflicting steps for the same case, or refer to terms, sections, or files that are not defined anywhere.
+- **Internal consistency.** Terms, step names, output fields, status values, and file names match across `SKILL.md`, `references/`, `assets/`, and `scripts/`. Flag contradictions, such as a section that requires a field no step produces.
+- **Plausibility.** Steps run in a logical order, thresholds and limits agree with each other, and the workflow fits the domain. Flag steps whose prerequisites appear later in the flow or are not produced at all.
+- **Redundancy.** The same rule, definition, or example appears in more than one place. Keep one canonical copy and replace the others with a pointer to it.
+
+*Rationale:* a model follows whatever text it reads, so a contradiction yields unpredictable behavior instead of an obvious error. Duplicate copies also drift apart over time, and the drifted copy then contradicts the canonical one.
+
+Severity follows Section 3: contradictions that change behavior are **High**, ambiguity is **Medium**, redundancy is **Low**.
+
 ### 3. Evidence Collection
 Document each finding with:
 - File path and line number reference
@@ -118,6 +132,7 @@ Brief summary of the skill's purpose and overall assessment.
 - **Instruction Clarity & Rationale:** [Pass / Needs Improvement / Fail] — Details
 - **Script & Tool Hygiene:** [Pass / Needs Improvement / Fail / N/A] — Details
 - **Testability & Eval Readiness:** [Pass / Needs Improvement / Fail] — Details
+- **Content Consistency & Clarity (Optional):** [Pass / Needs Improvement / Fail / Skipped] — Details
 
 ## 3. Findings
 
@@ -194,5 +209,6 @@ skills/
 - [ ] Execution coverage: golden dataset + JSON eval cases produce expected outputs and trajectories
 - [ ] Regression coverage: existing library suite shows no drops when this skill is added
 - [ ] Token-budget coverage: skill body ≤5,000 tokens; verified under co-loaded conditions
+- [ ] (Optional) Content consistency pass run: no ambiguous passages, no contradictions, every repeated rule has one canonical source
 - [ ] Deployment Readiness section (see above) all cleared
 - [ ] None of the Skill Smells (see dedicated section above)
