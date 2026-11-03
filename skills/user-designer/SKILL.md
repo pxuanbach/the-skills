@@ -1,6 +1,6 @@
 ---
 name: user-designer
-version: 1.1.0
+version: 1.2.0
 license: MIT
 description: |
   Invoked via `/user-designer DESIGN` or `/user-designer PLAN`. Transforms approved requirements into technical architecture (design.md), UI/UX mockups (ASCII or HTML), API contracts, data models, and implementation task breakdowns (plan.md). Does not gather requirements, write implementation code, or conduct reviews — only produces the technical specification layer between requirements and construction.
@@ -95,10 +95,18 @@ Ensure `wiki/<NNN>-<feature>/requirement.md` exists and is approved. If missing,
      - For each related module, also read its `requirement.md` and `design.md` (entities, flows, approved UI summary) so the new screens stay consistent with the existing product.
      - Open those modules' `mockup/*.md` (or `mockup/*.html`) files and reuse patterns: consistent header layout, button placement, table column order, empty-state copy, error toasts.
      - If no related modules exist, proceed standalone and document this in the mockup.
-  3. **Render the wireframe**:
+  3. **Ground in the real codebase (mandatory, never skip — never invent UI)**:
+     The wiki only describes the product; the source code is the truth. Before drawing, explore the actual frontend code:
+     - Locate the screens/routes/pages the feature touches or sits next to (use code search by feature/entity keywords, the router/navigation config, and the shared layout).
+     - Read the real components: layout/shell, nav, tables, forms, modals, buttons, empty/error/loading states, and the copy and labels they use.
+     - Read the real data shape the screen consumes (API client calls, types/schemas, i18n strings) so fields, columns, and statuses match what exists.
+     - For a change to an existing screen, the wireframe must reproduce the current layout and mark only the delta as new/changed.
+     - For a brand-new screen, build it from the existing components found above; any component that does not exist must be flagged as `NEW` with a reason.
+     - If no frontend code exists yet (greenfield) or the code cannot be found, say so explicitly in the mockup's `Codebase Evidence` section and tell the user the layout is an assumption. Never present guessed UI as existing UI.
+  4. **Render the wireframe**:
      - ASCII mode (this command): write `wiki/<NNN>-<feature>/mockup/<screen-slug>.md` per `references/ascii_wireframe_guide.md`.
      - HTML mode (`DESIGN html` command): write `mockup/<screen-slug>.html` per `references/html_prototype_guide.md`.
-  4. **Include in each mockup**: screen name, wireframe block, components, interactions, related requirements, and any prior module whose pattern was reused (cite module id).
+  5. **Include in each mockup**: screen name, wireframe block, components, interactions, related requirements, any prior module whose pattern was reused (cite module id), and a `Codebase Evidence` section listing the source files read (`path:line`) and which wireframe elements map to which existing component (or `NEW`).
 
 - **If Backend / API / CLI only:**
   1. Omit the `mockup/` folder.

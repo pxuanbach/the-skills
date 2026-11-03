@@ -86,4 +86,13 @@ derived_from:
 
 ## Related Requirements
 - `req-001`: <Requirement Title>
+
+## Codebase Evidence
+- Files read: `src/pages/tasks/TaskList.tsx:12-80`, `src/components/DataTable.tsx`
+- Existing components reused: `DataTable` (table), `PageHeader` (header)
+- NEW components (not in codebase): `BulkActionBar` — <why needed>
+- Changed vs current screen: <delta only, or "new screen">
+- Assumptions: <none | greenfield / code not found — layout is assumed>
 ```
+
+Rule: every element in the wireframe must trace to an existing component in `Codebase Evidence` or be marked `NEW`. A wireframe drawn without reading the real UI code is invalid.

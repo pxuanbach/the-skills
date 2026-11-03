@@ -112,6 +112,9 @@ def validate_mockups(mockup_dir):
             print(f"[WARN] Mockup '{m}': Missing 'id' frontmatter")
         else:
             print(f"[OK] Mockup '{m}' frontmatter valid (id: {meta['id']})")
+        if "codebase evidence" not in (body or "").lower():
+            print(f"[WARN] Mockup '{m}': Missing 'Codebase Evidence' section "
+                  "(wireframe may be invented instead of grounded in real code)")
 
 def main():
     if len(sys.argv) < 2:

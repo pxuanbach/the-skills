@@ -2,6 +2,11 @@
 
 All notable changes to this skill are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.9.0] — 2026-11-03
+
+### Fixed
+- **`user-designer` `1.1.0 → 1.2.0`**: DESIGN step no longer invents UI. Step 3 now has a mandatory "Ground in the real codebase" sub-step (explore real screens, components, labels, data shapes before drawing). Mockups (ASCII and HTML companion) require a `Codebase Evidence` section; unmatched elements must be marked `NEW`. `validate_plan_mockup.py` warns when the section is missing.
+
 ## [1.8.0] — 2026-10-22
 
 ### Added

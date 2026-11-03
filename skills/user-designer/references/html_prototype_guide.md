@@ -197,7 +197,15 @@ For each `*.html` screen, create a companion `*.md` summarizing components for n
 
 ## Reused From Prior Modules
 - `002-task-list`: header layout pattern.
+
+## Codebase Evidence
+- Files read: `src/pages/tasks/TaskList.tsx:12-80`
+- Existing components reused: `DataTable`, `PageHeader`
+- NEW components (not in codebase): `BulkActionBar` — <why>
+- Assumptions: <none | greenfield — layout is assumed>
 ```
+
+The prototype must mirror the real layout, components, labels, and data fields found in the source code (SKILL.md Step 3.3). Never invent UI that contradicts or ignores existing screens.
 
 This companion file is what `validate_plan_mockup.py` scans — it ensures each HTML mockup has a traceable Markdown summary.
 
