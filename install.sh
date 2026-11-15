@@ -22,9 +22,11 @@ NC='\033[0m'
 # Fallback skills
 FALLBACK_SKILLS=(
   "antigravity-cli"
+  "clarify-and-prompt"
   "constructor"
   "init-agents"
   "quality-reviewer"
+  "read-paper"
   "requirement-analyzer"
   "research-workflow"
   "review-skill"
@@ -32,6 +34,7 @@ FALLBACK_SKILLS=(
   "security-reviewer"
   "user-designer"
   "wiki-manager"
+  "write-paper"
 )
 
 # Parse args

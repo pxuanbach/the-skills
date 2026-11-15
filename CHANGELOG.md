@@ -10,6 +10,14 @@ All notable changes to this skill are documented here. The format follows [Keep 
 ### Fixed
 - **`review-skill`**: the report template's code fence was never closed, so the Skill Smells section rendered inside the template. Fence now closes properly.
 
+## [1.10.0] — 2026-11-15
+
+### Added
+- **`clarify-and-prompt`** `1.1.0`: clarify ambiguous requests using structured thinking frameworks (First Principles, 5 Whys, Jobs-to-be-Done, SCQA + MECE, Pre-mortem Inversion, Socratic Questioning) via bounded questions (3–5 per round, max 2 rounds), synthesize agreed decisions and assumptions, and generate a self-contained task prompt (starts with an Objective, no role/persona, not framed as a session handoff) for an AI agent across Coding, Architecture, Research, or Writing tasks.
+  - `references/question-frameworks.md` — Method Router, 5 core problem-clarification frameworks, golden 4-slot question composition template, and domain-specific question banks.
+  - `references/prompt-templates.md` — ready-to-fill prompt blueprints embedding SCQA, JTBD, MECE/Socratic criteria, and Pre-mortem guardrails.
+  - `examples/sample-session.md` — end-to-end sample clarification and prompt generation session.
+
 ## [1.9.0] — 2026-11-03
 
 ### Fixed

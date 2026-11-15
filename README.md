@@ -18,6 +18,7 @@ A small repo of AI agent skills — modular, each skill is self-contained with i
 | [research-workflow](skills/research-workflow/) | Structured 4-phase research workflow (problem framing → info gathering → analysis → report drafting) with parallel data collection, citation-grounded outputs, and reusable reference data for software comparisons, paper deep-dives, and PDF batch extraction. |
 | [screenshot](skills/screenshot/)               | Capture screenshots of web pages with stealth mode to bypass anti-bot detection. Saves images to `.temp/` in the current workspace. Supports Cloudflare-protected sites.                                                                                         |
 | [review-skill](skills/review-skill/)           | Review and validate Agent Skills for structural consistency, metadata accuracy, instruction clarity, and adherence to repo conventions.                                                                                                                |
+| [clarify-and-prompt](skills/clarify-and-prompt/) | Clarify ambiguous problems using structured thinking frameworks (First Principles, 5 Whys, JTBD, SCQA/MECE, Pre-mortem, Socratic) via bounded questions (3–5/round), synthesize decisions, and generate a complete, self-contained task prompt (Objective-first, no role) to give to an AI agent. |
 
 
 ### New SDLC Workflow - RAD (6 skills)

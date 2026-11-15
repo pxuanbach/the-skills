@@ -17,16 +17,19 @@ $Branch = "main"
 # Predefined fallback list if GitHub API is unavailable
 $FallbackSkills = @(
     "antigravity-cli",
+    "clarify-and-prompt",
     "constructor",
     "init-agents",
     "quality-reviewer",
+    "read-paper",
     "requirement-analyzer",
     "research-workflow",
     "review-skill",
     "screenshot",
     "security-reviewer",
     "user-designer",
-    "wiki-manager"
+    "wiki-manager",
+    "write-paper"
 )
 
 # Target Agent definitions

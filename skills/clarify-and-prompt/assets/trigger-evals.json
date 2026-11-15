@@ -1,0 +1,20 @@
+{
+  "skill": "clarify-and-prompt",
+  "cases": [
+    {"prompt": "I want to add a webhook feature to our order system. Help me clarify the requirements and write a detailed prompt for a coding agent.", "should_trigger": true},
+    {"prompt": "Làm rõ giúp tôi yêu cầu rồi tạo prompt đầy đủ context để đưa cho agent.", "should_trigger": true},
+    {"prompt": "My idea is vague: an app that helps teams review code faster. Ask me questions and turn it into a prompt.", "should_trigger": true},
+    {"prompt": "Refine this idea into a detailed prompt I can give to a research agent about vector databases.", "should_trigger": true},
+    {"prompt": "Add a webhook feature to the order system now.", "should_trigger": false, "reason": "immediate execution"},
+    {"prompt": "Write requirement.md for the checkout feature in the wiki.", "should_trigger": false, "reason": "formal SDLC documentation, use requirement-analyzer"},
+    {"prompt": "Fix the null pointer in src/auth.ts line 42.", "should_trigger": false, "reason": "clear task, no clarification needed"},
+    {"prompt": "Summarize this arXiv paper for me.", "should_trigger": false, "reason": "use read-paper"}
+  ],
+  "output_checks": [
+    "Generated prompt opens with an Objective section",
+    "Generated prompt contains no role or persona line (e.g. 'You are a ...')",
+    "Generated prompt contains no 'as discussed', 'previously', 'continuing from', or 'handoff'",
+    "Interview has 3-5 questions per round, at most 2 rounds, each with a recommended default",
+    "Prompt includes Non-Goals and Acceptance Criteria sections"
+  ]
+}
