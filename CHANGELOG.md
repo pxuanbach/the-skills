@@ -2,6 +2,14 @@
 
 All notable changes to this skill are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.11.0] — 2026-11-15
+
+### Changed
+- **`review-skill` `1.5.0 → 1.6.0`**: review report is now easier to scan. Verdict, finding counts, and a 3-item "Fix first" list come first; dimensions become a one-line-per-row scoreboard table; findings get IDs (`C1`, `H1`, ...) with one issue line and one fix line; the duplicate "Actionable Recommendations" section is replaced by a short "Fix order". Added explicit verdict rules and presentation rules. The report template and worked example moved to `assets/report-template.md`; Skill Smells and Deployment Readiness moved to `references/smells-and-readiness.md` (progressive disclosure).
+
+### Fixed
+- **`review-skill`**: the report template's code fence was never closed, so the Skill Smells section rendered inside the template. Fence now closes properly.
+
 ## [1.9.0] — 2026-11-03
 
 ### Fixed

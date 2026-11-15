@@ -4,7 +4,7 @@ description: |
   Review and validate Agent Skills for consistency, completeness, and quality.
   Use when the user asks to review a skill, check skill quality, validate skill structure, or audit an existing skill in the repository.
   Do NOT use for general application code reviews or software QA testing.
-version: 1.5.0
+version: 1.6.0
 license: MIT
 ---
 
@@ -43,7 +43,7 @@ Run the structural linter before any manual review:
 python skills/review-skill/scripts/validate_skill.py <skill_dir>
 ```
 
-If it reports errors, include the linter output in the review report under **Mechanical Checks**. Fixes to the skill must pass the linter before the review is considered complete.
+If it reports errors, turn each `[ERROR]` line into a finding and show only the error/warning counts in the report header (see Report Structure). Fixes to the skill must pass the linter before the review is considered complete.
 
 ### 1. Scope Definition
 Identify the components of the skill under review:
@@ -117,62 +117,25 @@ Document each finding with:
 
 ### 4. Report Structure
 
-```markdown
-# Skill Review Report: <skill-name>
-**Location:** `/path/to/skill`
-**Review Date:** YYYY-MM-DD
-**Overall Status:** [APPROVED / APPROVED WITH CONDITIONS / REJECTED]
+Write the report so a reader who stops after the first screen still knows the verdict and what to fix first. Reviews are read by busy authors; a verdict buried under dimension prose gets skipped, and the same fix listed in two sections gets applied twice or not at all.
 
-## 1. Executive Summary
-Brief summary of the skill's purpose and overall assessment.
+**Presentation rules**
+- Order is fixed: verdict, scoreboard, findings, fix order, optional notes. Details come after the verdict so the reader can stop early.
+- Give every finding an ID (`C1`, `H1`, `M1`, `L1`). Other sections refer to IDs instead of repeating the text.
+- Describe each finding in one issue line and one fix line. Quote the offending text only when the problem is ambiguity or contradiction.
+- Omit empty severity groups and `N/A` dimensions. A short report with nothing to say beats a full template with blank headings.
+- Cap the "Fix first" list at 3 items and the scoreboard "Note" column at one short phrase. Longer reasoning belongs in the finding it describes.
+- Do not paste the full linter output. Give counts, and list only the `[ERROR]` lines as findings.
+- Use plain status words (`Pass`, `Needs work`, `Fail`) and add no emoji unless the user asks.
 
-## 2. Dimension Assessments
-- **Metadata & Routing:** [Pass / Needs Improvement / Fail] — Details
-- **Progressive Disclosure & Token Budget:** [Pass / Needs Improvement / Fail] — Details
-- **Instruction Clarity & Rationale:** [Pass / Needs Improvement / Fail] — Details
-- **Script & Tool Hygiene:** [Pass / Needs Improvement / Fail / N/A] — Details
-- **Testability & Eval Readiness:** [Pass / Needs Improvement / Fail] — Details
-- **Content Consistency & Clarity (Optional):** [Pass / Needs Improvement / Fail / Skipped] — Details
+**Verdict rules** (so the status is not a judgment call)
+- `REJECTED`: any Critical finding, or the linter reports errors.
+- `APPROVED WITH CONDITIONS`: no Critical, at least one High or Medium finding.
+- `APPROVED`: only Low findings or none.
 
-## 3. Findings
+Load `assets/report-template.md` for the exact template and a worked example before writing the report.
 
-### Critical
-- **[File:Line]**: Issue description and required remediation.
-
-### High
-- **[File:Line]**: Issue description and required remediation.
-
-### Medium
-- **[File:Line]**: Suggestion for improvement.
-
-### Low
-- **[File:Line]**: Minor polish recommendation.
-
-## 4. Actionable Recommendations
-Prioritized checklist of changes required before publishing or deployment.
-
-## Skill Smells (Anti-Patterns)
-
-If the skill under review shows any of these patterns, flag it. Sourced from the Agent Skills cheatsheet.
-
-- **Over 5,000 words in `SKILL.md`.** Probably two skills, or reference material that belongs in `references/`.
-- **Two domain teams could plausibly own it.** Not yet decomposed. Split along team boundaries.
-- **You can't write three test cases for it.** Description is too vague; the skill does too many things.
-- **It does not reference any other resource.** May be a long instruction that belongs in the system prompt.
-- **It keeps growing "edge cases" sections.** Each edge case probably wants its own skill.
-- **Description starts with "a helpful skill for...".** Rewrite — the description should name the trigger, the inputs, and the output.
-
-## Deployment Readiness
-
-A skill is shippable only when every box clears. This is a separate gate from review: review checks the artifact, this section checks the rollout path.
-
-- [ ] Frontmatter lints cleanly (no schema warnings)
-- [ ] Description reviewed by someone other than the author (second-pass bias check)
-- [ ] Scripts have unit tests passing in CI
-- [ ] Eval suite passes in CI with a documented min-pass threshold
-- [ ] Security scan clean (no secrets, no untrusted third-party deps)
-- [ ] Cross-tool install paths tested if shipping publicly (at least 2 of: Claude Code, Codex CLI, Antigravity, OpenCode)
-- [ ] Org-level admin provisioning updated where applicable (allowed-tools, scope, skill overrides)
+**Optional checks.** Load `references/smells-and-readiness.md` to check Skill Smells (anti-patterns) and Deployment Readiness (rollout gate). Mention hits in one line under `Also noted`.
 
 ## Repo Skill Conventions
 
@@ -197,7 +160,7 @@ skills/
 - [ ] Frontmatter has `name`, `description`, `version`
 - [ ] Description includes **What**, **When to use**, and **When NOT to use** (Anti-trigger)
 - [ ] Description length stays within routing budget (≤1024 chars YAML, ~50 words target)
-- [ ] Description front-loads action verbs and avoids generic filler (never starts with "a helpful skill for...")
+- [ ] Description front-loads action verbs and avoids generic filler (does not start with "a helpful skill for...")
 - [ ] SKILL.md body is concise (<5,000 words) and follows progressive disclosure
 - [ ] Deterministic logic is offloaded to `scripts/` with usage docs and parameterization
 - [ ] Templates/schemas are located in `assets/`, deep context in `references/`
@@ -210,5 +173,6 @@ skills/
 - [ ] Regression coverage: existing library suite shows no drops when this skill is added
 - [ ] Token-budget coverage: skill body ≤5,000 tokens; verified under co-loaded conditions
 - [ ] (Optional) Content consistency pass run: no ambiguous passages, no contradictions, every repeated rule has one canonical source
-- [ ] Deployment Readiness section (see above) all cleared
-- [ ] None of the Skill Smells (see dedicated section above)
+- [ ] Report follows Report Structure: verdict first, finding IDs, one issue line + one fix line each, no empty sections
+- [ ] Deployment Readiness (`references/smells-and-readiness.md`) all cleared
+- [ ] None of the Skill Smells (`references/smells-and-readiness.md`)
